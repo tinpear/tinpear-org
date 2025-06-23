@@ -1,13 +1,15 @@
 export const metadata = {
-  title: "Sign Up - Simple",
-  description: "Page description",
+  title: "Sign Up - TinPear",
+  description: "Create your TinPear account",
 };
+
+import Link from "next/link";
 
 export default function SignUp() {
   return (
     <>
       <div className="mb-10">
-        <h1 className="text-4xl font-bold">Create your account</h1>
+        <h1 className="text-4xl font-bold">Create an account</h1>
       </div>
 
       {/* Form */}
@@ -18,13 +20,13 @@ export default function SignUp() {
               className="mb-1 block text-sm font-medium text-gray-700"
               htmlFor="name"
             >
-              Full name
+              Name
             </label>
             <input
               id="name"
               className="form-input w-full py-2"
               type="text"
-              placeholder="Corey Barker"
+              placeholder="Jane Doe"
               required
             />
           </div>
@@ -39,22 +41,7 @@ export default function SignUp() {
               id="email"
               className="form-input w-full py-2"
               type="email"
-              placeholder="corybarker@email.com"
-              required
-            />
-          </div>
-          <div>
-            <label
-              className="mb-1 block text-sm font-medium text-gray-700"
-              htmlFor="phone"
-            >
-              Phone
-            </label>
-            <input
-              id="phone"
-              className="form-input w-full py-2"
-              type="text"
-              placeholder="(+750) 932-8907"
+              placeholder="janedoe@email.com"
               required
             />
           </div>
@@ -69,41 +56,29 @@ export default function SignUp() {
               id="password"
               className="form-input w-full py-2"
               type="password"
-              autoComplete="on"
               placeholder="••••••••"
               required
             />
           </div>
         </div>
-        <div className="mt-6 space-y-3">
-          <button className="btn w-full bg-linear-to-t from-blue-600 to-blue-500 bg-[length:100%_100%] bg-[bottom] text-white shadow-sm hover:bg-[length:100%_150%]">
-            Register
-          </button>
-          <div className="text-center text-sm italic text-gray-400">Or</div>
-          <button className="btn w-full bg-linear-to-t from-gray-900 to-gray-700 bg-[length:100%_100%] bg-[bottom] text-white shadow-sm hover:bg-[length:100%_150%]">
-            Continue with GitHub
+
+        <div className="mt-6">
+          <button className="btn w-full bg-gradient-to-t from-blue-600 to-blue-500 text-white shadow-sm hover:bg-[length:100%_150%]">
+            Sign Up
           </button>
         </div>
       </form>
 
       {/* Bottom link */}
       <div className="mt-6 text-center">
-        <p className="text-sm text-gray-500">
-          By signing up, you agree to the{" "}
-          <a
-            className="whitespace-nowrap font-medium text-gray-700 underline hover:no-underline"
-            href="#0"
+        <p className="text-sm text-gray-700">
+          Already have an account?{" "}
+          <Link
+            className="text-blue-600 underline hover:no-underline"
+            href="/sign-in"
           >
-            Terms of Service
-          </a>{" "}
-          and{" "}
-          <a
-            className="whitespace-nowrap font-medium text-gray-700 underline hover:no-underline"
-            href="#0"
-          >
-            Privacy Policy
-          </a>
-          .
+            Sign in
+          </Link>
         </p>
       </div>
     </>

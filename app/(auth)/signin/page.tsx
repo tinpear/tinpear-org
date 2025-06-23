@@ -1,68 +1,65 @@
 export const metadata = {
-  title: "Sign In - Simple",
-  description: "Page description",
+  title: "Sign In - Tinpear",
+  description: "Sign in to your Tinpear account.",
 };
 
 import Link from "next/link";
 
 export default function SignIn() {
   return (
-    <>
-      <>
-        <div className="mb-10">
-          <h1 className="text-4xl font-bold">Sign in to your account</h1>
-        </div>
-        {/* Form */}
-        <form>
-          <div className="space-y-4">
-            <div>
-              <label
-                className="mb-1 block text-sm font-medium text-gray-700"
-                htmlFor="email"
-              >
-                Email
-              </label>
-              <input
-                id="email"
-                className="form-input w-full py-2"
-                type="email"
-                placeholder="corybarker@email.com"
-                required
-              />
-            </div>
-            <div>
-              <label
-                className="mb-1 block text-sm font-medium text-gray-700"
-                htmlFor="password"
-              >
-                Password
-              </label>
-              <input
-                id="password"
-                className="form-input w-full py-2"
-                type="password"
-                autoComplete="on"
-                placeholder="••••••••"
-                required
-              />
-            </div>
+    <div className="flex min-h-screen items-center justify-center px-4">
+      <div className="w-full max-w-md">
+        <h1 className="mb-6 text-3xl font-bold text-gray-900">Sign in to Tinpear</h1>
+
+        <form className="space-y-4">
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              required
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              placeholder="you@tinpear.com"
+            />
           </div>
-          <div className="mt-6">
-            <button className="btn w-full bg-linear-to-t from-blue-600 to-blue-500 bg-[length:100%_100%] bg-[bottom] text-white shadow-sm hover:bg-[length:100%_150%]">
-              Sign In
-            </button>
+
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              required
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              placeholder="••••••••"
+            />
           </div>
-        </form>
-        {/* Bottom link */}
-        <div className="mt-6 text-center">
-          <Link
-            className="text-sm text-gray-700 underline hover:no-underline"
-            href="/reset-password"
+
+          <div className="flex items-center justify-between text-sm">
+            <Link href="/reset-password" className="text-blue-600 hover:underline">
+              Forgot password?
+            </Link>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full rounded-md bg-blue-600 py-2 text-white font-semibold hover:bg-blue-700 transition"
           >
-            Forgot password
+            Sign In
+          </button>
+        </form>
+
+        <p className="mt-6 text-center text-sm text-gray-600">
+          Don’t have an account?{" "}
+          <Link href="/signup" className="text-blue-600 hover:underline">
+            Sign up
           </Link>
-        </div>
-      </>
-    </>
+        </p>
+      </div>
+    </div>
   );
 }
+
