@@ -2,19 +2,19 @@ export default function TestimonialsSection() {
   const testimonials = [
     {
       name: "Samuel Johnson",
-      role: "Student, UI Lagos",
+      role: "Student",
       quote:
         "Tinpear made learning AI feel like a fun weekend project. I finally understand how machine learning works — and I built my first AI project!",
     },
     {
-      name: "Sailat Oduwole",
-      role: "Data Intern, YabaTech",
+      name: "Sailat Raheem",
+      role: "Data Intern",
       quote:
         "The courses are clear, visual, and surprisingly motivating. I finished 'Prompt Engineering' in one night and used it to build a chatbot.",
     },
     {
       name: "Aisha Bello",
-      role: "Product Designer, Abuja",
+      role: "Product Designer",
       quote:
         "Even without a coding background, I grasped deep learning concepts for the first time. Tinpear breaks it down beautifully.",
     },
