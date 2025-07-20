@@ -59,13 +59,13 @@ export default function HeroHome() {
           >
             <a
               className="btn w-full bg-gradient-to-r from-green-600 to-green-500 text-white shadow-sm transition-all hover:brightness-110 sm:w-auto"
-              href="#"
+              href="/learn"
             >
               Start Learning
             </a>
             <a
               className="btn w-full bg-white text-gray-800 shadow-sm hover:bg-gray-50 sm:w-auto"
-              href="#"
+              href="/apps"
             >
               For Businesses
             </a>

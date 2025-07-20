@@ -21,7 +21,7 @@ export default async function BlogPostPage({ params }: { params: Params }) {
   return (
     <>
       <Header />
-      <article className="max-w-3xl mx-auto px-4 py-12">
+      <article className="max-w-3xl mx-auto px-4 py-12 mt-10">
         <h1 className="text-4xl font-bold mb-4 text-gray-900">{blog.title}</h1>
         <p className="text-sm text-gray-500 mb-6">{blog.author} • {blog.date}</p>
         <div className="prose prose-lg max-w-none">

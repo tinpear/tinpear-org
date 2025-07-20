@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { PencilIcon, TrashIcon } from '@heroicons/react/24/solid';
 
 type Blog = {
-  id?: string; // optional for new records
+  id?: string;
   title: string;
   summary: string;
   author: string;
@@ -19,7 +19,7 @@ export default function BlogCMS() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState('');
-  
+
   const emptyForm: Blog = {
     title: '',
     summary: '',
@@ -28,9 +28,13 @@ export default function BlogCMS() {
     slug: '',
     content: '',
   };
+
   const [form, setForm] = useState<Blog>(emptyForm);
 
-  // Fetch all blogs
+  useEffect(() => {
+    fetchBlogs();
+  }, []);
+
   const fetchBlogs = async () => {
     const { data, error } = await supabase
       .from('blogs')
@@ -42,17 +46,12 @@ export default function BlogCMS() {
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchBlogs();
-  }, []);
-
-  // Submit blog
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
     const blogToSave = { ...form };
-    delete blogToSave.id; // prevent uuid error
+    delete blogToSave.id;
 
     if (editing && form.id) {
       const { error } = await supabase
@@ -77,6 +76,7 @@ export default function BlogCMS() {
 
   const handleDelete = async (id?: string) => {
     if (!id || !confirm('Delete this blog?')) return;
+
     const { error } = await supabase.from('blogs').delete().eq('id', id);
     if (error) return alert(error.message);
     setBlogs((prev) => prev.filter((b) => b.id !== id));
@@ -100,7 +100,9 @@ export default function BlogCMS() {
             >
               <div>
                 <h2 className="text-xl font-semibold text-gray-900">{b.title}</h2>
-                <p className="text-sm text-gray-500">{b.author} • {b.date}</p>
+                <p className="text-sm text-gray-500">
+                  {b.author} • {b.date}
+                </p>
               </div>
               <div className="flex gap-4 mt-2">
                 <button
@@ -142,7 +144,7 @@ export default function BlogCMS() {
                 id={key}
                 value={(form as any)[key]}
                 onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                className="w-full border rounded-md px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full border rounded-md px-3 py-2 text-sm shadow-sm focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
@@ -155,7 +157,7 @@ export default function BlogCMS() {
               value={form.content}
               onChange={(e) => setForm({ ...form, content: e.target.value })}
               rows={6}
-              className="w-full border rounded-md px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border rounded-md px-3 py-2 text-sm shadow-sm focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
