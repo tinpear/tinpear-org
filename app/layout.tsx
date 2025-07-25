@@ -1,6 +1,6 @@
 import "./css/style.css";
-
 import { Inter } from "next/font/google";
+import { Metadata } from "next"; // Import the Metadata type
 
 const inter = Inter({
   subsets: ["latin"],
@@ -8,7 +8,7 @@ const inter = Inter({
   display: "swap",
 });
 
-export const metadata = {
+export const metadata: Metadata = { // Add type annotation
   title: "Tinpear",
   description: "Tinpear Org",
 };

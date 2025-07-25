@@ -42,8 +42,8 @@ export default function Header() {
   };
 
   const navItems = [
-    { label: "News", href: "/news" },
     { label: "Learn", href: "/learn" },
+    { label: "News", href: "/news" },
     { label: "Labs", href: "/labs" },
     { label: "Apps", href: "/apps" },
     { label: "About", href: "/about" }

@@ -36,7 +36,7 @@ export default function TestimonialsSection() {
               <div className="text-sm text-gray-600 font-medium">
                 <span className="text-gray-800">{t.name}</span>{" "}
                 <span className="text-gray-400">/</span>{" "}
-                <span className="text-indigo-500">{t.role}</span>
+                <span className="text-green-500">{t.role}</span>
               </div>
             </div>
           ))}

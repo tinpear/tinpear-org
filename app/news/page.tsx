@@ -31,7 +31,7 @@ export default async function NewsPage() {
           <div className="block md:hidden text-center mb-4">
             <a
               href="#blog-section"
-              className="inline-block bg-blue-600 text-white text-sm font-medium py-2 px-4 rounded hover:bg-blue-700 transition"
+              className="inline-block bg-green-600 text-white text-sm font-medium py-2 px-4 rounded hover:bg-blue-700 transition"
             >
               ↓ Jump to Blogs
             </a>
@@ -40,7 +40,7 @@ export default async function NewsPage() {
           {/* Hero Section */}
           <section className="text-center space-y-3">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
-              Tech <span className="text-blue-600">News Hub</span>
+              Tech <span className="text-green-600">News Hub</span>
             </h1>
             <p className="text-lg text-gray-600">
               Stay ahead with the latest in tech and insights from our blog.
@@ -52,7 +52,7 @@ export default async function NewsPage() {
 
             {/* News Column */}
             <div>
-              <h2 className="text-2xl font-bold mb-6 text-gray-900">Latest News</h2>
+              <h2 className="text-2xl font-bold mb-6 text-gray-900">AI News</h2>
               <div className="space-y-6">
                 {news.map((item, idx) => (
                   <article
@@ -67,12 +67,12 @@ export default async function NewsPage() {
     />
     <div className="flex-1 min-w-0 w-full overflow-hidden">
       <div className="flex items-center gap-2 text-xs mb-1">
-        <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
+        <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded">
           {item.category || 'General'}
         </span>
         <span className="text-gray-500">{item.date}</span>
       </div>
-      <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 break-words">
+      <h3 className="text-lg font-semibold text-gray-900 group-hover:text-green-600 break-words">
         {item.title}
       </h3>
       <p className="text-sm text-gray-600 line-clamp-2 break-words">
@@ -82,7 +82,7 @@ export default async function NewsPage() {
         href={item.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-2 inline-block text-blue-600 hover:text-blue-700 text-sm font-medium"
+        className="mt-2 inline-block text-green-600 hover:text-green-700 text-sm font-medium"
       >
         Read more →
       </Link>
@@ -104,14 +104,14 @@ export default async function NewsPage() {
                     href={`/news/${blog.slug}`}
                     className="group block bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition"
                   >
-                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-700">
+                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-green-700">
                       {blog.title}
                     </h3>
                     <p className="text-sm text-gray-600 line-clamp-2">{blog.summary}</p>
                     <div className="text-xs text-gray-400 mt-2">
                       {blog.author} • {blog.date}
                     </div>
-                    <span className="inline-block mt-2 text-blue-600 text-sm font-medium group-hover:underline">
+                    <span className="inline-block mt-2 text-green-600 text-sm font-medium group-hover:underline">
                       Read more →
                     </span>
                   </Link>

@@ -3,180 +3,100 @@ import Logo from "./logo";
 
 export default function Footer({ border = false }: { border?: boolean }) {
   return (
-    <footer>
+    <footer className="bg-white">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        {/* Top area: Blocks */}
-        <div
-          className={`grid gap-10 py-8 sm:grid-cols-12 md:py-12 ${
-            border
-              ? "border-t [border-image:linear-gradient(to_right,transparent,var(--color-slate-200),transparent)1]"
-              : ""
-          }`}
-        >
-          {/* Logo and copyright */}
-          <div className="space-y-2 sm:col-span-12 lg:col-span-4">
-            <div>
-              <Logo />
-            </div>
-            <div className="text-sm text-gray-600">
+        {/* Footer content */}
+        <div className={`grid gap-8 py-12 sm:grid-cols-2 md:grid-cols-4 ${
+          border ? "border-t border-gray-200" : ""
+        }`}>
+          
+          {/* Column 1: Logo and copyright */}
+          <div className="space-y-4">
+            <Logo />
+            <p className="text-sm text-gray-500">
               &copy; {new Date().getFullYear()} Tinpear. All rights reserved.
-            </div>
+            </p>
           </div>
 
-          {/* Product */}
-          <div className="space-y-2 sm:col-span-6 md:col-span-3 lg:col-span-2">
-            <h3 className="text-sm font-medium">Product</h3>
-            <ul className="space-y-2 text-sm">
+          {/* Column 2: Products */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-gray-900">Products</h3>
+            <ul className="space-y-2">
               <li>
-                <Link href="/labs" className="text-gray-600 transition hover:text-gray-900">
+                <Link href="/learn" className="text-sm text-gray-500 hover:text-gray-900 transition">
+                  Learn
+                </Link>
+              </li>
+              <li>
+                <Link href="/labs" className="text-sm text-gray-500 hover:text-gray-900 transition">
                   Labs
                 </Link>
               </li>
               <li>
-                <Link href="/apps" className="text-gray-600 transition hover:text-gray-900">
-                  AI Apps
-                </Link>
-              </li>
-              <li>
-                <Link href="/pricing" className="text-gray-600 transition hover:text-gray-900">
-                  Pricing
-                </Link>
-              </li>
-              <li>
-                <Link href="/changelog" className="text-gray-600 transition hover:text-gray-900">
-                  Changelog
-                </Link>
-              </li>
-              <li>
-                <Link href="/how-it-works" className="text-gray-600 transition hover:text-gray-900">
-                  How it Works
+                <Link href="/apps" className="text-sm text-gray-500 hover:text-gray-900 transition">
+                  Apps
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Company */}
-          <div className="space-y-2 sm:col-span-6 md:col-span-3 lg:col-span-2">
-            <h3 className="text-sm font-medium">Company</h3>
-            <ul className="space-y-2 text-sm">
+          {/* Column 3: Company */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-gray-900">Company</h3>
+            <ul className="space-y-2">
               <li>
-                <Link href="/about" className="text-gray-600 transition hover:text-gray-900">
+                <Link href="/about" className="text-sm text-gray-500 hover:text-gray-900 transition">
                   About
                 </Link>
               </li>
               <li>
-                <Link href="/careers" className="text-gray-600 transition hover:text-gray-900">
-                  Careers
-                </Link>
-              </li>
-              <li>
-                <Link href="/blog" className="text-gray-600 transition hover:text-gray-900">
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link href="/partners" className="text-gray-600 transition hover:text-gray-900">
-                  Partners
-                </Link>
-              </li>
-              <li>
-                <Link href="/legal/financials" className="text-gray-600 transition hover:text-gray-900">
-                  Financials
+                <Link href="/news" className="text-sm text-gray-500 hover:text-gray-900 transition">
+                  News
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Resources */}
-          <div className="space-y-2 sm:col-span-6 md:col-span-3 lg:col-span-2">
-            <h3 className="text-sm font-medium">Resources</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/community" className="text-gray-600 transition hover:text-gray-900">
-                  Community
-                </Link>
-              </li>
-              <li>
-                <Link href="/terms" className="text-gray-600 transition hover:text-gray-900">
-                  Terms of Service
-                </Link>
-              </li>
-              <li>
-                <Link href="/security" className="text-gray-600 transition hover:text-gray-900">
-                  Report Vulnerability
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-         {/* 5th block */}
-<div className="space-y-2 sm:col-span-6 md:col-span-3 lg:col-span-2">
-  <h3 className="text-sm font-medium">Social</h3>
-  <ul className="flex gap-3">
-    {/* X */}
-    <li>
-      <Link
-        className="flex items-center justify-center text-blue-500 transition hover:text-blue-600"
-        href="https://x.com/yourprofile" // update this link
-        target="_blank"
-        aria-label="X"
-      >
-        <svg
+          {/* Column 4: Social Links */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-gray-900">Connect</h3>
+            <div className="flex space-x-4">
+              <Link 
+                href="https://x.com/TinpearAI" 
+                target="_blank"
+                className="text-gray-500 hover:text-gray-900 transition"
+                aria-label="Twitter"
+              >
+               <svg
           className="h-6 w-6 fill-current"
           viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg"
         >
           <path d="M20.938 3H17.66l-4.116 5.588L8.858 3H3l7.037 9.474L3 21h3.365l4.404-5.967L15.484 21H21l-7.262-9.783L20.938 3zM6.03 4.5h1.727l11.25 15h-1.746L6.03 4.5z" />
         </svg>
-      </Link>
-    </li>
-    {/* LinkedIn */}
-    <li>
-      <Link
-        className="flex items-center justify-center text-blue-700 transition hover:text-blue-800"
-        href="https://linkedin.com/in/yourprofile" // update this link
-        target="_blank"
-        aria-label="LinkedIn"
-      >
-        <svg
-          className="h-6 w-6 fill-current"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M4.98 3.5C4.98 4.88 3.88 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM0 8h5v16H0V8zm7.5 0H12v2.6h.1c.6-1.1 2.1-2.6 4.4-2.6C20 8 22 10 22 14v10h-5v-9c0-2-.7-3.3-2.5-3.3S12 12 12 14v9H7.5V8z" />
-        </svg>
-      </Link>
-    </li>
-    {/* Facebook */}
-    <li>
-      <Link
-        className="flex items-center justify-center text-blue-600 transition hover:text-blue-700"
-        href="https://facebook.com/yourpage" // update this link
-        target="_blank"
-        aria-label="Facebook"
-      >
-        <svg
-          className="h-6 w-6 fill-current"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M22 12a10 10 0 1 0-11.5 9.9v-7h-2v-2.9h2v-2.2c0-2 1.2-3.1 3-3.1.9 0 1.8.1 2.1.1v2.3h-1.2c-1.2 0-1.6.8-1.6 1.5v1.5h2.7l-.4 2.9h-2.3v7A10 10 0 0 0 22 12z" />
-        </svg>
-      </Link>
-    </li>
-  </ul>
-</div>
-
-        </div>
-      </div>
-
-      {/* Brand text background */}
-      <div className="relative -mt-16 h-60 w-full" aria-hidden="true">
-        <div className="pointer-events-none absolute left-1/2 -z-10 -translate-x-1/2 text-center text-[348px] font-bold leading-none before:bg-gradient-to-b before:from-gray-200 before:to-gray-100/30 before:bg-clip-text before:text-transparent before:content-['Tinpear'] after:absolute after:inset-0 after:bg-gray-300/70 after:bg-clip-text after:text-transparent after:mix-blend-darken after:content-['Tinpear'] after:[text-shadow:0_1px_0_white]"></div>
-
-        {/* Glow */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-2/3" aria-hidden="true">
-          <div className="h-56 w-56 rounded-full border-[20px] border-blue-700 blur-[80px]"></div>
+              </Link>
+              <Link 
+                href="https://www.linkedin.com/company/tinpear" 
+                target="_blank"
+                className="text-gray-500 hover:text-gray-900 transition"
+                aria-label="LinkedIn"
+              >
+                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                </svg>
+              </Link>
+              <Link 
+                href="https://www.facebook.com/share/16oyK1cA79/" 
+                target="_blank"
+                className="text-gray-500 hover:text-gray-900 transition"
+                aria-label="Facebook"
+              >
+                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" />
+                </svg>
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </footer>

@@ -33,7 +33,6 @@ export default function LearnPage() {
               >
                 Explore Learning Path <ChevronRight className="ml-2 h-4 w-4" />
               </Link>
-              
             </div>
           </section>
 
@@ -95,7 +94,11 @@ export default function LearnPage() {
                       "Regression & Classification Basics",
                       "Math for ML Concepts",
                       "Model Evaluation Fundamentals"
-                    ]
+                    ],
+                    action: {
+                      text: "Begin Course",
+                      href: "/learn/beginner"
+                    }
                   },
                   {
                     level: "Intermediate ML",
@@ -107,7 +110,12 @@ export default function LearnPage() {
                       "Clustering & Dimensionality Reduction",
                       "Feature Engineering",
                       "Intro to Deployment"
-                    ]
+                    ],
+                    action: {
+                      text: "Opens Aug 8, 2025",
+                      href: "#",
+                      disabled: true
+                    }
                   },
                   {
                     level: "Advanced ML",
@@ -119,7 +127,12 @@ export default function LearnPage() {
                       "Model Deployment (FastAPI/Streamlit)",
                       "MLOps Fundamentals",
                       "Capstone Projects"
-                    ]
+                    ],
+                    action: {
+                      text: "Opens Aug 28, 2025",
+                      href: "#",
+                      disabled: true
+                    }
                   }
                 ].map((stage, index) => (
                   <div key={index} className="flex flex-col md:flex-row gap-6">
@@ -151,12 +164,15 @@ export default function LearnPage() {
                       
                       <div className="flex flex-col sm:flex-row gap-3">
                         <Link
-                          href={`/learn/${stage.level.toLowerCase().split(' ')[0]}`}
-                          className="bg-gradient-to-r from-green-600 to-green-500 hover:brightness-110 text-white py-2.5 px-5 rounded-lg text-sm font-medium text-center transition-colors"
+                          href={stage.action.href}
+                          className={`py-2.5 px-5 rounded-lg text-sm font-medium text-center transition-colors ${
+                            stage.action.disabled 
+                              ? 'bg-gray-200 text-gray-600 cursor-not-allowed' 
+                              : 'bg-gradient-to-r from-green-600 to-green-500 hover:brightness-110 text-white'
+                          }`}
                         >
-                          Begin Course
+                          {stage.action.text}
                         </Link>
-                        
                       </div>
                     </div>
                   </div>
@@ -166,73 +182,71 @@ export default function LearnPage() {
           </section>
 
           {/* Testimonials */}
-          {/* Testimonials */}
-<section className="py-16 bg-gray-50">
-  <div className="max-w-6xl mx-auto px-4 sm:px-6">
-    <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">
-      Transformative <span className="text-green-600">Learning</span> Experiences
-    </h2>
-    
-    <div className="grid md:grid-cols-2 gap-8">
-      {/* Testimonial 1 - Career Changer */}
-      <div className="bg-white p-8 rounded-xl shadow-md border border-gray-100 transform hover:-translate-y-2 transition-transform duration-300">
-        <div className="flex items-center mb-4">
-          {[...Array(5)].map((_, i) => (
-            <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
-          ))}
-        </div>
-        <blockquote className="text-lg italic text-gray-700 mb-6">
-          "Coming from a non-tech background, I was intimidated by ML. Tinpear's 'learn-by-building' approach gave me the confidence to 
-          not just understand concepts, but implement them. Within 6 months, I transitioned from marketing to a junior ML engineer role."
-        </blockquote>
-        <div className="flex items-center">
-          <div className="relative w-14 h-14 rounded-full overflow-hidden bg-gradient-to-br from-green-100 to-green-50">
-            <div className="absolute inset-0 flex items-center justify-center text-green-600 font-bold">SD</div>
-          </div>
-          <div className="ml-4">
-            <h4 className="font-semibold text-gray-900">Sarah D.</h4>
-            <p className="text-sm text-gray-500">Former Marketing Specialist → ML Engineer </p>
-          </div>
-        </div>
-      </div>
+          <section className="py-16 bg-gray-50">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6">
+              <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">
+                Transformative <span className="text-green-600">Learning</span> Experiences
+              </h2>
+              
+              <div className="grid md:grid-cols-2 gap-8">
+                {/* Testimonial 1 - Career Changer */}
+                <div className="bg-white p-8 rounded-xl shadow-md border border-gray-100 transform hover:-translate-y-2 transition-transform duration-300">
+                  <div className="flex items-center mb-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
+                    ))}
+                  </div>
+                  <blockquote className="text-lg italic text-gray-700 mb-6">
+                    "Coming from a non-tech background, I was intimidated by ML. Tinpear's 'learn-by-building' approach gave me the confidence to 
+                    not just understand concepts, but implement them. Within 6 months, I transitioned from marketing to a junior ML engineer role."
+                  </blockquote>
+                  <div className="flex items-center">
+                    <div className="relative w-14 h-14 rounded-full overflow-hidden bg-gradient-to-br from-green-100 to-green-50">
+                      <div className="absolute inset-0 flex items-center justify-center text-green-600 font-bold">SD</div>
+                    </div>
+                    <div className="ml-4">
+                      <h4 className="font-semibold text-gray-900">Sarah D.</h4>
+                      <p className="text-sm text-gray-500">Former Marketing Specialist → ML Engineer </p>
+                    </div>
+                  </div>
+                </div>
 
-      {/* Testimonial 2 - Skill Accelerator */}
-      <div className="bg-white p-8 rounded-xl shadow-md border border-gray-100 transform hover:-translate-y-2 transition-transform duration-300">
-        <div className="flex items-center mb-4">
-          {[...Array(5)].map((_, i) => (
-            <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
-          ))}
-          <span className="ml-2 text-sm text-gray-500">Capstone Project</span>
-        </div>
-        <blockquote className="text-lg italic text-gray-700 mb-6">
-          "As a CS student, I knew theory but struggled with deployment. The end-to-end project guidance helped me build and deploy 
-          a sentiment analysis API that became my portfolio centerpiece. Recruiters specifically mentioned it during interviews!"
-        </blockquote>
-        <div className="flex items-center">
-          <div className="relative w-14 h-14 rounded-full overflow-hidden bg-gradient-to-br from-green-100 to-green-50">
-            <div className="absolute inset-0 flex items-center justify-center text-green-600 font-bold">RK</div>
-          </div>
-          <div className="ml-4">
-            <h4 className="font-semibold text-gray-900">Raj K.</h4>
-            <p className="text-sm text-gray-500">Computer Science Student → AI Research Intern</p>
-          </div>
-        </div>
-      </div>
-    </div>
+                {/* Testimonial 2 - Skill Accelerator */}
+                <div className="bg-white p-8 rounded-xl shadow-md border border-gray-100 transform hover:-translate-y-2 transition-transform duration-300">
+                  <div className="flex items-center mb-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
+                    ))}
+                    <span className="ml-2 text-sm text-gray-500">Capstone Project</span>
+                  </div>
+                  <blockquote className="text-lg italic text-gray-700 mb-6">
+                    "As a CS student, I knew theory but struggled with deployment. The end-to-end project guidance helped me build and deploy 
+                    a sentiment analysis API that became my portfolio centerpiece. Recruiters specifically mentioned it during interviews!"
+                  </blockquote>
+                  <div className="flex items-center">
+                    <div className="relative w-14 h-14 rounded-full overflow-hidden bg-gradient-to-br from-green-100 to-green-50">
+                      <div className="absolute inset-0 flex items-center justify-center text-green-600 font-bold">RK</div>
+                    </div>
+                    <div className="ml-4">
+                      <h4 className="font-semibold text-gray-900">Raj K.</h4>
+                      <p className="text-sm text-gray-500">Computer Science Student → AI Research Intern</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-    {/* Mini Case Study */}
-    <div className="mt-12 bg-gradient-to-r from-green-600 to-green-700 rounded-xl p-8 text-white">
-      <div className="max-w-3xl mx-auto text-center">
-        <h3 className="text-xl font-bold mb-3">From Learning to Earning</h3>
-        <p className="mb-5">
-          Our students report an average <span className="font-bold">2.3x increase</span> in job interview callbacks 
-          after completing projects from the curriculum
-        </p>
-        
-      </div>
-    </div>
-  </div>
-</section>
+              {/* Mini Case Study */}
+              <div className="mt-12 bg-gradient-to-r from-green-600 to-green-700 rounded-xl p-8 text-white">
+                <div className="max-w-3xl mx-auto text-center">
+                  <h3 className="text-xl font-bold mb-3">From Learning to Earning</h3>
+                  <p className="mb-5">
+                    Our students report an average <span className="font-bold">2.3x increase</span> in job interview callbacks 
+                    after completing projects from the curriculum
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
       </main>
       <Footer />
