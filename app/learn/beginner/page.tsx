@@ -106,7 +106,7 @@ export default function BeginnerMLCourse() {
               <div className="flex flex-col sm:flex-row gap-4">
                 {user ? (
                   <Link
-                    href="/learn/beginner/start"
+                    href="/course/week-1"
                     className="flex-1 flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-lg hover:shadow-md transition-all"
                   >
                     Start Learning Now <ChevronRight className="ml-2 h-4 w-4" />
@@ -209,7 +209,7 @@ export default function BeginnerMLCourse() {
           </p>
           {user ? (
             <Link
-              href="/learn/beginner/start"
+              href="/course/week-1"
               className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-green-600 to-green-500 text-white text-lg font-medium rounded-lg hover:shadow-lg transition-all"
             >
               Continue Learning <ChevronRight className="ml-2 h-5 w-5" />
