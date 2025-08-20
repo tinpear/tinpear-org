@@ -444,7 +444,7 @@ def is_balanced(s):
           {/* Nav + progress */}
           <section className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
             <Link
-              href="/course/week-2"
+              href="/course/week-1/python-syntax"
               className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50"
             >
               <ChevronLeft className="h-4 w-4" /> Previous
