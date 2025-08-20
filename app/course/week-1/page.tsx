@@ -15,12 +15,12 @@ import {
 } from 'lucide-react';
 
 /**
- * Week 1 • Start (Beginner‑first, page-based)
- * - Uses existing `public.profiles` (read‑only)
+ * Week 1 • Start (Beginner-first, page-based)
+ * - Uses existing `public.profiles` (read-only)
  * - Simple progress tracking via `tracking` (user_id, key)
  * - Sticky, responsive sidebar with scrollspy
- * - In‑browser Python runner (Web Worker + Pyodide) with quick‑loads
- * - Friendly tone, analogies, tips, and common‑mistake callouts
+ * - In-browser Python runner (Web Worker + Pyodide) with quick-loads
+ * - Friendly tone, analogies, tips, and common-mistake callouts
  */
 
 // --- Config ------------------------------------------------------------------
@@ -45,9 +45,9 @@ function cx(...xs: Array<string | false | null | undefined>) {
 
 function Box({ tone, title, children }: { tone: 'tip' | 'warn' | 'pro'; title: string; children: any }) {
   const palette = {
-    tip: 'border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-900/40 dark:bg-emerald-900/15 dark:text-emerald-200',
-    warn: 'border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900/40 dark:bg-amber-900/15 dark:text-amber-100',
-    pro: 'border-sky-200 bg-sky-50 text-sky-900 dark:border-sky-900/40 dark:bg-sky-900/15 dark:text-sky-100',
+    tip: 'border-emerald-200 bg-emerald-50 text-emerald-900',
+    warn: 'border-amber-200 bg-amber-50 text-amber-900',
+    pro: 'border-sky-200 bg-sky-50 text-sky-900',
   }[tone];
   const icon = tone === 'tip' ? <Lightbulb className="h-4 w-4"/> : tone === 'warn' ? <AlertTriangle className="h-4 w-4"/> : <Sparkles className="h-4 w-4"/>;
   return (
@@ -131,23 +131,23 @@ export default function Week1Start() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-gray-100 dark:border-gray-800 backdrop-blur bg-white/70 dark:bg-gray-900/70">
+      <header className="sticky top-0 z-30 border-b border-gray-100 backdrop-blur bg-white/70">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-gray-900 dark:text-white">
+          <div className="flex items-center gap-2 text-gray-900">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-600 text-white"><Sparkles className="h-4 w-4"/></span>
             <span className="font-bold">Week 1 • Python & ML Fundamentals</span>
           </div>
           <div className="flex items-center gap-3">
             <button
-              className="lg:hidden inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-800"
+              className="lg:hidden inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200"
               onClick={() => setSidebarOpen(v => !v)}
             >
               {sidebarOpen ? <X className="h-4 w-4"/> : <Menu className="h-4 w-4"/>}
               Contents
             </button>
-            <div className="text-sm text-gray-600 dark:text-gray-300">
+            <div className="text-sm text-gray-600">
               {loading ? 'Loading…' : user ? `Signed in as ${username}` : <Link href="/signin" className="underline">Sign in</Link>}
             </div>
           </div>
@@ -159,7 +159,7 @@ export default function Week1Start() {
         {/* Sidebar */}
         <aside className={cx(
           'lg:sticky lg:top-[72px] lg:h-[calc(100vh-88px)] lg:overflow-auto',
-          'rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4 shadow-sm',
+          'rounded-2xl border border-gray-200 bg-white p-4 shadow-sm',
           sidebarOpen ? '' : 'hidden lg:block'
         )}>
           <p className="text-xs uppercase tracking-wide text-gray-500 mb-3">In this page</p>
@@ -169,13 +169,13 @@ export default function Week1Start() {
                  className={cx(
                    'block px-3 py-2 rounded-lg text-sm',
                    activeId === s.id
-                     ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300'
-                     : 'hover:bg-gray-50 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-300'
+                     ? 'bg-green-50 text-green-800'
+                     : 'hover:bg-gray-50 text-gray-700'
                  )}
               >{s.label}</a>
             ))}
           </nav>
-          <div className="mt-6 p-3 rounded-xl bg-gray-50 dark:bg-gray-900 text-xs text-gray-600 dark:text-gray-300">
+          <div className="mt-6 p-3 rounded-xl bg-gray-50 text-xs text-gray-600">
             Don’t worry if you get stuck — that’s normal. Small wins add up.
           </div>
         </aside>
@@ -183,31 +183,31 @@ export default function Week1Start() {
         {/* Main */}
         <main className="space-y-8">
           {/* Welcome */}
-          <section id="welcome" className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-3">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Start here — calm, clear, hands‑on</h1>
-            <p className="text-lg text-gray-700 dark:text-gray-300">This week sets your foundation: think in Python, write simple programs, and see how these skills feed into ML. We’ll keep it friendly and build confidence step by step.</p>
+          <section id="welcome" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Start here — calm, clear, hands-on</h1>
+            <p className="text-lg text-gray-700">This week sets your foundation: think in Python, write simple programs, and see how these skills feed into ML. We’ll keep it friendly and build confidence step by step.</p>
             <Box tone="tip" title="Beginner roadmap">
               Today → understand Python at a high level; then <strong>Python Syntax</strong> → <strong>Data Structures</strong> → <strong>ML Workflow</strong>. Each lesson ends with practice and a mini win.
             </Box>
           </section>
 
           {/* What is Python */}
-          <section id="what-is-python" className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-3">
+          <section id="what-is-python" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">What is Python (and why does it matter)?</h2>
-            <p className="text-gray-700 dark:text-gray-300"><strong>What:</strong> Python is a high‑level language focused on readability. Think of it as speaking to the computer in clear, simple sentences.</p>
-            <p className="text-gray-700 dark:text-gray-300"><strong>Why:</strong> You’ll learn faster, write fewer bugs, and access a massive ecosystem (data, web, automation, ML).</p>
+            <p className="text-gray-700"><strong>What:</strong> Python is a high-level language focused on readability. Think of it as speaking to the computer in clear, simple sentences.</p>
+            <p className="text-gray-700"><strong>Why:</strong> You’ll learn faster, write fewer bugs, and access a massive ecosystem (data, web, automation, ML).</p>
             <div className="grid md:grid-cols-2 gap-4">
-              <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-900">
+              <div className="p-4 rounded-xl bg-gray-50">
                 <h3 className="font-medium mb-2">Key traits</h3>
-                <ul className="list-disc pl-5 text-gray-700 dark:text-gray-300 space-y-1">
+                <ul className="list-disc pl-5 text-gray-700 space-y-1">
                   <li>Readable syntax → focus on ideas, not punctuation</li>
                   <li>“Batteries included” standard library</li>
                   <li>Huge package index (PyPI) for anything you need</li>
                 </ul>
               </div>
-              <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-900">
+              <div className="p-4 rounded-xl bg-gray-50">
                 <h3 className="font-medium mb-2">Everyday uses</h3>
-                <ul className="list-disc pl-5 text-gray-700 dark:text-gray-300 space-y-1">
+                <ul className="list-disc pl-5 text-gray-700 space-y-1">
                   <li>Automating tasks (rename files, parse text)</li>
                   <li>Data analysis & visualization</li>
                   <li>Web backends, APIs, and DevOps tooling</li>
@@ -217,10 +217,10 @@ export default function Week1Start() {
           </section>
 
           {/* History */}
-          <section id="history" className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-3">
+          <section id="history" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">A tiny history</h2>
-            <p className="text-gray-700 dark:text-gray-300">Python began in 1991 (by Guido van Rossum) with a simple mission: make code easier to read and write. That design choice attracted scientists and engineers, then the data & ML community.</p>
-            <ul className="list-disc pl-5 text-gray-700 dark:text-gray-300 space-y-1">
+            <p className="text-gray-700">Python began in 1991 (by Guido van Rossum) with a simple mission: make code easier to read and write. That design choice attracted scientists and engineers, then the data & ML community.</p>
+            <ul className="list-disc pl-5 text-gray-700 space-y-1">
               <li><strong>1990s:</strong> Foundations laid; clarity over cleverness.</li>
               <li><strong>2000s:</strong> Scientific stack (NumPy/SciPy) takes off.</li>
               <li><strong>2010s → now:</strong> Python dominates in data & ML.</li>
@@ -228,10 +228,10 @@ export default function Week1Start() {
           </section>
 
           {/* Philosophy */}
-          <section id="philosophy" className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-3">
+          <section id="philosophy" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">The Zen of Python: how Python thinks</h2>
-            <p className="text-gray-700 dark:text-gray-300">Type <code className="px-1 rounded bg-gray-100 dark:bg-gray-800">import this</code> in Python to read its “Zen.” Here are a few lines we’ll live by:</p>
-            <ul className="list-disc pl-5 text-gray-700 dark:text-gray-300 space-y-1">
+            <p className="text-gray-700">Type <code className="px-1 rounded bg-gray-100">import this</code> in Python to read its “Zen.” Here are a few lines we’ll live by:</p>
+            <ul className="list-disc pl-5 text-gray-700 space-y-1">
               <li>Simple is better than complex.</li>
               <li>Readability counts.</li>
               <li>There should be one—and preferably only one—obvious way to do it.</li>
@@ -242,53 +242,53 @@ export default function Week1Start() {
           </section>
 
           {/* Strengths */}
-          <section id="strengths" className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-3">
+          <section id="strengths" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">Where Python shines</h2>
             <div className="grid md:grid-cols-3 gap-4">
-              <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-900">
+              <div className="p-4 rounded-xl bg-gray-50">
                 <h3 className="font-medium mb-1">Rapid prototyping</h3>
-                <p className="text-sm text-gray-700 dark:text-gray-300">Turn ideas into code quickly with minimal ceremony.</p>
+                <p className="text-sm text-gray-700">Turn ideas into code quickly with minimal ceremony.</p>
               </div>
-              <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-900">
+              <div className="p-4 rounded-xl bg-gray-50">
                 <h3 className="font-medium mb-1">Rich data tooling</h3>
-                <p className="text-sm text-gray-700 dark:text-gray-300">NumPy, pandas, Matplotlib, scikit‑learn—and beyond.</p>
+                <p className="text-sm text-gray-700">NumPy, pandas, Matplotlib, scikit-learn—and beyond.</p>
               </div>
-              <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-900">
+              <div className="p-4 rounded-xl bg-gray-50">
                 <h3 className="font-medium mb-1">Friendly community</h3>
-                <p className="text-sm text-gray-700 dark:text-gray-300">Abundant help, tutorials, and open‑source libraries.</p>
+                <p className="text-sm text-gray-700">Abundant help, tutorials, and open-source libraries.</p>
               </div>
             </div>
           </section>
 
           {/* Objectives for the week */}
-          <section id="this-week" className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-3">
+          <section id="this-week" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">What you’ll learn this week</h2>
             <div className="grid md:grid-cols-2 gap-4">
-              <ul className="list-disc pl-5 text-gray-700 dark:text-gray-300 space-y-1">
+              <ul className="list-disc pl-5 text-gray-700 space-y-1">
                 <li>Read & write core Python syntax confidently</li>
                 <li>Use variables, types, and control flow</li>
                 <li>Choose the right data structure for a task</li>
               </ul>
-              <ul className="list-disc pl-5 text-gray-700 dark:text-gray-300 space-y-1">
+              <ul className="list-disc pl-5 text-gray-700 space-y-1">
                 <li>Understand the ML workflow at a high level</li>
                 <li>Run and experiment with Python interactively</li>
                 <li>Adopt clean, readable coding habits</li>
               </ul>
             </div>
-            <div className="mt-2 text-sm text-gray-600 dark:text-gray-300">We’ll keep the pace gentle and celebrate small wins.</div>
-            <div className="mt-4 flex items-center gap-2 text-green-700 dark:text-green-300">
+            <div className="mt-2 text-sm text-gray-600">We’ll keep the pace gentle and celebrate small wins.</div>
+            <div className="mt-4 flex items-center gap-2 text-green-700">
               <CheckCircle2 className="h-5 w-5"/>
               <p className="text-sm">Mark this page as complete before moving on.</p>
             </div>
           </section>
 
           {/* Running Python */}
-          <section id="run-python" className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-4">
+          <section id="run-python" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h2 className="text-xl font-semibold">How to run Python</h2>
-            <div className="space-y-3 text-gray-700 dark:text-gray-300">
+            <div className="space-y-3 text-gray-700">
               <div>
                 <h3 className="font-medium">Local install (later)</h3>
-                <p>Install Python 3 from python.org, use a code editor (VS Code is great), and run scripts with <code className="px-1 rounded bg-gray-100 dark:bg-gray-800">python your_file.py</code>.</p>
+                <p>Install Python 3 from python.org, use a code editor (VS Code is great), and run scripts with <code className="px-1 rounded bg-gray-100">python your_file.py</code>.</p>
               </div>
               <div>
                 <h3 className="font-medium">Interactive in your browser (now)</h3>
@@ -298,7 +298,7 @@ export default function Week1Start() {
           </section>
 
           {/* Mistakes */}
-          <section id="mistakes" className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-3">
+          <section id="mistakes" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">🚨 Common Mistakes (and how to avoid them)</h2>
             <Box tone="warn" title="Confusing = with ==">
               <code>=</code> assigns; <code>==</code> compares. If you write <code>if x = 3</code> the interpreter will error. Use <code>if x == 3</code>.
@@ -312,10 +312,10 @@ export default function Week1Start() {
           </section>
 
           {/* Try it now — runner */}
-          <section id="try-it" className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-3">
+          <section id="try-it" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">🏃‍♂️ Try it now</h2>
             <PythonRunnerWorker />
-            <div className="flex flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-300">
+            <div className="flex flex-wrap gap-2 text-xs text-gray-600">
               <QuickLoad label="Hello" code={`print('Hello, Python!')`} />
               <QuickLoad label="Variables" code={`name='Ada'\nage=36\nprint(name, age)`} />
               <QuickLoad label="If/Else" code={`x=5\nif x>3:\n    print('big')\nelse:\n    print('small')`} />
@@ -327,7 +327,7 @@ export default function Week1Start() {
 
           {/* Nav + progress */}
           <section className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-            <button disabled className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-800 text-gray-400 cursor-not-allowed">
+            <button disabled className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-gray-400 cursor-not-allowed">
               <ChevronLeft className="h-4 w-4"/> Previous
             </button>
             <div className="flex items-center gap-3">
@@ -336,8 +336,8 @@ export default function Week1Start() {
                 className={cx(
                   'px-4 py-2 rounded-lg border',
                   completed
-                    ? 'border-green-200 bg-green-50 text-green-800 dark:border-green-900/40 dark:bg-green-900/20 dark:text-green-300'
-                    : 'border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800'
+                    ? 'border-green-200 bg-green-50 text-green-800'
+                    : 'border-gray-200 hover:bg-gray-50'
                 )}
                 title={user ? 'Save progress for this page' : 'Sign in to save progress'}
               >
@@ -373,7 +373,32 @@ function PythonRunnerWorker() {
 
   const ensureWorker = () => {
     if (workerRef.current) return;
-    const workerCode = `self.language='python';\nlet pyodideReadyPromise;\nasync function init(){\n  if(!pyodideReadyPromise){\n    importScripts('https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js');\n    pyodideReadyPromise = loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/' });\n  }\n  self.pyodide = await pyodideReadyPromise;\n  self.pyodide.setStdout({ batched: (s) => postMessage({ type: 'stdout', data: s }) });\n  self.pyodide.setStderr({ batched: (s) => postMessage({ type: 'stderr', data: s }) });\n}\nself.onmessage = async (e) => {\n  const { type, code } = e.data || {};\n  try {\n    if (type === 'init'){\n      await init();\n      postMessage({ type: 'ready' });\n    } else if (type === 'run'){\n      await init();\n      let result = await self.pyodide.runPythonAsync(code);\n      postMessage({ type: 'result', data: String(result ?? '') });\n    }\n  } catch (err){\n    postMessage({ type: 'error', data: String(err) });\n  }\n};`;
+    const workerCode = `self.language='python';
+let pyodideReadyPromise;
+async function init(){
+  if(!pyodideReadyPromise){
+    importScripts('https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js');
+    pyodideReadyPromise = loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/' });
+  }
+  self.pyodide = await pyodideReadyPromise;
+  self.pyodide.setStdout({ batched: (s) => postMessage({ type: 'stdout', data: s }) });
+  self.pyodide.setStderr({ batched: (s) => postMessage({ type: 'stderr', data: s }) });
+}
+self.onmessage = async (e) => {
+  const { type, code } = e.data || {};
+  try {
+    if (type === 'init'){
+      await init();
+      postMessage({ type: 'ready' });
+    } else if (type === 'run'){
+      await init();
+      let result = await self.pyodide.runPythonAsync(code);
+      postMessage({ type: 'result', data: String(result ?? '') });
+    }
+  } catch (err){
+    postMessage({ type: 'error', data: String(err) });
+  }
+};`;
     const blob = new Blob([workerCode], { type: 'application/javascript' });
     const url = URL.createObjectURL(blob);
     urlRef.current = url;
@@ -428,10 +453,10 @@ function PythonRunnerWorker() {
   return (
     <div>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-2">
-        <div className="text-sm text-gray-600 dark:text-gray-300">Interactive Python (isolated; loads on demand)</div>
+        <div className="text-sm text-gray-600">Interactive Python (isolated; loads on demand)</div>
         <div className="flex gap-2">
           {!initialized ? (
-            <button onClick={init} disabled={initializing} className="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800">
+            <button onClick={init} disabled={initializing} className="px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50">
               {initializing ? 'Initializing…' : 'Initialize Python'}
             </button>
           ) : (
@@ -439,20 +464,20 @@ function PythonRunnerWorker() {
               <button onClick={run} disabled={running} className="px-3 py-2 rounded-lg bg-green-600 text-white hover:shadow">
                 {running ? 'Running…' : 'Run'}
               </button>
-              <button onClick={resetConsole} className="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800">Clear Console</button>
+              <button onClick={resetConsole} className="px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50">Clear Console</button>
             </>
           )}
         </div>
       </div>
       <textarea
-        className="w-full min-h-[200px] rounded-xl border border-gray-200 dark:border-gray-800 p-3 font-mono text-sm bg-white dark:bg-gray-900"
+        className="w-full min-h-[200px] rounded-xl border border-gray-200 p-3 font-mono text-sm bg-white"
         value={code}
         onChange={(e) => setCode(e.target.value)}
         spellCheck={false}
       />
       <div className="mt-3">
         <div className="text-sm font-medium mb-1">Console</div>
-        <pre className="w-full min-h-[150px] rounded-xl border border-gray-200 dark:border-gray-800 p-3 text-sm bg-gray-50 dark:bg-gray-950 overflow-auto whitespace-pre-wrap">{output}</pre>
+        <pre className="w-full min-h-[150px] rounded-xl border border-gray-200 p-3 text-sm bg-gray-50 overflow-auto whitespace-pre-wrap">{output}</pre>
       </div>
     </div>
   );
@@ -461,7 +486,7 @@ function PythonRunnerWorker() {
 function QuickLoad({ label, code }: { label: string; code: string }) {
   return (
     <button
-      className="px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
+      className="px-2.5 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50"
       onClick={() => (globalThis as any).__setRunnerCode?.(code)}
       title="Load example into the editor"
     >
