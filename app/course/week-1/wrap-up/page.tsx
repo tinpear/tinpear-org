@@ -55,18 +55,14 @@ function Box({
   children: any;
 }) {
   const palette = {
-    tip: 'border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-900/40 dark:bg-emerald-900/15 dark:text-emerald-200',
-    warn: 'border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900/40 dark:bg-amber-900/15 dark:text-amber-100',
-    pro: 'border-sky-200 bg-sky-50 text-sky-900 dark:border-sky-900/40 dark:bg-sky-900/15 dark:text-sky-100',
+    tip: 'border-emerald-200 bg-emerald-50 text-emerald-900',
+    warn: 'border-amber-200 bg-amber-50 text-amber-900',
+    pro: 'border-sky-200 bg-sky-50 text-sky-900',
   }[tone];
   const icon =
-    tone === 'tip' ? (
-      <Lightbulb className="h-4 w-4" />
-    ) : tone === 'warn' ? (
-      <AlertTriangle className="h-4 w-4" />
-    ) : (
-      <Sparkles className="h-4 w-4" />
-    );
+    tone === 'tip' ? <Lightbulb className="h-4 w-4" /> :
+    tone === 'warn' ? <AlertTriangle className="h-4 w-4" /> :
+    <Sparkles className="h-4 w-4" />;
   return (
     <div className={cx('rounded-xl border p-3 md:p-4 flex gap-3 items-start', palette)}>
       <div className="mt-0.5">{icon}</div>
@@ -85,6 +81,18 @@ export default function Week1WrapUpPage() {
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeId, setActiveId] = useState(SECTIONS[0].id);
+
+  // Force light mode on mount (prevents hydration mismatches from persisted themes)
+  useEffect(() => {
+    try {
+      const el = document.documentElement;
+      el.classList.remove('dark');
+      el.style.colorScheme = 'light';
+      ['theme', 'color-theme', 'ui-theme'].forEach((k) => {
+        if (localStorage.getItem(k) === 'dark') localStorage.setItem(k, 'light');
+      });
+    } catch {}
+  }, []);
 
   // Load user + progress
   useEffect(() => {
@@ -143,9 +151,7 @@ export default function Week1WrapUpPage() {
 
   // Reliable scrollspy (largest visible section wins)
   useEffect(() => {
-    const sections = Array.from(
-      document.querySelectorAll<HTMLElement>('main section[id]')
-    );
+    const sections = Array.from(document.querySelectorAll<HTMLElement>('main section[id]'));
     if (sections.length === 0) return;
 
     const observer = new IntersectionObserver(
@@ -155,18 +161,14 @@ export default function Week1WrapUpPage() {
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
         if (visible[0]) setActiveId((visible[0].target as HTMLElement).id);
       },
-      {
-        root: null,
-        rootMargin: '-112px 0px -55% 0px',
-        threshold: [0.1, 0.25, 0.5, 0.75, 1],
-      }
+      { root: null, rootMargin: '-112px 0px -55% 0px', threshold: [0.1, 0.25, 0.5, 0.75, 1] }
     );
 
     sections.forEach((s) => observer.observe(s));
     return () => observer.disconnect();
   }, []);
 
-  // Reflection (local only, no DB write → keeps backend simple)
+  // Reflection (local only)
   const [reflection, setReflection] = useState('');
   useEffect(() => {
     const saved = localStorage.getItem('week1_reflection') || '';
@@ -177,19 +179,19 @@ export default function Week1WrapUpPage() {
   }, [reflection]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-gray-100 dark:border-gray-800 backdrop-blur bg-white/70 dark:bg-gray-900/70">
+      <header className="sticky top-0 z-30 border-b border-gray-100 backdrop-blur bg-white/70">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-gray-900 dark:text-white">
+          <div className="flex items-center gap-2 text-gray-900">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-600 text-white">
               <Sparkles className="h-4 w-4" />
             </span>
             <span className="font-bold">Week 1 • Wrap-Up & Next Steps</span>
           </div>
-          <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
+          <div className="flex items-center gap-3 text-sm text-gray-600">
             <button
-              className="lg:hidden inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-800"
+              className="lg:hidden inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200"
               onClick={() => setSidebarOpen((v) => !v)}
             >
               {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -208,7 +210,7 @@ export default function Week1WrapUpPage() {
         <aside
           className={cx(
             'lg:sticky lg:top-[72px] lg:h-[calc(100vh-88px)] lg:overflow-auto',
-            'rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4 shadow-sm',
+            'rounded-2xl border border-gray-200 bg-white p-4 shadow-sm',
             sidebarOpen ? '' : 'hidden lg:block'
           )}
         >
@@ -222,16 +224,14 @@ export default function Week1WrapUpPage() {
                 aria-current={activeId === s.id ? 'page' : undefined}
                 className={cx(
                   'block px-3 py-2 rounded-lg text-sm transition-colors',
-                  activeId === s.id
-                    ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300'
-                    : 'hover:bg-gray-50 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-300'
+                  activeId === s.id ? 'bg-green-50 text-green-800' : 'hover:bg-gray-50 text-gray-700'
                 )}
               >
                 {s.label}
               </a>
             ))}
           </nav>
-          <div className="mt-6 p-3 rounded-xl bg-gray-50 dark:bg-gray-900 text-xs text-gray-600 dark:text-gray-300">
+          <div className="mt-6 p-3 rounded-xl bg-gray-50 text-xs text-gray-600">
             Tip: Celebrate progress. Tiny wins add up! 🌱
           </div>
         </aside>
@@ -239,30 +239,29 @@ export default function Week1WrapUpPage() {
         {/* Main */}
         <main className="space-y-10">
           {/* Congrats */}
-          <section id="congrats" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">🎉 Great job finishing Week 1!</h1>
-            <p className="text-gray-700 dark:text-gray-300 mt-2">
+          <section id="congrats" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">🎉 Great job finishing Week 1!</h1>
+            <p className="text-gray-700 mt-2">
               You’ve learned enough Python to read and write basic programs, tried hands-on code in the browser, and explored the ML workflow.
               That’s a huge step. Keep the momentum—curiosity beats perfection.
             </p>
-            <div className="mt-4 inline-flex items-center gap-2 text-green-700 dark:text-green-300">
+            <div className="mt-4 inline-flex items-center gap-2 text-green-700">
               <CheckCircle2 className="h-5 w-5" />
               <span>Mark this page complete to lock in your progress.</span>
             </div>
           </section>
 
           {/* Big Picture */}
-          <section id="big-picture" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-3">
+          <section id="big-picture" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">AI → ML → Python (how they connect)</h2>
-            <p className="text-gray-700 dark:text-gray-300">
+            <p className="text-gray-700">
               <strong>Artificial Intelligence (AI)</strong> is the big goal: getting computers to act “smart.” <strong>Machine Learning (ML)</strong> is one powerful way to do that:
               we show the computer lots of examples so it <em>learns patterns</em> and makes better guesses over time.
               <strong>Python</strong> is the friendly tool we use to do ML because it’s simple, readable, and has great libraries.
             </p>
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 dark:bg-gray-900 p-3 rounded">{`AI (big goal)
+            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`AI (big goal)
  └─ ML (learn from data)
-     └─ Python (the tool you write in)`}
-            </pre>
+     └─ Python (the tool you write in)`}</pre>
             <Box tone="tip" title="Plain English">
               You just learned the language (Python), the containers for data (data structures), and the recipe (ML workflow).
               Next week we’ll cook with real ingredients (datasets) and tidy them (data wrangling & EDA).
@@ -270,9 +269,9 @@ export default function Week1WrapUpPage() {
           </section>
 
           {/* You learned */}
-          <section id="you-learned" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm">
+          <section id="you-learned" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-semibold">What you learned this week</h2>
-            <ul className="list-disc pl-5 text-gray-700 dark:text-gray-300 space-y-1">
+            <ul className="list-disc pl-5 text-gray-700 space-y-1">
               <li>Python basics: variables, types, printing, comparisons, small programs.</li>
               <li>Core data structures: <strong>str, bool, list, tuple, set, dict</strong> — when and why to use them.</li>
               <li>ML workflow: frame the problem, split data, prepare features, baseline, train, evaluate, iterate.</li>
@@ -281,50 +280,46 @@ export default function Week1WrapUpPage() {
           </section>
 
           {/* Python recap */}
-          <section id="python-recap" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-2">
+          <section id="python-recap" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-2">
             <h2 className="text-xl font-semibold">Python recap (quick)</h2>
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 dark:bg-gray-900 p-3 rounded">{`# Variables and types
+            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`# Variables and types
 age = 18              # int
 price = 19.99         # float
 name = "Ada"          # str
 is_student = True     # bool
-print(f"{name} - age {age}, student? {is_student}")`}
-            </pre>
+print(f"{name} - age {age}, student? {is_student}")`}</pre>
             <Box tone="warn" title="Avoid this">
               Don’t mix text and numbers without converting (<code>"7" + 2</code> → error). Use <code>int("7") + 2</code> or <code>str(7) + "2"</code>.
             </Box>
           </section>
 
           {/* Data structures recap */}
-          <section id="structures-recap" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm">
+          <section id="structures-recap" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-semibold">Data structures recap</h2>
             <div className="grid md:grid-cols-2 gap-4">
-              <div className="rounded-xl border border-gray-200 dark:border-gray-800 p-4 bg-gray-50 dark:bg-gray-900">
+              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
                 <h3 className="font-medium mb-1">Lists & Dicts</h3>
                 <pre className="text-sm whitespace-pre-wrap">{`scores = [85, 92, 90]
 scores.append(88)
 user = {"name": "Ada", "city": "Lagos"}
 user["age"] = 18
 print(scores)
-print(user.get("email", "missing"))`}
-                </pre>
+print(user.get("email", "missing"))`}</pre>
               </div>
-              <div className="rounded-xl border border-gray-200 dark:border-gray-800 p-4 bg-gray-50 dark:bg-gray-900">
+              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
                 <h3 className="font-medium mb-1">Tuples & Sets</h3>
                 <pre className="text-sm whitespace-pre-wrap">{`point = (3, 4)  # fixed pair
 colors = {"red", "blue", "red"}  # unique
-print(point, colors)`}
-                </pre>
+print(point, colors)`}</pre>
               </div>
             </div>
           </section>
 
           {/* ML workflow recap */}
-          <section id="ml-recap" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-2">
+          <section id="ml-recap" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-2">
             <h2 className="text-xl font-semibold">ML workflow recap (the reliable recipe)</h2>
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 dark:bg-gray-900 p-3 rounded">{`Frame → Split → Prepare → Baseline → Train → Evaluate → Iterate`}
-            </pre>
-            <ul className="list-disc pl-5 text-gray-700 dark:text-gray-300 space-y-1">
+            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`Frame → Split → Prepare → Baseline → Train → Evaluate → Iterate`}</pre>
+            <ul className="list-disc pl-5 text-gray-700 space-y-1">
               <li><strong>Frame:</strong> What are we predicting? How will we measure success?</li>
               <li><strong>Split:</strong> Train (learn), Validation (tune), Test (final exam).</li>
               <li><strong>Prepare:</strong> Clean data, explore patterns, create helpful features.</li>
@@ -336,7 +331,7 @@ print(point, colors)`}
           </section>
 
           {/* Common mistakes */}
-          <section id="mistakes" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-3">
+          <section id="mistakes" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">🚨 Common Mistake Prevention</h2>
             <Box tone="warn" title="Python">
               • Using <code>=</code> instead of <code>==</code> in comparisons. <br />
@@ -355,9 +350,9 @@ print(point, colors)`}
           </section>
 
           {/* Practice plan */}
-          <section id="practice-plan" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm">
+          <section id="practice-plan" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-semibold">Daily practice plan (20–30 mins)</h2>
-            <ul className="list-disc pl-5 text-gray-700 dark:text-gray-300 space-y-1">
+            <ul className="list-disc pl-5 text-gray-700 space-y-1">
               <li>Warm-up (5 min): rewrite a tiny example from memory.</li>
               <li>New reps (10–15 min): one list/dict exercise + one boolean or string task.</li>
               <li>Mini-ML (5–10 min): split a small dataset (even numbers 0..29), compute a baseline.</li>
@@ -368,19 +363,19 @@ print(point, colors)`}
           </section>
 
           {/* Mini-quiz */}
-          <section id="mini-quiz" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-4">
+          <section id="mini-quiz" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h2 className="text-xl font-semibold flex items-center gap-2"><ListChecks className="h-5 w-5" /> Mini-quiz (no pressure)</h2>
             <Quiz />
           </section>
 
           {/* Runner */}
-          <section id="try" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-3">
+          <section id="try" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">🏃‍♂️ Try it now</h2>
-            <p className="text-gray-700 dark:text-gray-300">
+            <p className="text-gray-700">
               Load a snippet, click <strong>Initialize Python</strong>, then <strong>Run</strong>. Tweak one line and run again.
             </p>
             <PythonRunnerWorker />
-            <div className="flex flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-300">
+            <div className="flex flex-wrap gap-2 text-xs text-gray-600">
               <QuickLoad
                 label="Review: types"
                 code={`age=18; name="Ada"; is_student=True\nprint(type(age), type(name), type(is_student))`}
@@ -400,25 +395,25 @@ print(point, colors)`}
             </div>
           </section>
 
-          {/* Reflection (local only) */}
-          <section id="reflection" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm">
+          {/* Reflection */}
+          <section id="reflection" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-semibold">Your reflection</h2>
-            <p className="text-gray-700 dark:text-gray-300 mb-2">
+            <p className="text-gray-700 mb-2">
               Write one thing you learned, one thing that was hard, and one thing you’re proud of. This is saved in your browser only.
             </p>
             <textarea
               value={reflection}
               onChange={(e) => setReflection(e.target.value)}
               placeholder="I learned..., I found ... challenging, I’m proud that..."
-              className="w-full min-h-[140px] rounded-xl border border-gray-200 dark:border-gray-800 p-3 font-sans text-sm bg-white dark:bg-gray-900"
+              className="w-full min-h-[140px] rounded-xl border border-gray-200 p-3 font-sans text-sm bg-white"
             />
             <p className="text-xs text-gray-500 mt-2">Saved locally as you type.</p>
           </section>
 
           {/* Next steps */}
-          <section id="next" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-3">
+          <section id="next" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">What’s next (Week 2 preview)</h2>
-            <ul className="list-disc pl-5 text-gray-700 dark:text-gray-300 space-y-1">
+            <ul className="list-disc pl-5 text-gray-700 space-y-1">
               <li><strong>Data Wrangling & EDA:</strong> load CSVs, clean messy data, explore patterns, visualize.</li>
               <li><strong>Skills you’ll use:</strong> lists/dicts for organizing, booleans for filters, loops for checks, and the ML recipe again.</li>
             </ul>
@@ -431,7 +426,7 @@ print(point, colors)`}
           <section className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
             <Link
               href="/course/week-1/ml-workflow"
-              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50"
             >
               <ChevronLeft className="h-4 w-4" /> Previous
             </Link>
@@ -440,9 +435,7 @@ print(point, colors)`}
                 onClick={markComplete}
                 className={cx(
                   'px-4 py-2 rounded-lg border',
-                  completed
-                    ? 'border-green-200 bg-green-50 text-green-800 dark:border-green-900/40 dark:bg-green-900/20 dark:text-green-300'
-                    : 'border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800'
+                  completed ? 'border-green-200 bg-green-50 text-green-800' : 'border-gray-200 hover:bg-gray-50'
                 )}
               >
                 {completed ? 'Completed ✓' : 'Mark Complete'}
@@ -506,7 +499,7 @@ function Quiz() {
   return (
     <div className="space-y-4">
       {qs.map((item, i) => (
-        <div key={i} className="rounded-xl border border-gray-200 dark:border-gray-800 p-4">
+        <div key={i} className="rounded-xl border border-gray-200 p-4">
           <div className="font-medium mb-2">{i + 1}. {item.q}</div>
           <div className="grid sm:grid-cols-2 gap-2">
             {item.choices.map((c, j) => {
@@ -517,9 +510,7 @@ function Quiz() {
                   onClick={() => setSelected((s) => s.map((v, k) => (k === i ? j : v)))}
                   className={cx(
                     'text-left px-3 py-2 rounded-lg border transition-colors',
-                    active
-                      ? 'border-green-300 bg-green-50 dark:border-green-900/40 dark:bg-green-900/20'
-                      : 'border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800'
+                    active ? 'border-green-300 bg-green-50' : 'border-gray-200 hover:bg-gray-50'
                   )}
                 >
                   {c}
@@ -530,9 +521,9 @@ function Quiz() {
           {show && (
             <div className="mt-2 text-sm">
               {selected[i] === qs[i].a ? (
-                <span className="text-green-700 dark:text-green-300">Correct! {item.why}</span>
+                <span className="text-green-700">Correct! {item.why}</span>
               ) : (
-                <span className="text-amber-700 dark:text-amber-200">Not quite. {item.why}</span>
+                <span className="text-amber-700">Not quite. {item.why}</span>
               )}
             </div>
           )}
@@ -541,12 +532,12 @@ function Quiz() {
       <div className="flex items-center justify-between">
         <button
           onClick={() => setShow((v) => !v)}
-          className="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
+          className="px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50"
         >
           {show ? 'Hide Answers' : 'Check Answers'}
         </button>
         {show && (
-          <div className="text-sm text-gray-700 dark:text-gray-300">
+          <div className="text-sm text-gray-700">
             Score: <span className="font-semibold">{correct}/{qs.length}</span> — nice work!
           </div>
         )}
@@ -611,13 +602,13 @@ self.onmessage = async (e) => {
         setOutput((o) => o + String(data));
       } else if (type === 'result') {
         setRunning(false);
-        if (data) setOutput((o) => o + (o.endsWith('\\n') ? '' : '\\n') + String(data) + '\\nNice! ✅');
-        else setOutput((o) => o + (o.endsWith('\\n') ? '' : '\\n') + 'Done. ✅');
+        if (data) setOutput((o) => o + (o.endsWith('\n') ? '' : '\n') + String(data) + '\nNice! ✅');
+        else setOutput((o) => o + (o.endsWith('\n') ? '' : '\n') + 'Done. ✅');
       } else if (type === 'error') {
         setRunning(false);
         const hint = hintForError(String(data));
         setOutput(
-          (o) => o + (o.endsWith('\\n') ? '' : '\\n') + '⚠️ ' + String(data) + (hint ? `\\n💡 Hint: ${hint}` : '')
+          (o) => o + (o.endsWith('\n') ? '' : '\n') + '⚠️ ' + String(data) + (hint ? `\n💡 Hint: ${hint}` : '')
         );
       }
     };
@@ -652,7 +643,7 @@ self.onmessage = async (e) => {
   return (
     <div>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-2">
-        <div className="text-sm text-gray-600 dark:text-gray-300">
+        <div className="text-sm text-gray-600">
           Interactive Python (loads when you click Initialize)
         </div>
         <div className="flex gap-2">
@@ -660,7 +651,7 @@ self.onmessage = async (e) => {
             <button
               onClick={init}
               disabled={initializing}
-              className="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
+              className="px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50"
             >
               {initializing ? 'Initializing…' : 'Initialize Python'}
             </button>
@@ -671,7 +662,7 @@ self.onmessage = async (e) => {
               </button>
               <button
                 onClick={resetConsole}
-                className="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
+                className="px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50"
               >
                 Clear Console
               </button>
@@ -680,14 +671,14 @@ self.onmessage = async (e) => {
         </div>
       </div>
       <textarea
-        className="w-full min-h[220px] md:min-h-[220px] rounded-xl border border-gray-200 dark:border-gray-800 p-3 font-mono text-sm bg-white dark:bg-gray-900"
+        className="w-full min-h-[220px] rounded-xl border border-gray-200 p-3 font-mono text-sm bg-white"
         value={code}
         onChange={(e) => setCode(e.target.value)}
         spellCheck={false}
       />
       <div className="mt-3">
         <div className="text-sm font-medium mb-1">Console</div>
-        <pre className="w-full min-h-[160px] rounded-xl border border-gray-200 dark:border-gray-800 p-3 text-sm bg-gray-50 dark:bg-gray-950 overflow-auto whitespace-pre-wrap">
+        <pre className="w-full min-h-[160px] rounded-xl border border-gray-200 p-3 text-sm bg-gray-50 overflow-auto whitespace-pre-wrap">
           {output}
         </pre>
       </div>
@@ -698,7 +689,7 @@ self.onmessage = async (e) => {
 function QuickLoad({ label, code }: { label: string; code: string }) {
   return (
     <button
-      className="px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
+      className="px-2.5 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50"
       onClick={() => (globalThis as any).__setRunnerCode?.(code)}
       title="Load example into the editor"
     >

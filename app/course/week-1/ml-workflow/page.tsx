@@ -65,9 +65,9 @@ function Box({
   children: any;
 }) {
   const palette = {
-    tip: 'border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-900/40 dark:bg-emerald-900/15 dark:text-emerald-200',
-    warn: 'border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900/40 dark:bg-amber-900/15 dark:text-amber-100',
-    pro: 'border-sky-200 bg-sky-50 text-sky-900 dark:border-sky-900/40 dark:bg-sky-900/15 dark:text-sky-100',
+    tip: 'border-emerald-200 bg-emerald-50 text-emerald-900',
+    warn: 'border-amber-200 bg-amber-50 text-amber-900',
+    pro: 'border-sky-200 bg-sky-50 text-sky-900',
   }[tone];
   const icon =
     tone === 'tip' ? (
@@ -96,11 +96,25 @@ export default function MLWorkflowPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeId, setActiveId] = useState(SECTIONS[0].id);
 
+  // Force light mode on mount (handles client-side nav too)
+  useEffect(() => {
+    try {
+      const el = document.documentElement;
+      el.classList.remove('dark');
+      el.style.colorScheme = 'light';
+      ['theme', 'color-theme', 'ui-theme'].forEach((k) => {
+        if (localStorage.getItem(k) === 'dark') localStorage.setItem(k, 'light');
+      });
+    } catch {}
+  }, []);
+
   // Load user + progress
   useEffect(() => {
     const run = async () => {
       setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       setUser(user ?? null);
       if (user) {
         const { data: profile } = await supabase
@@ -151,9 +165,7 @@ export default function MLWorkflowPage() {
 
   // Reliable Scrollspy: track the section with the largest visible area
   useEffect(() => {
-    const sections = Array.from(
-      document.querySelectorAll<HTMLElement>('main section[id]')
-    );
+    const sections = Array.from(document.querySelectorAll<HTMLElement>('main section[id]'));
     if (sections.length === 0) return;
 
     const observer = new IntersectionObserver(
@@ -175,19 +187,19 @@ export default function MLWorkflowPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-gray-100 dark:border-gray-800 backdrop-blur bg-white/70 dark:bg-gray-900/70">
+      <header className="sticky top-0 z-30 border-b border-gray-100 backdrop-blur bg-white/70">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-gray-900 dark:text-white">
+          <div className="flex items-center gap-2 text-gray-900">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-600 text-white">
               <LineChart className="h-4 w-4" />
             </span>
             <span className="font-bold">Week 1 • ML Workflow</span>
           </div>
-          <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
+          <div className="flex items-center gap-3 text-sm text-gray-600">
             <button
-              className="lg:hidden inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-800"
+              className="lg:hidden inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200"
               onClick={() => setSidebarOpen((v) => !v)}
             >
               {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -206,7 +218,7 @@ export default function MLWorkflowPage() {
         <aside
           className={cx(
             'lg:sticky lg:top-[72px] lg:h-[calc(100vh-88px)] lg:overflow-auto',
-            'rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4 shadow-sm',
+            'rounded-2xl border border-gray-200 bg-white p-4 shadow-sm',
             sidebarOpen ? '' : 'hidden lg:block'
           )}
         >
@@ -220,16 +232,14 @@ export default function MLWorkflowPage() {
                 aria-current={activeId === s.id ? 'page' : undefined}
                 className={cx(
                   'block px-3 py-2 rounded-lg text-sm transition-colors',
-                  activeId === s.id
-                    ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300'
-                    : 'hover:bg-gray-50 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-300'
+                  activeId === s.id ? 'bg-green-50 text-green-800' : 'hover:bg-gray-50 text-gray-700'
                 )}
               >
                 {s.label}
               </a>
             ))}
           </nav>
-          <div className="mt-6 p-3 rounded-xl bg-gray-50 dark:bg-gray-900 text-xs text-gray-600 dark:text-gray-300">
+          <div className="mt-6 p-3 rounded-xl bg-gray-50 text-xs text-gray-600">
             Tiny steps → frequent wins. Run small code, learn one idea at a time. You’ve got this. 🌱
           </div>
         </aside>
@@ -237,16 +247,16 @@ export default function MLWorkflowPage() {
         {/* Main */}
         <main className="space-y-10">
           {/* AI→ML→Python Landscape */}
-          <section id="landscape" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-4">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <section id="landscape" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 flex items-center gap-2">
               <BrainCircuit className="h-6 w-6" /> AI → ML → Python: how it all fits
             </h1>
-            <p className="text-gray-700 dark:text-gray-300">
+            <p className="text-gray-700">
               <strong>Artificial Intelligence (AI)</strong> is the big umbrella: making computers do “smart” things.
               <strong> Machine Learning (ML)</strong> is a part of AI where we <em>teach computers by showing examples</em> rather than hard-coding rules.
               <strong> Python</strong> is our friendly language to do all this—clean data, train models, and test ideas quickly.
             </p>
-            <pre className="whitespace-pre rounded bg-gray-50 dark:bg-gray-900 p-3 text-sm overflow-auto">{`AI (big idea)
+            <pre className="whitespace-pre rounded bg-gray-50 p-3 text-sm overflow-auto">{`AI (big idea)
 └─ ML (learn from examples)
    └─ Python (our tool to build, test, and ship)`}</pre>
             <Box tone="tip" title="Plain English">
@@ -255,9 +265,9 @@ export default function MLWorkflowPage() {
           </section>
 
           {/* What is ML */}
-          <section id="what-is-ml" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-3">
+          <section id="what-is-ml" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">What is Machine Learning?</h2>
-            <p className="text-gray-700 dark:text-gray-300">
+            <p className="text-gray-700">
               ML lets computers find patterns in data and use them to make predictions or decisions. Instead of telling the computer every rule,
               we give examples and it figures out patterns on its own.
             </p>
@@ -267,9 +277,9 @@ export default function MLWorkflowPage() {
           </section>
 
           {/* Why ML */}
-          <section id="why-ml" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-3">
+          <section id="why-ml" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">Why use ML?</h2>
-            <ul className="list-disc pl-5 text-gray-700 dark:text-gray-300 space-y-1">
+            <ul className="list-disc pl-5 text-gray-700 space-y-1">
               <li><strong>Too many rules to code by hand</strong> (spam detection).</li>
               <li><strong>Data changes over time</strong> (recommendations update as tastes change).</li>
               <li><strong>Patterns are subtle</strong> (fraud detection, medical signals).</li>
@@ -280,21 +290,21 @@ export default function MLWorkflowPage() {
           </section>
 
           {/* Types of ML */}
-          <section id="types-ml" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-4">
+          <section id="types-ml" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h2 className="text-xl font-semibold">Types of Machine Learning Systems (beginner view)</h2>
             <div className="grid md:grid-cols-2 gap-4">
-              <div className="rounded-xl p-4 bg-gray-50 dark:bg-gray-900">
+              <div className="rounded-xl p-4 bg-gray-50">
                 <h3 className="font-medium mb-1">Supervised Learning</h3>
-                <p className="text-sm text-gray-700 dark:text-gray-300">We have inputs and the correct answers (labels). Model learns to map input → answer.</p>
-                <ul className="list-disc pl-5 text-sm text-gray-700 dark:text-gray-300 mt-1">
+                <p className="text-sm text-gray-700">We have inputs and the correct answers (labels). Model learns to map input → answer.</p>
+                <ul className="list-disc pl-5 text-sm text-gray-700 mt-1">
                   <li>Classification: pick a category (spam / not-spam)</li>
                   <li>Regression: predict a number (house price)</li>
                 </ul>
               </div>
-              <div className="rounded-xl p-4 bg-gray-50 dark:bg-gray-900">
+              <div className="rounded-xl p-4 bg-gray-50">
                 <h3 className="font-medium mb-1">Unsupervised Learning</h3>
-                <p className="text-sm text-gray-700 dark:text-gray-300">We only have inputs. Model finds groups/patterns by itself.</p>
-                <ul className="list-disc pl-5 text-sm text-gray-700 dark:text-gray-300 mt-1">
+                <p className="text-sm text-gray-700">We only have inputs. Model finds groups/patterns by itself.</p>
+                <ul className="list-disc pl-5 text-sm text-gray-700 mt-1">
                   <li>Clustering: group similar customers</li>
                   <li>Dimensionality reduction: compress data while keeping structure</li>
                 </ul>
@@ -306,9 +316,9 @@ export default function MLWorkflowPage() {
           </section>
 
           {/* Batch vs Online */}
-          <section id="batch-online" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-3">
+          <section id="batch-online" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">Batch vs Online Learning</h2>
-            <ul className="list-disc pl-5 text-gray-700 dark:text-gray-300 space-y-1">
+            <ul className="list-disc pl-5 text-gray-700 space-y-1">
               <li><strong>Batch:</strong> Train on a big chunk of data at once. Retrain occasionally (daily/weekly).</li>
               <li><strong>Online:</strong> Learn a little bit as each new example arrives (good for streams).</li>
             </ul>
@@ -318,9 +328,9 @@ export default function MLWorkflowPage() {
           </section>
 
           {/* Instance vs Model-based */}
-          <section id="instance-model" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-3">
+          <section id="instance-model" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">Instance-Based vs Model-Based Learning</h2>
-            <ul className="list-disc pl-5 text-gray-700 dark:text-gray-300 space-y-1">
+            <ul className="list-disc pl-5 text-gray-700 space-y-1">
               <li><strong>Instance-based:</strong> Keep the examples; predict by comparing new input to stored examples (like nearest neighbor).</li>
               <li><strong>Model-based:</strong> Learn a compact rule (a model with parameters) and use that to predict.</li>
             </ul>
@@ -330,7 +340,7 @@ export default function MLWorkflowPage() {
           </section>
 
           {/* Challenges */}
-          <section id="challenges" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-4">
+          <section id="challenges" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h2 className="text-xl font-semibold">Main Challenges of ML (what trips beginners)</h2>
             <div className="grid md:grid-cols-2 gap-4">
               <Box tone="warn" title="Insufficient training data">
@@ -361,9 +371,9 @@ export default function MLWorkflowPage() {
           </section>
 
           {/* Pipeline */}
-          <section id="pipeline" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm">
-            <h2 className="text-xl font-semibold mb-2 flex items-center gap-2"><Layers className="h-5 w-5"/>The ML Pipeline (your reliable recipe)</h2>
-            <pre className="whitespace-pre rounded bg-gray-50 dark:bg-gray-900 p-3 text-sm overflow-auto">{`Train Data (60%)  →  [Learning Phase] → Model learns from examples
+          <section id="pipeline" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <h2 className="text-xl font-semibold mb-2 flex items-center gap-2"><Layers className="h-5 w-5" />The ML Pipeline (your reliable recipe)</h2>
+            <pre className="whitespace-pre rounded bg-gray-50 p-3 text-sm overflow-auto">{`Train Data (60%)  →  [Learning Phase] → Model learns from examples
 Val Data (20%)    →  [Tuning Phase]   → Adjust fairly (no peeking at test)
 Test Data (20%)   →  [Final Test]     → One-time honest score`}</pre>
             <Box tone="pro" title="Why this matters">
@@ -372,12 +382,12 @@ Test Data (20%)   →  [Final Test]     → One-time honest score`}</pre>
           </section>
 
           {/* Frame */}
-          <section id="frame" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-3">
+          <section id="frame" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">1) Frame the problem</h2>
-            <p className="text-gray-700 dark:text-gray-300">
+            <p className="text-gray-700">
               <strong>What:</strong> Turn a vague wish into a clear question. <strong>Why:</strong> Your question decides your data, model, and metric.
             </p>
-            <ul className="list-disc pl-5 text-gray-700 dark:text-gray-300 space-y-1 text-sm">
+            <ul className="list-disc pl-5 text-gray-700 space-y-1 text-sm">
               <li><em>Regression</em> → number (house price)</li>
               <li><em>Classification</em> → label (spam / not-spam)</li>
             </ul>
@@ -391,10 +401,10 @@ Test Data (20%)   →  [Final Test]     → One-time honest score`}</pre>
           </section>
 
           {/* Data */}
-          <section id="data" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-3">
+          <section id="data" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">2) Get & split the data</h2>
-            <p className="text-gray-700 dark:text-gray-300">Shuffle first, then split (e.g., 60/20/20). Train to learn, validation to tune, test only once at the end.</p>
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 dark:bg-gray-900 p-3 rounded">{`# Simple split (no extra libraries)
+            <p className="text-gray-700">Shuffle first, then split (e.g., 60/20/20). Train to learn, validation to tune, test only once at the end.</p>
+            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`# Simple split (no extra libraries)
 import random
 random.seed(0)
 
@@ -414,13 +424,12 @@ len(train), len(val), len(test)`}</pre>
           </section>
 
           {/* Prepare */}
-          <section id="prepare" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-3">
+          <section id="prepare" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">3) Clean, explore, and make features</h2>
-            <p className="text-gray-700 dark:text-gray-300">
-              <strong>Clean:</strong> fix missing/weird values. <strong>Explore:</strong> check patterns and outliers.{' '}
-              <strong>Features:</strong> create helpful inputs that reveal signal.
+            <p className="text-gray-700">
+              <strong>Clean:</strong> fix missing/weird values. <strong>Explore:</strong> check patterns and outliers. <strong>Features:</strong> create helpful inputs that reveal signal.
             </p>
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 dark:bg-gray-900 p-3 rounded">{`# Tiny EDA idea (pure Python)
+            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`# Tiny EDA idea (pure Python)
 nums = [1,2,3,4,5,100]
 mean = sum(nums)/len(nums)
 mad = sum(abs(x-mean) for x in nums)/len(nums)
@@ -431,10 +440,10 @@ print('mean=', mean, 'MAD=', round(mad,2))  # big MAD → possible outlier`}</pr
           </section>
 
           {/* Baseline */}
-          <section id="baseline" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-3">
+          <section id="baseline" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">4) Build a baseline</h2>
-            <p className="text-gray-700 dark:text-gray-300">A simple rule to beat. If your model can’t beat it, improve features or rethink the framing.</p>
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 dark:bg-gray-900 p-3 rounded">{`# Baseline: predict the mean (regression)
+            <p className="text-gray-700">A simple rule to beat. If your model can’t beat it, improve features or rethink the framing.</p>
+            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`# Baseline: predict the mean (regression)
 import statistics as st
 train = [2, 3, 4, 5]
 val   = [3, 6]
@@ -451,12 +460,12 @@ print('baseline MSE:', mse(val, val_pred))`}</pre>
           </section>
 
           {/* Train */}
-          <section id="train" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-3">
+          <section id="train" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">5) Train a tiny model (make better guesses)</h2>
-            <p className="text-gray-700 dark:text-gray-300">
+            <p className="text-gray-700">
               Learn a line <code>y ≈ a*x + b</code>: guess <code>a</code> and <code>b</code>, see how off we are, nudge them, repeat (gradient descent).
             </p>
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 dark:bg-gray-900 p-3 rounded">{`# Tiny gradient descent for y ≈ a*x + b
+            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`# Tiny gradient descent for y ≈ a*x + b
 xs = [0,1,2,3,4]
 ys = [1,3,5,7,9]   # roughly y = 2x + 1
 
@@ -476,12 +485,12 @@ print('a≈', round(a,3), 'b≈', round(b,3))`}</pre>
           </section>
 
           {/* Evaluate */}
-          <section id="evaluate" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-3">
+          <section id="evaluate" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">6) Evaluate (pick the right score)</h2>
-            <p className="text-gray-700 dark:text-gray-300">
+            <p className="text-gray-700">
               Choose a metric that matches your goal. For rare classes, accuracy can look good but hide mistakes—check precision/recall/F1 too.
             </p>
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 dark:bg-gray-900 p-3 rounded">{`# Accuracy can mislead with rare classes
+            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`# Accuracy can mislead with rare classes
 true = [1,1,1,1,0]
 pred = [1,1,1,1,1]
 acc = sum(int(t==p) for t,p in zip(true,pred)) / len(true)
@@ -492,9 +501,9 @@ print('accuracy=', acc)  # 0.8 looks good, but we missed the only 0!`}</pre>
           </section>
 
           {/* Iterate */}
-          <section id="iterate" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-3">
+          <section id="iterate" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">7) Improve → deploy → monitor</h2>
-            <ul className="list-disc pl-5 text-gray-700 dark:text-gray-300 space-y-1 text-sm">
+            <ul className="list-disc pl-5 text-gray-700 space-y-1 text-sm">
               <li>Try better features; compare to the baseline.</li>
               <li>Keep validation separate; test once at the end.</li>
               <li>Save the best model and serve it via an API.</li>
@@ -506,23 +515,23 @@ print('accuracy=', acc)  # 0.8 looks good, but we missed the only 0!`}</pre>
           </section>
 
           {/* Ethics */}
-          <section id="ethics" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-2">
+          <section id="ethics" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-2">
             <h2 className="text-xl font-semibold">Responsible ML</h2>
-            <p className="text-gray-700 dark:text-gray-300">
+            <p className="text-gray-700">
               Be mindful of bias and privacy. Ask “should we?” not just “can we?”. Simple checks early prevent harm later.
             </p>
           </section>
 
           {/* Practice */}
-          <section id="practice" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-4">
+          <section id="practice" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h2 className="text-xl font-semibold flex items-center gap-2">
               <ListChecks className="h-5 w-5" /> Practice mini-exercises (tiny, confidence-building)
             </h2>
 
             <div className="grid md:grid-cols-3 gap-4">
-              <div className="rounded-xl border border-gray-200 dark:border-gray-800 p-4 bg-gray-50 dark:bg-gray-900">
+              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
                 <h3 className="font-medium mb-2">1) Split & baseline</h3>
-                <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                <p className="text-sm text-gray-700 mb-2">
                   Make numbers 0..29. Shuffle. Split 60/20/20. Predict train mean on val. Print MSE.
                 </p>
                 <pre className="text-sm whitespace-pre-wrap">{`# Steps:
@@ -534,16 +543,16 @@ print('accuracy=', acc)  # 0.8 looks good, but we missed the only 0!`}</pre>
 # 6) print MSE`}</pre>
               </div>
 
-              <div className="rounded-xl border border-gray-200 dark:border-gray-800 p-4 bg-gray-50 dark:bg-gray-900">
+              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
                 <h3 className="font-medium mb-2">2) Fit a tiny line</h3>
-                <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                <p className="text-sm text-gray-700 mb-2">
                   Use the gradient descent example. Change <code>ys</code> to <code>3*x + 2</code> (optionally add small noise). Do <code>a</code> and <code>b</code> get near 3 and 2?
                 </p>
               </div>
 
-              <div className="rounded-xl border border-gray-200 dark:border-gray-800 p-4 bg-gray-50 dark:bg-gray-900">
+              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
                 <h3 className="font-medium mb-2">3) Metric sense</h3>
-                <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                <p className="text-sm text-gray-700 mb-2">
                   Make true/pred with a rare class. Compute accuracy. Why is it misleading? How would precision/recall help?
                 </p>
               </div>
@@ -555,13 +564,13 @@ print('accuracy=', acc)  # 0.8 looks good, but we missed the only 0!`}</pre>
           </section>
 
           {/* Runner */}
-          <section id="try" className="scroll-mt-28 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 shadow-sm space-y-3">
+          <section id="try" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">🏃‍♂️ Try it now</h2>
-            <p className="text-gray-700 dark:text-gray-300">
+            <p className="text-gray-700">
               Click “Initialize Python,” load an example, then “Run.” Read any error and try a tiny fix—this is where real learning happens.
             </p>
             <PythonRunnerWorker />
-            <div className="flex flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-300">
+            <div className="flex flex-wrap gap-2 text-xs text-gray-600">
               <QuickLoad
                 label="Split & mean baseline"
                 code={`import random, statistics as st
@@ -608,7 +617,7 @@ print('perfect!')`}
           <section className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
             <Link
               href="/course/week-1/data-structures"
-              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50"
             >
               <ChevronLeft className="h-4 w-4" /> Previous
             </Link>
@@ -617,19 +626,17 @@ print('perfect!')`}
                 onClick={markComplete}
                 className={cx(
                   'px-4 py-2 rounded-lg border',
-                  completed
-                    ? 'border-green-200 bg-green-50 text-green-800 dark:border-green-900/40 dark:bg-green-900/20 dark:text-green-300'
-                    : 'border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800'
+                  completed ? 'border-green-200 bg-green-50 text-green-800' : 'border-gray-200 hover:bg-gray-50'
                 )}
               >
                 {completed ? 'Completed ✓' : 'Mark Complete'}
               </button>
               <Link
-              href="/course/week-1/wrap-up"
-              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
-            >
-              <ChevronRight className="h-4 w-4" /> Next
-            </Link>
+                href="/course/week-1/wrap-up"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50"
+              >
+                <ChevronRight className="h-4 w-4" /> Next
+              </Link>
             </div>
           </section>
         </main>
@@ -699,9 +706,7 @@ self.onmessage = async (e) => {
       } else if (type === 'error') {
         setRunning(false);
         const hint = hintForError(String(data));
-        setOutput(
-          (o) => o + (o.endsWith('\n') ? '' : '\n') + '⚠️ ' + String(data) + (hint ? `\n💡 Hint: ${hint}` : '')
-        );
+        setOutput((o) => o + (o.endsWith('\n') ? '' : '\n') + '⚠️ ' + String(data) + (hint ? `\n💡 Hint: ${hint}` : ''));
       }
     };
   };
@@ -735,7 +740,7 @@ self.onmessage = async (e) => {
   return (
     <div>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-2">
-        <div className="text-sm text-gray-600 dark:text-gray-300">
+        <div className="text-sm text-gray-600">
           Interactive Python (loads when you click Initialize)
         </div>
         <div className="flex gap-2">
@@ -743,7 +748,7 @@ self.onmessage = async (e) => {
             <button
               onClick={init}
               disabled={initializing}
-              className="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
+              className="px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50"
             >
               {initializing ? 'Initializing…' : 'Initialize Python'}
             </button>
@@ -754,7 +759,7 @@ self.onmessage = async (e) => {
               </button>
               <button
                 onClick={resetConsole}
-                className="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
+                className="px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50"
               >
                 Clear Console
               </button>
@@ -763,14 +768,14 @@ self.onmessage = async (e) => {
         </div>
       </div>
       <textarea
-        className="w-full min-h-[220px] rounded-xl border border-gray-200 dark:border-gray-800 p-3 font-mono text-sm bg-white dark:bg-gray-900"
+        className="w-full min-h-[220px] rounded-xl border border-gray-200 p-3 font-mono text-sm bg-white"
         value={code}
         onChange={(e) => setCode(e.target.value)}
         spellCheck={false}
       />
       <div className="mt-3">
         <div className="text-sm font-medium mb-1">Console</div>
-        <pre className="w-full min-h-[160px] rounded-xl border border-gray-200 dark:border-gray-800 p-3 text-sm bg-gray-50 dark:bg-gray-950 overflow-auto whitespace-pre-wrap">
+        <pre className="w-full min-h-[160px] rounded-xl border border-gray-200 p-3 text-sm bg-gray-50 overflow-auto whitespace-pre-wrap">
           {output}
         </pre>
       </div>
@@ -781,7 +786,7 @@ self.onmessage = async (e) => {
 function QuickLoad({ label, code }: { label: string; code: string }) {
   return (
     <button
-      className="px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
+      className="px-2.5 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50"
       onClick={() => (globalThis as any).__setRunnerCode?.(code)}
       title="Load example into the editor"
     >

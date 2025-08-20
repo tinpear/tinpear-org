@@ -3,50 +3,71 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import {
+  Menu,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle2,
+  Sparkles,
+  Lightbulb,
+  AlertTriangle,
+} from 'lucide-react';
 
-/**
- * Week 1 • Lesson 2: Data Structures (Beginner-first, page-based)
- * - Pure Tailwind + semantic HTML (no external UI kits)
- * - Uses existing `public.profiles` (read-only)
- * - Simple progress tracking via `tracking` (user_id, key)
- * - Step-by-step explanations with analogies + simple examples
- * - 🚨 Common Mistake Prevention: warnings & pro tips per section
- * - 🏃‍♂️ Runner: Web Worker + Pyodide (lazy init) with quick-loads
- * - Mobile-first layout with a left sidebar (collapsible on small screens)
- */
-
-const PROGRESS_KEY = 'week-1:data-structures';
+// --- Config ------------------------------------------------------------------
+const PROGRESS_KEY = 'week-1:python-syntax';
 
 const SECTIONS = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'map', label: 'The Map (All Types)' },
-  { id: 'str', label: 'Strings (str): text as beads' },
-  { id: 'bool', label: 'Booleans (bool): light switches' },
-  { id: 'numbers', label: 'Numbers (int/float): counts vs measures' },
-  { id: 'list', label: 'Lists: flexible playlists' },
-  { id: 'tuple', label: 'Tuples: locked boxes' },
-  { id: 'dict', label: 'Dictionaries: labeled drawers' },
-  { id: 'set', label: 'Sets: unique sticker packs' },
-  { id: 'choose', label: 'Choosing the Right One' },
-  { id: 'convert', label: 'Type Conversion' },
+  { id: 'intro', label: 'Lesson intro' },
+  { id: 'variables', label: 'Variables: labeled containers' },
+  { id: 'types', label: 'Core types (int/float/str/bool)' },
+  { id: 'print', label: 'Printing & f-strings' },
+  { id: 'control', label: 'Decisions: if / elif / else' },
+  { id: 'loops', label: 'Loops: for / while' },
+  { id: 'helpers', label: 'range · enumerate · zip' },
+  { id: 'functions', label: 'Functions: your own commands' },
+  { id: 'pitfalls', label: '🚨 Common Mistake Prevention' },
   { id: 'practice', label: 'Practice (3 levels)' },
-  { id: 'try', label: '🏃‍♂️ Try it now' },
+  { id: 'runner', label: 'Try it now' },
 ];
 
-function cx(...xs: Array<string | false | null | undefined>) {
+// --- Utilities ---------------------------------------------------------------
+function classNames(...xs: (string | boolean | undefined | null)[]) {
   return xs.filter(Boolean).join(' ');
 }
 
-function Box({ tone, title, children }: { tone: 'tip' | 'warn' | 'pro'; title: string; children: any }) {
+function Box({
+  tone,
+  title,
+  children,
+}: {
+  tone: 'tip' | 'warn' | 'pro';
+  title: string;
+  children: any;
+}) {
   const palette = {
-    tip: 'border-emerald-200 bg-emerald-50 text-emerald-900',
-    warn: 'border-amber-200 bg-amber-50 text-amber-900',
-    pro: 'border-sky-200 bg-sky-50 text-sky-900',
+    tip: {
+      border: 'border-emerald-200',
+      bg: 'bg-emerald-50',
+      text: 'text-emerald-900',
+      icon: <Lightbulb className="h-4 w-4" />,
+    },
+    warn: {
+      border: 'border-amber-200',
+      bg: 'bg-amber-50',
+      text: 'text-amber-900',
+      icon: <AlertTriangle className="h-4 w-4" />,
+    },
+    pro: {
+      border: 'border-sky-200',
+      bg: 'bg-sky-50',
+      text: 'text-sky-900',
+      icon: <Sparkles className="h-4 w-4" />,
+    },
   }[tone];
-  const icon = tone === 'tip' ? '💡' : tone === 'warn' ? '🚨' : '✨';
   return (
-    <div className={cx('rounded-xl border p-3 md:p-4 flex gap-3 items-start', palette)}>
-      <div className="mt-0.5 select-none">{icon}</div>
+    <div className={classNames('rounded-xl border p-3 md:p-4 flex gap-3 items-start', palette.border, palette.bg, palette.text)}>
+      <div className="mt-0.5">{palette.icon}</div>
       <div>
         <div className="font-medium mb-1">{title}</div>
         <div className="text-sm md:text-[0.95rem] leading-relaxed">{children}</div>
@@ -55,56 +76,58 @@ function Box({ tone, title, children }: { tone: 'tip' | 'warn' | 'pro'; title: s
   );
 }
 
-export default function DataStructuresPage() {
+// --- Page --------------------------------------------------------------------
+export default function PythonSyntaxPage() {
   const [user, setUser] = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
   const [completed, setCompleted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeId, setActiveId] = useState(SECTIONS[0].id);
 
-  // Load user + profile + tracking
+  // Force light mode on mount (handles client-side nav too)
+  useEffect(() => {
+    try {
+      const el = document.documentElement;
+      el.classList.remove('dark');
+      el.style.colorScheme = 'light';
+      ['theme', 'color-theme', 'ui-theme'].forEach((k) => {
+        if (localStorage.getItem(k) === 'dark') localStorage.setItem(k, 'light');
+      });
+    } catch {}
+  }, []);
+
   useEffect(() => {
     const run = async () => {
       setLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user ?? null);
       if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('username, full_name')
-          .eq('id', user.id)
-          .single();
-        setProfile(profile ?? null);
-        const { data: track } = await supabase
+        const { data } = await supabase
           .from('tracking')
           .select('completed')
           .eq('user_id', user.id)
           .eq('key', PROGRESS_KEY)
           .maybeSingle();
-        setCompleted(Boolean(track?.completed));
+        setCompleted(Boolean(data?.completed));
       }
       setLoading(false);
     };
     run();
   }, []);
 
-  const username = useMemo(
-    () => profile?.full_name || profile?.username || user?.email?.split('@')[0] || 'Learner',
-    [profile, user]
-  );
-
   const markComplete = async () => {
-    if (!user) return alert('Please sign in to save progress.');
-    const { error } = await supabase.from('tracking').upsert(
-      {
-        user_id: user.id,
-        key: PROGRESS_KEY,
-        completed: true,
-        completed_at: new Date().toISOString(),
-      },
-      { onConflict: 'user_id,key' }
-    );
+    if (!user) return alert('Please sign in to save your progress.');
+    const { error } = await supabase
+      .from('tracking')
+      .upsert(
+        {
+          user_id: user.id,
+          key: PROGRESS_KEY,
+          completed: true,
+          completed_at: new Date().toISOString(),
+        },
+        { onConflict: 'user_id,key' }
+      );
     if (error) {
       console.error(error);
       alert('Could not save progress.');
@@ -118,13 +141,16 @@ export default function DataStructuresPage() {
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (entry.isIntersecting) { setActiveId(entry.target.id); break; }
+          if (entry.isIntersecting) {
+            setActiveId(entry.target.id);
+            break;
+          }
         }
       },
       { rootMargin: '0px 0px -70% 0px', threshold: [0, 1] }
     );
-    const els = SECTIONS.map(s => document.getElementById(s.id)).filter(Boolean) as Element[];
-    els.forEach(el => observer.observe(el));
+    const els = SECTIONS.map((s) => document.getElementById(s.id)).filter(Boolean) as Element[];
+    els.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
   }, []);
 
@@ -134,19 +160,22 @@ export default function DataStructuresPage() {
       <header className="sticky top-0 z-30 border-b border-gray-100 backdrop-blur bg-white/70">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2 text-gray-900">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-600 text-white">DS</span>
-            <span className="font-bold">Week 1 • Data Structures</span>
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-600 text-white">
+              <Sparkles className="h-4 w-4" />
+            </span>
+            <span className="font-bold">Week 1 • Python Syntax</span>
           </div>
-          <div className="flex items-center gap-3 text-sm text-gray-600">
+          <div className="flex items-center gap-3">
             <button
               className="lg:hidden inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200"
-              onClick={() => setSidebarOpen(v => !v)}
+              onClick={() => setSidebarOpen((v) => !v)}
             >
-              {sidebarOpen ? 'Close' : 'Contents'}
+              {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+              Contents
             </button>
-            <span>
-              {loading ? 'Loading…' : user ? `Signed in as ${username}` : <Link href="/signin" className="underline">Sign in</Link>}
-            </span>
+            <div className="text-sm text-gray-600">
+              {loading ? 'Loading…' : user ? 'Signed in' : <Link href="/signin" className="underline">Sign in</Link>}
+            </div>
           </div>
         </div>
       </header>
@@ -154,229 +183,185 @@ export default function DataStructuresPage() {
       {/* Shell */}
       <div className="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)] gap-6">
         {/* Sidebar */}
-        <aside className={cx(
-          'lg:sticky lg:top-[72px] lg:h-[calc(100vh-88px)] lg:overflow-auto',
-          'rounded-2xl border border-gray-200 bg-white p-4 shadow-sm',
-          sidebarOpen ? '' : 'hidden lg:block'
-        )}>
+        <aside
+          className={classNames(
+            'lg:sticky lg:top-[72px] lg:h-[calc(100vh-88px)] lg:overflow-auto',
+            'rounded-2xl border border-gray-200 bg-white p-4 shadow-sm',
+            sidebarOpen ? '' : 'hidden lg:block'
+          )}
+        >
           <p className="text-xs uppercase tracking-wide text-gray-500 mb-3">In this lesson</p>
           <nav className="space-y-1">
-            {SECTIONS.map(s => (
-              <a key={s.id} href={`#${s.id}`}
-                 className={cx(
-                   'block px-3 py-2 rounded-lg text-sm',
-                   activeId === s.id
-                     ? 'bg-green-50 text-green-800'
-                     : 'hover:bg-gray-50 text-gray-700'
-                 )}
-              >{s.label}</a>
+            {SECTIONS.map((s) => (
+              <a
+                key={s.id}
+                href={`#${s.id}`}
+                className={classNames(
+                  'block px-3 py-2 rounded-lg text-sm',
+                  activeId === s.id ? 'bg-green-50 text-green-800' : 'hover:bg-gray-50 text-gray-700'
+                )}
+              >
+                {s.label}
+              </a>
             ))}
           </nav>
           <div className="mt-6 p-3 rounded-xl bg-gray-50 text-xs text-gray-600">
-            Don’t worry if you get stuck — that’s normal. Small wins add up.
+            Don’t worry if you get stuck — that’s normal. Small steps compound.
           </div>
         </aside>
 
         {/* Main */}
-        <main className="space-y-10">
-          {/* OVERVIEW */}
-          <section id="overview" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Data Structures, step by step</h1>
+        <main className="space-y-8">
+          {/* Intro */}
+          <section id="intro" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Python Syntax, calmly explained</h1>
             <p className="text-gray-700">
-              Think of data structures as different kinds of containers: boxes, drawers, lists, and sticker packs. Each holds data in a
-              particular way, which makes some tasks easier. Choosing the right one keeps your code clean and your programs fast.
+              Think of Python as talking to the computer in friendly, precise sentences. In this lesson, we’ll build your core vocabulary and grammar one brick at a time.
             </p>
+            <Box tone="tip" title="Mindset">
+              Progress over perfection. It’s okay to make mistakes — each error message is feedback, not failure.
+            </Box>
+          </section>
+
+          {/* Variables */}
+          <section id="variables" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+            <h2 className="text-xl font-semibold">Variables: labeled containers</h2>
+            <p className="text-gray-700">
+              A <em>variable</em> is a label you stick on a value so you can find it later, like a jar on a shelf: <code className="px-1 rounded bg-gray-100">sugar</code> → <code className="px-1 rounded bg-gray-100">'sweet'</code>.
+            </p>
+            <pre className="text-sm bg-gray-50 p-3 rounded whitespace-pre-wrap">{`total_cookies = 12
+friend_name = 'Ada'
+pi = 3.14159
+is_hungry = True`}</pre>
+            <Box tone="pro" title="Naming like a pro">
+              Use <code>lowercase_with_underscores</code> (e.g., <code>total_sales</code>). Avoid naming a variable <code>list</code>, <code>str</code>, <code>dict</code> — those are built-ins.
+            </Box>
+          </section>
+
+          {/* Core types */}
+          <section id="types" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+            <h2 className="text-xl font-semibold">Core types (int · float · str · bool)</h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
+                <h3 className="font-medium mb-1">Numbers</h3>
+                <pre className="text-sm whitespace-pre-wrap">{`apples = 7      # int
+price = 2.5     # float
+print(apples * price)`}</pre>
+                <p className="text-sm text-gray-600 mt-2">Use <code>//</code> for floor division and <code>**</code> for powers.</p>
+              </div>
+              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
+                <h3 className="font-medium mb-1">Text & Truth</h3>
+                <pre className="text-sm whitespace-pre-wrap">{`greeting = 'hello' # str
+is_weekend = False  # bool
+print(greeting.upper(), bool(1), bool(''))`}</pre>
+                <p className="text-sm text-gray-600 mt-2">
+                  <em>Truthiness</em>: empty things are <code>False</code> (<code>''</code>, <code>[]</code>, <code>{'{}'}</code>), others are <code>True</code>.
+                </p>
+              </div>
+            </div>
+            <Box tone="warn" title="Beginner trap: = vs ==">
+              <code>=</code> assigns a value (<code>x = 3</code>). <code>==</code> checks equality (<code>x == 3</code>). Mixing them up causes errors.
+            </Box>
+          </section>
+
+          {/* Printing */}
+          <section id="print" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+            <h2 className="text-xl font-semibold">Printing & f-strings</h2>
+            <p className="text-gray-700">Use <code>print()</code> to see what’s going on. f-strings are like fill-in-the-blank templates.</p>
+            <pre className="text-sm bg-gray-50 p-3 rounded whitespace-pre-wrap">{`name = 'Grace'
+score = 93.756
+print(f'Hello {name}, score: {score:.1f}')`}</pre>
             <Box tone="tip" title="Why this matters">
-              Every Python program manipulates data. The better your containers, the simpler your code and the fewer bugs you fight.
+              Printing as you go is the fastest way to debug and build intuition.
             </Box>
           </section>
 
-          {/* MAP */}
-          <section id="map" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
-            <h2 className="text-xl font-semibold">The Map (All Types)</h2>
-            <p className="text-gray-700">Scalars (single values) vs collections (many values).</p>
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`# Scalars
-x = 7          # int (whole numbers)
-pi = 3.14      # float (decimals)
-flag = True    # bool (True/False)
-name = "Ada"    # str (text)
-
-# Collections
-nums = [1, 2, 3]                # list (mutable, ordered)
-pair = (10, 20)                 # tuple (immutable, ordered)
-user = {"name": "Ada", "age": 36}  # dict (key → value)
-unique = {1, 2, 2, 3}           # set (unique items)`}</pre>
-            <p className="text-sm text-gray-600"><em>Mutable</em> = can change in place. <em>Immutable</em> = new value when changed.</p>
-          </section>
-
-          {/* STRINGS */}
-          <section id="str" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
-            <h2 className="text-xl font-semibold">Strings (<code>str</code>): text as beads</h2>
-            <p className="text-gray-700"><strong>What:</strong> A string is text. Imagine a necklace of letter beads — you can pick beads by position or slice a segment.</p>
-            <p className="text-gray-700"><strong>Why:</strong> Almost every program works with text: names, messages, file paths.</p>
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`s = " Python 101 "
-print(s[1])         # 'P' (indexing)
-print(s[1:7])       # 'Python' (slicing)
-print(s.strip())    # remove spaces at both ends → 'Python 101'
-print(s.lower())    # ' python 101 '
-print('-'.join(['a','b','c']))  # 'a-b-c'
-print('data'.replace('a','@'))  # 'd@t@'`}</pre>
-            <Box tone="warn" title="Common mistakes">
-              • Forgetting quotes (<code>name = Ada</code> ❌ → <code>name = 'Ada'</code> ✅)
-              <br />• Mixing single/double quotes incorrectly.
-              <br />• Expecting strings to change in place — they’re immutable (methods return new strings).
+          {/* Control flow */}
+          <section id="control" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+            <h2 className="text-xl font-semibold">Decisions: <code>if</code> / <code>elif</code> / <code>else</code></h2>
+            <p className="text-gray-700">Tell the computer what to do depending on a condition.</p>
+            <pre className="text-sm bg-gray-50 p-3 rounded whitespace-pre-wrap">{`temp = 28
+if temp >= 30:
+    status = 'hot'
+elif temp >= 20:
+    status = 'warm'
+else:
+    status = 'cool'
+print(status)`}</pre>
+            <Box tone="warn" title="Mind the colon & indentation">
+              Every <code>if</code>/<code>elif</code>/<code>else</code> line ends with <code>:</code>, and the following block is indented (use 4 spaces).
             </Box>
           </section>
 
-          {/* BOOLEANS */}
-          <section id="bool" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
-            <h2 className="text-xl font-semibold">Booleans (<code>bool</code>): light switches</h2>
-            <p className="text-gray-700"><strong>What:</strong> True/False values. Like a switch that’s on or off.</p>
-            <p className="text-gray-700"><strong>Why:</strong> Decisions in code depend on conditions.</p>
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`is_open = True
-is_admin = False
-print(is_open and is_admin)   # both must be True
-
-# Truthiness: empties are False; others True
-print(bool(0), bool(1), bool(''), bool('hi'), bool([]), bool([1]))
-
-# Comparisons return bool
-x, y = 3, 5
-print(x < y, x == y, x != y)`}</pre>
-            <Box tone="warn" title="Common mistakes">
-              • Using <code>True</code>/<code>False</code> with the wrong capitalization (must be capitalized).
-              <br />• Confusing assignment <code>=</code> with comparison <code>==</code>.
-              <br />• Assuming <code>'False'</code> is False — any non-empty string is True.
+          {/* Loops */}
+          <section id="loops" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+            <h2 className="text-xl font-semibold">Loops: <code>for</code> & <code>while</code></h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
+                <h3 className="font-medium mb-1">for: go through a collection</h3>
+                <pre className="text-sm whitespace-pre-wrap">{`for n in [1,2,3,4]:
+    print(n*n)`}</pre>
+              </div>
+              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
+                <h3 className="font-medium mb-1">while: repeat until a condition</h3>
+                <pre className="text-sm whitespace-pre-wrap">{`total, i = 0, 0
+nums = [3, 5, 2]
+while i < len(nums):
+    total += nums[i]
+    i += 1
+print(total)`}</pre>
+                <p className="text-sm text-gray-600 mt-2">Use <code>while</code> when you don’t know how many times you’ll loop.</p>
+              </div>
+            </div>
+            <Box tone="warn" title="Beginner trap: infinite loop">
+              Always make progress towards the stopping condition (e.g., increment <code>i</code>). If your loop never ends, press the runner’s Stop/refresh.
             </Box>
           </section>
 
-          {/* NUMBERS */}
-          <section id="numbers" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
-            <h2 className="text-xl font-semibold">Numbers (<code>int</code>/<code>float</code>): counts vs measures</h2>
-            <p className="text-gray-700"><strong>Analogy:</strong> Integers are like counting apples; floats are like measuring liters of juice.</p>
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`a, b = 7, 2
-print('add:', a + b)
-print('div:', a / b)     # 3.5 float division
-print('floor:', a // b)  # 3  floor division
-print('mod:', a % b)     # 1  remainder
-print('pow:', a ** b)    # 49`}</pre>
-            <Box tone="warn" title="Common mistakes">
-              • Expecting <code>/</code> to keep integers — it returns float; use <code>//</code> for floor division.
-              <br />• Float precision surprises (<code>0.1 + 0.2</code> is not exactly <code>0.3</code> in binary floats).
-              <br />• Mixing strings and numbers (<code>'3' + 2</code> ❌ → use <code>int('3') + 2</code> ✅).
+          {/* Helpers */}
+          <section id="helpers" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+            <h2 className="text-xl font-semibold">Handy helpers: <code>range</code>, <code>enumerate</code>, <code>zip</code></h2>
+            <pre className="text-sm bg-gray-50 p-3 rounded whitespace-pre-wrap">{`for i in range(3):
+    print('i =', i)
+
+names = ['Ada','Grace','Linus']
+for idx, name in enumerate(names):
+    print(idx, name)
+
+xs, ys = [1,2,3], [10,20,30]
+for x, y in zip(xs, ys):
+    print(x, y)`}</pre>
+          </section>
+
+          {/* Functions */}
+          <section id="functions" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+            <h2 className="text-xl font-semibold">Functions: your own commands</h2>
+            <p className="text-gray-700">A function is a recipe: inputs (ingredients) go in, steps run, and a result comes out.</p>
+            <pre className="text-sm bg-gray-50 p-3 rounded whitespace-pre-wrap">{`def greet(name='World'):
+    """Return a friendly message."""
+    return f'Hello, {name}!'
+
+print(greet())
+print(greet('Ada'))`}</pre>
+            <Box tone="tip" title="Why use functions?">
+              They reduce repetition, make testing easier, and keep code readable.
             </Box>
           </section>
 
-          {/* LISTS */}
-          <section id="list" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
-            <h2 className="text-xl font-semibold">Lists: flexible playlists</h2>
-            <p className="text-gray-700"><strong>Analogy:</strong> A playlist you can reorder, add to, and remove from.</p>
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`nums = [3, 1, 4]
-nums.append(1)      # [3, 1, 4, 1]
-nums.extend([5, 9]) # [3, 1, 4, 1, 5, 9]
-nums.insert(1, 2)   # [3, 2, 1, 4, 1, 5, 9]
-nums.remove(1)      # remove first 1 → [3, 2, 4, 1, 5, 9]
-x = nums.pop()      # remove last → 9
-nums.sort()         # in place sort
-print(nums)
-
-# Copies
-copy1 = nums[:]             # shallow copy
-copy2 = list(nums)          # shallow copy
-print(copy1 is nums)        # False`}</pre>
-            <Box tone="warn" title="Common mistakes">
-              • Changing a list while iterating over it (creates surprises). Build a new list instead.
-              <br />• Copy confusion: <code>copy = nums</code> shares the same list; use <code>nums[:]</code> or <code>list(nums)</code> for a copy.
-              <br />• Multiplying nested lists (<code>[[0]*3]*3</code>) shares rows; use a comprehension instead.
+          {/* Pitfalls */}
+          <section id="pitfalls" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
+            <h2 className="text-xl font-semibold">🚨 Common Mistake Prevention</h2>
+            <Box tone="warn" title="Shadowing built-ins">
+              Don’t name variables <code>list</code>, <code>dict</code>, <code>str</code>, <code>sum</code>, etc. Use <code>items_list</code>, <code>user_dict</code>, <code>total_sum</code>.
             </Box>
-            <Box tone="pro" title="Pro tip: list comprehensions">
-              Build lists concisely and clearly: <code>[n*n for n in nums if n % 2 == 0]</code>.
+            <Box tone="warn" title="Indentation & colons">
+              Blocks must be indented with spaces; lines like <code>if</code>, <code>for</code>, <code>def</code> end with <code>:</code>.
             </Box>
-          </section>
-
-          {/* TUPLES */}
-          <section id="tuple" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
-            <h2 className="text-xl font-semibold">Tuples: locked boxes</h2>
-            <p className="text-gray-700"><strong>Analogy:</strong> A small box you seal and label (e.g., coordinates <code>(x, y)</code>). Once sealed, you don’t rearrange items.</p>
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`pt = (10, 20)
-x, y = pt     # unpacking
-print(x, y)
-locations = {(6, 9): 'A', (3, 4): 'B'}  # tuples work as keys
-print(locations[(6, 9)])`}</pre>
-            <Box tone="warn" title="Common mistakes">
-              • Trying to modify a tuple (<code>pt[0] = 99</code> ❌).
-              <br />• Forgetting the trailing comma in single-item tuples: <code>(42,)</code> not <code>(42)</code>.
+            <Box tone="warn" title="Equality vs assignment">
+              <code>==</code> compares; <code>=</code> assigns. <code>if x = 3</code> is invalid — write <code>if x == 3</code>.
             </Box>
-          </section>
-
-          {/* DICTIONARIES */}
-          <section id="dict" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
-            <h2 className="text-xl font-semibold">Dictionaries: labeled drawers</h2>
-            <p className="text-gray-700"><strong>Analogy:</strong> A cabinet of drawers with labels (keys). Open a drawer to get its stuff (value).</p>
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`user = {'name': 'Ada', 'age': 36}
-print(user['name'])
-print(user.get('role', 'guest'))  # safe access
-
-user['role'] = 'admin'
-user.update({'active': True})
-print(user.keys(), user.values())
-
-# Count letters
-counts = {}
-for ch in 'banana':
-    counts[ch] = counts.get(ch, 0) + 1
-print(counts)`}</pre>
-            <Box tone="warn" title="Common mistakes">
-              • <code>KeyError</code> when a key is missing — use <code>dict.get(key, default)</code>.
-              <br />• Using unhashable keys (like lists) — keys must be immutable (str, int, tuple...).
-              <br />• Assuming order in old Python versions — modern dicts preserve insertion order but don’t rely on it for algorithms.
-            </Box>
-          </section>
-
-          {/* SETS */}
-          <section id="set" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
-            <h2 className="text-xl font-semibold">Sets: unique sticker packs</h2>
-            <p className="text-gray-700"><strong>Analogy:</strong> Toss duplicate stickers; keep one of each. Fast membership checks.</p>
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`a = {1, 2, 3}
-b = {3, 4}
-print(a | b)   # union → {1,2,3,4}
-print(a & b)   # intersection → {3}
-print(a - b)   # difference → {1,2}
-
-nums = [1,1,2,3,3,3]
-print(set(nums))  # {1,2,3}
-print(2 in a, 5 in a)`}</pre>
-            <Box tone="warn" title="Common mistakes">
-              • Expecting order (<code>set</code> is unordered).
-              <br />• Trying to put unhashable things inside (e.g., lists).
-              <br />• Confusing <code>a - b</code> (difference) with symmetric difference <code>a ^ b</code>.
-            </Box>
-          </section>
-
-          {/* Choosing the Right One */}
-          <section id="choose" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-2">
-            <h2 className="text-xl font-semibold">Choosing the Right One</h2>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1 text-sm">
-              <li><strong>list</strong>: ordered sequence you will edit or iterate a lot.</li>
-              <li><strong>tuple</strong>: a small, fixed record (e.g., coordinates, RGB).</li>
-              <li><strong>dict</strong>: when you need labels to find values quickly.</li>
-              <li><strong>set</strong>: when you care about uniqueness or fast <code>in</code> checks.</li>
-              <li><strong>str</strong>: text manipulation; treat it like a sequence (but it’s immutable).</li>
-              <li><strong>bool</strong>: driving decisions and control flow.</li>
-            </ul>
-            <Box tone="pro" title="Rule of thumb">
-              Start with a list. If you keep doing lookups by label, move to a dict. If you never change the items, a tuple might be safer.
-            </Box>
-          </section>
-
-          {/* Type Conversion */}
-          <section id="convert" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-2">
-            <h2 className="text-xl font-semibold">Type Conversion (casting)</h2>
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`int('42'), float('2.5'), str(3.14)
-list('abc'), tuple([1,2,3]), set([1,1,2])
-bool(0), bool(''), bool([1])`}</pre>
-            <Box tone="warn" title="Common mistakes">
-              • Casting fails on bad input (<code>int('3.5')</code> ❌). Clean or validate first.
+            <Box tone="pro" title="Pro tip: read errors top-to-bottom">
+              The last lines show where it failed; earlier lines explain why. Copy the minimal snippet and experiment in the runner.
             </Box>
           </section>
 
@@ -386,67 +371,79 @@ bool(0), bool(''), bool([1])`}</pre>
             <div className="grid md:grid-cols-3 gap-4">
               <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
                 <h3 className="font-medium mb-2">Level 1 · Foundations</h3>
-                <pre className="text-sm whitespace-pre-wrap">{`# 1) From '  Data Science  ', strip spaces + lowercase it.
-# 2) Turn [3,6,1,6,2] into a set of uniques.
-# 3) Build a dict from keys=['a','b'] and vals=[1,2].`}</pre>
+                <pre className="text-sm whitespace-pre-wrap">{`# 1) Make variables: name (str), age (int), student (bool) and print them.
+# 2) Use if/elif/else to classify a temperature number into 'cold/warm/hot'.
+# 3) Print numbers 1..5 and their squares.`}</pre>
               </div>
               <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
-                <h3 className="font-medium mb-2">Level 2 · Apply & Combine</h3>
-                <pre className="text-sm whitespace-pre-wrap">{`# Count letters in 'balloon' using dict + get.
-# Make pairs (x,y) for x in [1,2], y in [10,20] with a list comp.
-# Given words=['cat','dog','cow'], build {word: len(word)}.`}</pre>
+                <h3 className="font-medium mb-2">Level 2 · Functions</h3>
+                <pre className="text-sm whitespace-pre-wrap">{`# Write a function area_circle(r) using pi=3.14159.
+# Write greet(name) that returns 'Hello, <name>!'.
+# Write only_evens(nums) that returns a new list with even numbers.`}</pre>
               </div>
               <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
                 <h3 className="font-medium mb-2">Level 3 · Mini-challenge</h3>
-                <p className="text-sm text-gray-700">Write <code>top_counts(text, k)</code> returning the <em>k</em> most common letters as a dict.</p>
-                <pre className="text-sm whitespace-pre-wrap">{`def top_counts(text, k=3):
-    counts = {}
-    for ch in text.lower():
-        if ch.isalpha():
-            counts[ch] = counts.get(ch, 0) + 1
-    items = sorted(counts.items(), key=lambda t: t[1], reverse=True)
-    return dict(items[:k])
+                <pre className="text-sm whitespace-pre-wrap">{`# Return a letter grade from a list of scores.
+# A: >=90, B: >=80, C: >=70, else D.
 
-print(top_counts('Data Structures in Python'))`}</pre>
+def grade_average(scores):
+    avg = sum(scores)/len(scores) if scores else 0
+    if avg >= 90: return 'A'
+    elif avg >= 80: return 'B'
+    elif avg >= 70: return 'C'
+    else: return 'D'
+
+print(grade_average([88, 92, 79, 90]))`}</pre>
               </div>
             </div>
-            <Box tone="tip" title="Growth mindset">
-              If something feels tricky, that’s your brain building new connections. Take a breath, try a smaller example, and run it.
+            <Box tone="tip" title="Confidence boost">
+              Each exercise you finish is a real win. Celebrate small steps — they add up quickly.
             </Box>
           </section>
 
           {/* Runner */}
-          <section id="try" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+          <section id="runner" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">🏃‍♂️ Try it now</h2>
             <PythonRunnerWorker />
             <div className="flex flex-wrap gap-2 text-xs text-gray-600">
-              <QuickLoad label="Strings" code={`s=' Hello '\nprint(s.strip().upper())`} />
-              <QuickLoad label="List comp" code={`nums=[1,2,3,4,5]\nprint([n*n for n in nums if n%2==1])`} />
-              <QuickLoad label="Dict count" code={`text='banana'\ncounts={}\nfor ch in text:\n    counts[ch]=counts.get(ch,0)+1\nprint(counts)`} />
-              <QuickLoad label="Sets" code={`a={1,2,3}\nb={3,4}\nprint(a|b, a&b, a-b)`} />
-              <QuickLoad label="Oops (fix me)" code={`# Spot and fix the mistakes:\n# 1) Use == in the if\n# 2) Add a colon after if\n# 3) Indent the print\nx=3\nif x = 3\nprint('equal')`} />
+              <QuickLoad label="Variables" code={`name='Ada'\nage=36\nis_student=False\nprint(name, age, is_student)`} />
+              <QuickLoad label="f-strings" code={`name='Grace'\nscore=93.756\nprint(f'Hello {name}, score: {score:.1f}')`} />
+              <QuickLoad label="Decision" code={`temp=28\nif temp>=30: print('hot')\nelif temp>=20: print('warm')\nelse: print('cool')`} />
+              <QuickLoad label="Loop" code={`total=0\nfor n in [3,5,2]: total+=n\nprint(total)`} />
+              <QuickLoad label="Function" code={`def greet(name='World'):\n    return f'Hello, {name}!'\nprint(greet())\nprint(greet('Ada'))`} />
+              <QuickLoad label="Oops (fix me)" code={`# Try to run, then fix the mistakes:\n# 1) Use == instead of = in the if\n# 2) Add a colon after if\n# 3) Indent the print line\nx=3\nif x = 3\nprint('equal')`} />
             </div>
           </section>
 
-          {/* Footer Nav */}
+          {/* Nav + progress */}
           <section className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-            <Link href="/course/week-1/python-syntax" className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50">
-              ← Previous
+            <Link
+              href="/course/week-1"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50"
+            >
+              <ChevronLeft className="h-4 w-4" /> Previous
             </Link>
             <div className="flex items-center gap-3">
               <button
                 onClick={markComplete}
-                className={cx(
+                className={classNames(
                   'px-4 py-2 rounded-lg border',
                   completed
                     ? 'border-green-200 bg-green-50 text-green-800'
                     : 'border-gray-200 hover:bg-gray-50'
                 )}
+                title={user ? 'Save progress for this page' : 'Sign in to save progress'}
               >
-                {completed ? 'Completed ✓' : 'Mark Complete'}
+                {completed ? 'Progress saved ✓' : 'Mark lesson complete'}
               </button>
-              <Link href="/course/week-1/ml-workflow" className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:shadow">
-                Next →
+              <Link
+                href="/course/week-1/data-structures"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:shadow"
+                onClick={async () => {
+                  if (!completed) await markComplete();
+                }}
+              >
+                Next <ChevronRight className="h-4 w-4" />
               </Link>
             </div>
           </section>
@@ -462,41 +459,16 @@ function PythonRunnerWorker() {
   const [initializing, setInitializing] = useState(false);
   const [running, setRunning] = useState(false);
   const [output, setOutput] = useState<string>('');
-  const [code, setCode] = useState<string>(`# Write Python and click Run.\nname='World'\nprint('Hello,', name)\n2+2`);
+  const [code, setCode] = useState<string>(`# Edit and run Python here.\nprint('Hello, Python!')`);
   const workerRef = useRef<Worker | null>(null);
   const urlRef = useRef<string | null>(null);
 
   // Allow external quick loaders to set code
-  ;(globalThis as any).__setRunnerCode = (c: string) => setCode(c);
+  (globalThis as any).__setRunnerCode = (c: string) => setCode(c);
 
   const ensureWorker = () => {
     if (workerRef.current) return;
-    const workerCode = `self.language='python';
-let pyodideReadyPromise;
-async function init(){
-  if(!pyodideReadyPromise){
-    importScripts('https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js');
-    pyodideReadyPromise = loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/' });
-  }
-  self.pyodide = await pyodideReadyPromise;
-  self.pyodide.setStdout({ batched: (s) => postMessage({ type: 'stdout', data: s }) });
-  self.pyodide.setStderr({ batched: (s) => postMessage({ type: 'stderr', data: s }) });
-}
-self.onmessage = async (e) => {
-  const { type, code } = e.data || {};
-  try {
-    if (type === 'init'){
-      await init();
-      postMessage({ type: 'ready' });
-    } else if (type === 'run'){
-      await init();
-      let result = await self.pyodide.runPythonAsync(code);
-      postMessage({ type: 'result', data: String(result ?? '') });
-    }
-  } catch (err){
-    postMessage({ type: 'error', data: String(err) });
-  }
-};`;
+    const workerCode = `self.language='python';\nlet pyodideReadyPromise;\nasync function init(){\n  if(!pyodideReadyPromise){\n    importScripts('https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js');\n    pyodideReadyPromise = loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/' });\n  }\n  self.pyodide = await pyodideReadyPromise;\n  self.pyodide.setStdout({ batched: (s) => postMessage({ type: 'stdout', data: s }) });\n  self.pyodide.setStderr({ batched: (s) => postMessage({ type: 'stderr', data: s }) });\n}\nself.onmessage = async (e) => {\n  const { type, code } = e.data || {};\n  try {\n    if (type === 'init'){\n      await init();\n      postMessage({ type: 'ready' });\n    } else if (type === 'run'){\n      await init();\n      let result = await self.pyodide.runPythonAsync(code);\n      postMessage({ type: 'result', data: String(result ?? '') });\n    }\n  } catch (err){\n    postMessage({ type: 'error', data: String(err) });\n  }\n};`;
     const blob = new Blob([workerCode], { type: 'application/javascript' });
     const url = URL.createObjectURL(blob);
     urlRef.current = url;
@@ -506,7 +478,7 @@ self.onmessage = async (e) => {
       if (type === 'ready') {
         setInitialized(true);
         setInitializing(false);
-        setOutput('[python] ready\nTip: Click Run to execute the code.');
+        setOutput('[python] ready\nTip: click Run to execute the code.');
       } else if (type === 'stdout') {
         setOutput((o) => o + String(data));
       } else if (type === 'stderr') {
@@ -562,7 +534,9 @@ self.onmessage = async (e) => {
               <button onClick={run} disabled={running} className="px-3 py-2 rounded-lg bg-green-600 text-white hover:shadow">
                 {running ? 'Running…' : 'Run'}
               </button>
-              <button onClick={resetConsole} className="px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50">Clear Console</button>
+              <button onClick={resetConsole} className="px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50">
+                Clear Console
+              </button>
             </>
           )}
         </div>
@@ -575,7 +549,9 @@ self.onmessage = async (e) => {
       />
       <div className="mt-3">
         <div className="text-sm font-medium mb-1">Console</div>
-        <pre className="w-full min-h-[150px] rounded-xl border border-gray-200 p-3 text-sm bg-gray-50 overflow-auto whitespace-pre-wrap">{output}</pre>
+        <pre className="w-full min-h-[150px] rounded-xl border border-gray-200 p-3 text-sm bg-gray-50 overflow-auto whitespace-pre-wrap">
+          {output}
+        </pre>
       </div>
     </div>
   );
