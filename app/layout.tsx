@@ -19,30 +19,30 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <head>
         {/* Keep browser chrome light (inputs/scrollbars) */}
         <meta name="color-scheme" content="light" />
-        {/* 🔒 Hard lock: remove any 'dark' class and persisted dark theme BEFORE hydration */}
+        {/* 🔒 Hard lock: remove any 'dark' class & persisted dark theme BEFORE hydration */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
 (function(){
   try {
     var docEl = document.documentElement;
-    var body = document.body;
     // Strip 'dark' class if present
-    docEl.classList && docEl.classList.remove('dark');
-    body && body.classList && body.classList.remove('dark');
-    // Neutralize common persisted theme keys (next-themes, custom)
+    if (docEl && docEl.classList) docEl.classList.remove('dark');
+
+    // Neutralize common persisted theme keys
     try {
       var keys = ['theme','color-theme','ui-theme'];
-      for (var i=0;i<keys.length;i++){
-        var k = keys[i];
-        var v = localStorage.getItem(k);
-        if (v === 'dark') localStorage.setItem(k, 'light');
+      for (var i=0; i<keys.length; i++) {
+        if (localStorage.getItem(keys[i]) === 'dark') {
+          localStorage.setItem(keys[i], 'light');
+        }
       }
     } catch(e){}
+
     // Hint CSS light color-scheme
     docEl.style.colorScheme = 'light';
   } catch (e) {}
