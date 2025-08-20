@@ -204,4 +204,14 @@
   ::file-selector-button {
     border-color: var(--color-gray-200, currentColor);
   }
+  
+  /* Force light mode on all devices */
+  html {
+    color-scheme: light !important;
+  }
+  
+  /* Prevent dark mode from being applied */
+  .dark {
+    color-scheme: light !important;
+  }
 }
