@@ -441,7 +441,7 @@ print(point, colors)`}</pre>
                 {completed ? 'Completed ✓' : 'Mark Complete'}
               </button>
               <Link
-                href="/course/week-2/data-wrangling"
+                href="/course/week-2"
                 className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:shadow"
                 onClick={async () => { if (!completed) await markComplete(); }}
               >

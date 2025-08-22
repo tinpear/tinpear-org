@@ -249,7 +249,7 @@ export default function MLWorkflowPage() {
           {/* AI→ML→Python Landscape */}
           <section id="landscape" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 flex items-center gap-2">
-              <BrainCircuit className="h-6 w-6" /> AI → ML → Python: how it all fits
+               AI → ML → Python: how it all fits
             </h1>
             <p className="text-gray-700">
               <strong>Artificial Intelligence (AI)</strong> is the big umbrella: making computers do “smart” things.
