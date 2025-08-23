@@ -11,6 +11,7 @@ export default function SignIn() {
   const [error, setError] = useState('');
   const router = useRouter();
 
+  // Email/password login
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -20,16 +21,18 @@ export default function SignIn() {
     if (error) {
       setError(error.message);
     } else {
-      router.push('/learn'); // redirect after login
+      router.push('/'); // ✅ redirect after login
     }
   };
 
+  // Google OAuth login
   const handleGoogleLogin = async () => {
     setError('');
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`, // ✅ fixed to always hit callback
+        // ✅ Redirect straight to app/dashboard instead of /auth/callback
+        redirectTo: `${window.location.origin}/`,
       },
     });
 
