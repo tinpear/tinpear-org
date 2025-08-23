@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { FcGoogle } from 'react-icons/fc';
 
 export default function SignUp() {
   const [email, setEmail] = useState('');
@@ -23,20 +24,38 @@ export default function SignUp() {
     if (error) {
       setError(error.message);
     } else {
-      router.push('/'); // Redirect to login after successful signup
+      router.push('/'); // Redirect after successful signup
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      setError(error.message);
     }
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-md">
-        <h1 className="mb-6 text-3xl font-bold text-gray-900">Create a Tinpear Account</h1>
+        <h1 className="mb-6 text-3xl font-bold text-gray-900">
+          Create a Tinpear Account
+        </h1>
 
         <form onSubmit={handleSignUp} className="space-y-4">
           {error && <p className="text-red-600 text-sm">{error}</p>}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
               Email
             </label>
             <input
@@ -51,7 +70,10 @@ export default function SignUp() {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
               Password
             </label>
             <input
@@ -67,11 +89,25 @@ export default function SignUp() {
 
           <button
             type="submit"
-            className="w-full rounded-md bg-blue-600 py-2 text-white font-semibold hover:bg-blue-700 transition"
+            className="w-full rounded-md bg-green-600 py-2 text-white font-semibold hover:bg-blue-700 transition"
           >
             Sign Up
           </button>
         </form>
+
+        <div className="my-6 flex items-center">
+          <div className="flex-grow border-t border-gray-300" />
+          <span className="mx-2 text-sm text-gray-500">or</span>
+          <div className="flex-grow border-t border-gray-300" />
+        </div>
+
+        <button
+          onClick={handleGoogleSignIn}
+          className="w-full flex items-center justify-center gap-2 rounded-md border border-gray-300 bg-white py-2 text-gray-700 font-medium shadow-sm hover:bg-gray-50 transition"
+        >
+          <FcGoogle className="h-5 w-5" />
+          Continue with Google
+        </button>
 
         <p className="mt-6 text-center text-sm text-gray-600">
           Already have an account?{' '}

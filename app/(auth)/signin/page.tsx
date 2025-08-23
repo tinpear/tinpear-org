@@ -24,6 +24,20 @@ export default function SignIn() {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    setError('');
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`, // ✅ fixed to always hit callback
+      },
+    });
+
+    if (error) {
+      setError(error.message);
+    }
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-md">
@@ -42,7 +56,7 @@ export default function SignIn() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-green-500 focus:ring-green-500"
               placeholder="you@gmail.com"
             />
           </div>
@@ -57,28 +71,43 @@ export default function SignIn() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-green-500 focus:ring-green-500"
               placeholder="••••••••"
             />
           </div>
 
           <div className="flex items-center justify-between text-sm">
-            <Link href="/reset-password" className="text-blue-600 hover:underline">
+            <Link href="/reset-password" className="text-green-600 hover:underline">
               Forgot password?
             </Link>
           </div>
 
           <button
             type="submit"
-            className="w-full rounded-md bg-blue-600 py-2 text-white font-semibold hover:bg-blue-700 transition"
+            className="w-full rounded-md bg-green-600 py-2 text-white font-semibold hover:bg-green-700 transition"
           >
             Sign In
           </button>
         </form>
 
+        {/* Google login button */}
+        <div className="mt-4">
+          <button
+            onClick={handleGoogleLogin}
+            className="w-full flex items-center justify-center gap-2 rounded-md border border-gray-300 bg-white py-2 text-gray-700 font-semibold hover:bg-gray-50 transition"
+          >
+            <img
+              src="https://www.svgrepo.com/show/475656/google-color.svg"
+              alt="Google logo"
+              className="h-5 w-5"
+            />
+            Continue with Google
+          </button>
+        </div>
+
         <p className="mt-6 text-center text-sm text-gray-600">
           Don’t have an account?{' '}
-          <Link href="/signup" className="text-blue-600 hover:underline">
+          <Link href="/signup" className="text-green-600 hover:underline">
             Sign up
           </Link>
         </p>
