@@ -17,6 +17,7 @@ import {
   GitCompare,
   FileText,
   Notebook,
+  Hammer,
 } from 'lucide-react';
 
 // --- Config ------------------------------------------------------------------
@@ -27,6 +28,7 @@ const SECTIONS = [
   { id: 'why', label: 'Why Quick Evals' },
   { id: 'golden', label: 'Golden Set (Small & Strong)' },
   { id: 'assertions', label: 'Assertions & Pass/Fail' },
+  { id: 'playground', label: 'Assertion Playground' },
   { id: 'rubrics', label: 'Rubrics (Score 1–5)' },
   { id: 'ab', label: 'A/B & Regression' },
   { id: 'logging', label: 'Logging & Notes' },
@@ -78,6 +80,15 @@ export default function QuickEvalsLesson() {
   const [completed, setCompleted] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeId, setActiveId] = useState(SECTIONS[0].id);
+
+  // Playground state
+  const [pgOutput, setPgOutput] = useState<string>(
+    `{"tagline":"Meet less. Decide faster.","word_count":4}`
+  );
+  const [pgMaxWords, setPgMaxWords] = useState<string>('12');
+  const [pgBanned, setPgBanned] = useState<string>('revolutionary, synergy');
+  const [pgMustInclude, setPgMustInclude] = useState<string>('meet, decide');
+  const [pgResult, setPgResult] = useState<string>('');
 
   useEffect(() => {
     const run = async () => {
@@ -154,6 +165,28 @@ export default function QuickEvalsLesson() {
     return () => observer.disconnect();
   }, []);
 
+  // Playground checker (mirrors the simple JS from the lesson)
+  function runPlaygroundCheck() {
+    try {
+      const o = JSON.parse(pgOutput);
+      const maxWords = Number(pgMaxWords);
+      const banned = pgBanned.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+      const must = pgMustInclude.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+
+      const asText = JSON.stringify(o).toLowerCase();
+      const mainText = String(o.tagline || o.summary || o.answer || '').trim();
+      const wc = mainText ? mainText.split(/\s+/).filter(Boolean).length : 0;
+
+      if (maxWords && wc > maxWords) return setPgResult(`❌ Too many words (${wc} > ${maxWords})`);
+      for (const w of banned) { if (w && asText.includes(w)) return setPgResult(`❌ Contains banned term: ${w}`); }
+      for (const w of must) { if (w && !asText.includes(w)) return setPgResult(`❌ Missing keyword: ${w}`); }
+
+      setPgResult('✅ ok');
+    } catch {
+      setPgResult('❌ Invalid JSON');
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Header */}
@@ -185,7 +218,7 @@ export default function QuickEvalsLesson() {
 
       {/* Content area */}
       <div className="max-w-6xl mx-auto px-3 sm:px-4 py-6 sm:py-8 grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)] gap-4 sm:gap-6">
-        {/* Sidebar (slide-over on mobile, sticky on lg+) */}
+        {/* Sidebar */}
         <aside
           id="mobile-sidebar"
           className={cx(
@@ -222,7 +255,7 @@ export default function QuickEvalsLesson() {
           <section id="intro" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-2 sm:space-y-3">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">Quick Evaluations (Lightweight)</h1>
             <p className="text-base sm:text-lg text-gray-700">
-              You’ll learn simple, repeatable ways to measure prompt quality in minutes: small golden sets, pass/fail assertions, quick rubrics, and basic regression checks.
+              Think of quick evals like a <b>pre‑flight checklist</b>. In a few minutes, you confirm your prompt still flies: correct format, right tone, within limits.
             </p>
             <Box tone="tip" title="Outcome">
               A tiny eval kit you can run before shipping a prompt — and rerun after any change.
@@ -244,10 +277,15 @@ export default function QuickEvalsLesson() {
 
           {/* Golden set */}
           <section id="golden" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-3">
-            <h2 className="text-lg sm:text-xl font-semibold">Golden Set (Small & Strong)</h2>
-            <p className="text-sm sm:text-base text-gray-700">A handful of canonical inputs with expected outputs or properties.</p>
+            <div className="flex items-center gap-2">
+              <ClipboardCheck className="h-5 w-5 text-green-700" />
+              <h2 className="text-lg sm:text-xl font-semibold">Golden Set (Small & Strong)</h2>
+            </div>
+            <p className="text-sm sm:text-base text-gray-700">
+              A <b>golden set</b> is a handful of <i>canonical</i> inputs that represent what success looks like (plus 1–2 tricky edge cases).
+            </p>
             <div className="rounded-lg border border-gray-200 p-3 sm:p-4 bg-gray-50">
-              <div className="flex items-center gap-2 mb-2"><ClipboardCheck className="h-4 w-4" /><h3 className="font-medium">Example golden items</h3></div>
+              <div className="font-medium mb-2">Example golden items</div>
               <pre className="text-xs md:text-sm p-3 rounded bg-white border border-gray-200 overflow-auto whitespace-pre-wrap break-words">
 {`[
   {
@@ -259,57 +297,143 @@ export default function QuickEvalsLesson() {
     "input": "Create a tagline for an AI note tool (≤ 12 words).",
     "banned": ["revolutionary", "synergy"],
     "max_words": 12
+  },
+  {
+    "input": "Explain what to do if info is missing.",
+    "must_include": ["insufficient information"],
+    "max_words": 18
   }
 ]`}
               </pre>
             </div>
             <Box tone="tip" title="Balance the set">
-              Include edge cases: short/long inputs, tricky tone, missing info.
+              Include edge cases: short/long inputs, tricky tone, missing info. Keep it <b>small</b> but <b>representative</b>.
             </Box>
           </section>
 
           {/* Assertions */}
           <section id="assertions" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-3">
-            <h2 className="text-lg sm:text-xl font-semibold">Assertions & Pass/Fail</h2>
-            <p className="text-sm sm:text-base text-gray-700">Turn expectations into simple checks.</p>
+            <div className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-green-700" />
+              <h2 className="text-lg sm:text-xl font-semibold">Assertions & Pass/Fail</h2>
+            </div>
+            <p className="text-sm sm:text-base text-gray-700">
+              Assertions are simple rules that outputs must obey. They turn fuzzy “looks good” into <b>yes/no checks</b>.
+            </p>
             <div className="rounded-lg border border-gray-200 p-3 sm:p-4 bg-gray-50">
               <pre className="text-xs md:text-sm p-3 rounded bg-white border border-gray-200 overflow-auto whitespace-pre-wrap break-words">
 {`function check(output, rules) {
-  // output: your structured JSON string
   let o; try { o = JSON.parse(output); } catch { return 'Invalid JSON'; }
 
   if (rules.max_words) {
-    const wc = (o.tagline || o.summary || o.answer || '').trim().split(/\\s+/).filter(Boolean).length;
+    const txt = String(o.tagline || o.summary || o.answer || '').trim();
+    const wc = txt ? txt.split(/\\s+/).filter(Boolean).length : 0;
     if (wc > rules.max_words) return 'Too many words';
   }
   if (rules.banned) {
+    const hay = JSON.stringify(o).toLowerCase();
     for (const w of rules.banned) {
-      if (JSON.stringify(o).toLowerCase().includes(w)) return 'Contains banned term: ' + w;
+      if (hay.includes(w)) return 'Contains banned term: ' + w;
     }
   }
   if (rules.must_include) {
+    const hay = JSON.stringify(o).toLowerCase();
     for (const w of rules.must_include) {
-      if (!JSON.stringify(o).toLowerCase().includes(w)) return 'Missing: ' + w;
+      if (!hay.includes(w)) return 'Missing: ' + w;
     }
   }
   return 'ok';
 }`}
               </pre>
             </div>
-            <Box tone="pro" title="Use your format contract">
-              Assertions are easiest when your prompt already returns <b>structured JSON</b>.
+            <Box tone="pro" title="Tip">
+              Assertions are easiest when your prompt returns <b>structured JSON</b>.
             </Box>
+          </section>
+
+          {/* Assertion Playground */}
+          <section id="playground" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-2">
+              <Hammer className="h-5 w-5 text-green-700" />
+              <h2 className="text-lg sm:text-xl font-semibold">Assertion Playground</h2>
+            </div>
+            <p className="text-sm sm:text-base text-gray-700 mb-3">
+              Paste a JSON output and run quick checks locally. No backend required.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+              <div>
+                <div className="text-xs text-gray-600 mb-1">Output JSON</div>
+                <textarea
+                  className="w-full min-h-[180px] rounded-xl border border-gray-200 p-3 font-mono text-xs sm:text-sm bg-white"
+                  value={pgOutput}
+                  onChange={(e) => setPgOutput(e.target.value)}
+                  spellCheck={false}
+                />
+              </div>
+              <div className="rounded-xl border border-gray-200 p-3 sm:p-4 bg-gray-50">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Max words</label>
+                    <input
+                      className="w-full rounded-lg border border-gray-200 p-2 text-sm bg-white"
+                      value={pgMaxWords}
+                      onChange={(e) => setPgMaxWords(e.target.value)}
+                      placeholder="e.g., 12"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Banned terms (comma‑sep)</label>
+                    <input
+                      className="w-full rounded-lg border border-gray-200 p-2 text-sm bg-white"
+                      value={pgBanned}
+                      onChange={(e) => setPgBanned(e.target.value)}
+                      placeholder="e.g., revolutionary, synergy"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs text-gray-600 mb-1">Must include (comma‑sep)</label>
+                    <input
+                      className="w-full rounded-lg border border-gray-200 p-2 text-sm bg-white"
+                      value={pgMustInclude}
+                      onChange={(e) => setPgMustInclude(e.target.value)}
+                      placeholder="e.g., meet, decide"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-3 flex items-center gap-2">
+                  <button
+                    onClick={runPlaygroundCheck}
+                    className="px-4 py-2 rounded-lg bg-green-600 text-white hover:shadow"
+                  >
+                    Check
+                  </button>
+                  <span className={cx(
+                    'text-sm',
+                    pgResult.startsWith('✅') ? 'text-green-700' : pgResult ? 'text-amber-700' : 'text-gray-600'
+                  )}>
+                    {pgResult || 'Result will appear here'}
+                  </span>
+                </div>
+              </div>
+            </div>
           </section>
 
           {/* Rubrics */}
           <section id="rubrics" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-3">
-            <h2 className="text-lg sm:text-xl font-semibold">Rubrics (Score 1–5)</h2>
-            <p className="text-sm sm:text-base text-gray-700">When binary checks aren’t enough, score the result on 2–4 dimensions.</p>
+            <div className="flex items-center gap-2">
+              <Scale className="h-5 w-5 text-green-700" />
+              <h2 className="text-lg sm:text-xl font-semibold">Rubrics (Score 1–5)</h2>
+            </div>
+            <p className="text-sm sm:text-base text-gray-700">
+              When pass/fail is too strict, add a tiny rubric. Score 2–4 things that matter most.
+            </p>
             <div className="rounded-lg border border-gray-200 p-3 sm:p-4 bg-gray-50">
-              <div className="flex items-center gap-2 mb-2"><Scale className="h-4 w-4" /><h3 className="font-medium">Sample rubric (tagline)</h3></div>
+              <div className="font-medium mb-2">Sample rubric (tagline)</div>
               <pre className="text-xs md:text-sm p-3 rounded bg-white border border-gray-200 overflow-auto whitespace-pre-wrap break-words">
 {`{
-  "clarity": 1..5,     // understandable to target audience
+  "clarity": 1..5,     // understandable for target audience
   "specificity": 1..5, // avoids vague claims
   "tone": 1..5,        // matches instructions (e.g., energetic)
   "format": 1..5       // respects length/JSON contract
@@ -323,10 +447,13 @@ export default function QuickEvalsLesson() {
 
           {/* A/B & Regression */}
           <section id="ab" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-3">
-            <h2 className="text-lg sm:text-xl font-semibold">A/B & Regression</h2>
+            <div className="flex items-center gap-2">
+              <GitCompare className="h-5 w-5 text-green-700" />
+              <h2 className="text-lg sm:text-xl font-semibold">A/B & Regression</h2>
+            </div>
             <p className="text-sm sm:text-base text-gray-700">Compare prompt variants and guard against backslides.</p>
             <div className="rounded-lg border border-gray-200 p-3 sm:p-4 bg-gray-50">
-              <div className="flex items-center gap-2 mb-2"><GitCompare className="h-4 w-4" /><h3 className="font-medium">Mini A/B plan</h3></div>
+              <div className="font-medium mb-2">Mini A/B plan</div>
               <pre className="text-xs md:text-sm p-3 rounded bg-white border border-gray-200 overflow-auto whitespace-pre-wrap break-words">
 {`Variants:
 - A: Current prompt
@@ -339,18 +466,21 @@ Procedure:
               </pre>
             </div>
             <Box tone="pro" title="Regression set">
-              Save failing cases — when fixed, they become permanent tests to prevent future regressions.
+              Save failing cases. When fixed, they become permanent tests to prevent future regressions.
             </Box>
           </section>
 
           {/* Logging & Notes */}
           <section id="logging" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-3">
-            <h2 className="text-lg sm:text-xl font-semibold">Logging & Notes</h2>
+            <div className="flex items-center gap-2">
+              <Notebook className="h-5 w-5 text-green-700" />
+              <h2 className="text-lg sm:text-xl font-semibold">Logging & Notes</h2>
+            </div>
             <p className="text-sm sm:text-base text-gray-700">
-              Keep a lightweight log of changes and outcomes so you know what actually helped.
+              Keep a lightweight log so you know what actually helped.
             </p>
             <div className="rounded-lg border border-gray-200 p-3 sm:p-4 bg-gray-50">
-              <div className="flex items-center gap-2 mb-2"><Notebook className="h-4 w-4" /><h3 className="font-medium">Changelog template</h3></div>
+              <div className="font-medium mb-2">Changelog template</div>
               <pre className="text-xs md:text-sm p-3 rounded bg-white border border-gray-200 overflow-auto whitespace-pre-wrap break-words">
 {`# Date: 2025-08-31
 Change: Added audience, banned terms.
@@ -369,7 +499,7 @@ Notes: Fewer verbose outputs; one edge case still fails (missing audience).`}
               <li>Unstructured outputs → can’t assert pass/fail easily.</li>
               <li>Changing multiple things at once → unclear what helped.</li>
             </ul>
-            <Box tone="warn" title="One-change rule">
+            <Box tone="warn" title="One‑change rule">
               Adjust one variable per iteration (role, constraint, format) to isolate impact.
             </Box>
           </section>

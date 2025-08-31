@@ -249,7 +249,7 @@ export default function LearnPage() {
         'PII handling & redaction patterns',
         'Logging secrets safely',
       ],
-      action: { text: 'Start Foundations', href: '/learn/ai-security/foundations' },
+       action: { text: 'Opens Sept. 8, 2025', href: '#', disabled: true },
     },
     {
       level: 'AI Security & Safety · Practitioner',
