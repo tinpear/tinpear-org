@@ -5,14 +5,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { ChevronLeft, ChevronRight, Sparkles, User2, CheckCircle2 } from 'lucide-react';
 
-/**
- * Beginner ML • Week 1 • Start Page (No MDX, simple pages only)
- * - Friendly welcome + name
- * - Calm, interesting intro to Python + short history
- * - Supabase progress tracking with a single, simple table: `tracking`
- * - Next/Previous nav (Previous disabled on start)
- * - Clear guidance for running Python in the browser (Pyodide)
- */
+
 
 // ---- Simple Progress (Supabase) ---------------------------------------------
 // Table: tracking

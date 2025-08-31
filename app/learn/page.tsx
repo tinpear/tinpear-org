@@ -175,7 +175,7 @@ export default function LearnPage() {
         'Feature Engineering',
         'Intro to Deployment',
       ],
-      action: { text: 'Opens Aug 8, 2025', href: '#', disabled: true },
+      action: { text: 'Opens Sept. 20, 2025', href: '#', disabled: true },
     },
     {
       level: 'Advanced ML',
@@ -188,7 +188,7 @@ export default function LearnPage() {
         'MLOps Fundamentals',
         'Capstone Projects',
       ],
-      action: { text: 'Opens Aug 28, 2025', href: '#', disabled: true },
+      action: { text: 'Opens Sept. 28, 2025', href: '#', disabled: true },
     },
   ];
 
@@ -218,7 +218,7 @@ export default function LearnPage() {
         'System prompts & safety rails',
         'Batch testing & eval harnesses',
       ],
-      action: { text: 'Start Intermediate', href: '/learn/prompt-engineering/intermediate' },
+       action: { text: 'Opens Sept. 28, 2025', href: '#', disabled: true },
     },
     {
       level: 'Prompt Engineering · Advanced',
@@ -231,7 +231,7 @@ export default function LearnPage() {
         'Red-teaming prompts & jailbreak resilience',
         'Production observability & drift',
       ],
-      action: { text: 'Start Advanced', href: '/learn/prompt-engineering/advanced' },
+       action: { text: 'Opens Sept. 28, 2025', href: '#', disabled: true },
     },
   ];
 
@@ -263,7 +263,7 @@ export default function LearnPage() {
         'Offline + online safety evaluations',
         'Attack libraries & red-team scripts',
       ],
-      action: { text: 'Start Practitioner', href: '/learn/ai-security/practitioner' },
+       action: { text: 'Opens Sept. 28, 2025', href: '#', disabled: true },
     },
     {
       level: 'AI Security & Safety · Advanced',
@@ -277,7 +277,7 @@ export default function LearnPage() {
         'Incident response runbooks for LLMs',
         'Governance, audits, & compliance',
       ],
-      action: { text: 'Start Advanced', href: '/learn/ai-security/advanced' },
+       action: { text: 'Opens Sept. 28, 2025', href: '#', disabled: true },
     },
   ];
 
