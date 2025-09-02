@@ -49,14 +49,17 @@ function Track({
 
         <div className="space-y-10 relative z-10">
           {stages.map((stage, index) => (
-            <div key={index} className="flex flex-col md:flex-row gap-6">
+            <div
+              key={index}
+              className="flex flex-col md:flex-row gap-6 transition-transform duration-200 will-change-transform hover:-translate-y-0.5"
+            >
               <div className="flex items-start">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-600 flex items-center justify-center">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-green-600 to-green-500 flex items-center justify-center shadow-sm ring-2 ring-green-100">
                   <span className="text-white font-bold text-sm">{index + 1}</span>
                 </div>
               </div>
 
-              <div className="flex-1 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+              <div className="flex-1 bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                   <h3 className="text-xl font-bold text-green-600">{stage.level}</h3>
                   <span className="text-sm text-gray-500">{stage.duration}</span>
@@ -79,10 +82,10 @@ function Track({
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Link
                     href={stage.action.href}
-                    className={`py-2.5 px-5 rounded-lg text-sm font-medium text-center transition-colors ${
+                    className={`py-2.5 px-5 rounded-lg text-sm font-medium text-center transition-all ${
                       stage.action.disabled
                         ? 'bg-gray-200 text-gray-600 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-green-600 to-green-500 hover:brightness-110 text-white'
+                        : 'bg-gradient-to-r from-green-600 to-green-500 hover:brightness-110 hover:shadow text-white'
                     }`}
                   >
                     {stage.action.text}
@@ -149,10 +152,27 @@ function CourseCard({
 }
 
 export default function LearnPage() {
-  // Machine Learning track
+  // Prompt Engineering track (FIRST)
+  const promptStages: Stage[] = [
+    {
+      level: 'Introduction to Prompt Engineering',
+      description: 'Design clear instructions and ship reliable prompts for everyday tasks.',
+      duration: '2 weeks · 3–5 hrs/week',
+      topics: [
+        'Instruction prompts: goals, constraints, roles',
+        'Few-shot patterns (show, not tell)',
+        'Chain-of-Thought vs concise prompting',
+        'Avoiding ambiguity & leakage',
+        'Quality checks & quick evals',
+      ],
+      action: { text: 'Begin Course', href: '/learn/prompt-engineering/beginner' },
+    },
+  ];
+
+  // Machine Learning track (SECOND)
   const mlStages: Stage[] = [
     {
-      level: 'Beginner ML',
+      level: 'Introduction to Machine Learning',
       description: 'Build foundational skills: Python, data wrangling, and your first ML models',
       duration: '3 weeks · 5–6 hrs/week',
       topics: [
@@ -164,120 +184,23 @@ export default function LearnPage() {
       ],
       action: { text: 'Begin Course', href: '/learn/beginner' },
     },
-    {
-      level: 'Intermediate ML',
-      description: 'Master advanced techniques and unsupervised learning',
-      duration: '4 weeks · 6–8 hrs/week',
-      topics: [
-        'Advanced Algorithms (XGBoost, SVMs)',
-        'Model Evaluation Deep Dive',
-        'Clustering & Dimensionality Reduction',
-        'Feature Engineering',
-        'Intro to Deployment',
-      ],
-      action: { text: 'Opens Sept. 20, 2025', href: '#', disabled: true },
-    },
-    {
-      level: 'Advanced ML',
-      description: 'Build deep learning applications and production systems',
-      duration: '5+ weeks · 8+ hrs/week',
-      topics: [
-        'Neural Networks & TensorFlow',
-        'CNNs, NLP & Transformers',
-        'Model Deployment (FastAPI/Streamlit)',
-        'MLOps Fundamentals',
-        'Capstone Projects',
-      ],
-      action: { text: 'Opens Sept. 28, 2025', href: '#', disabled: true },
-    },
   ];
 
-  // Prompt Engineering track
-  const promptStages: Stage[] = [
+  // Ethical AI track (THIRD) — opened
+  const ethicalStages: Stage[] = [
     {
-      level: 'Prompt Engineering · Beginner',
-      description: 'Design clear instructions and ship reliable prompts for everyday tasks.',
+      level: 'Introduction to Ethical AI & Safety',
+      description:
+        'Understand responsible AI principles and practical safety techniques for real LLM apps.',
       duration: '2 weeks · 3–5 hrs/week',
       topics: [
-        'Instruction prompts: goals, constraints, roles',
-        'Few-shot patterns (show, not tell)',
-        'Chain-of-Thought vs concise prompting',
-        'Avoiding ambiguity & leakage',
-        'Quality checks & quick evals',
+        'AI ethics basics & fairness considerations',
+        'Threat modeling & prompt injection awareness',
+        'Safety policies, system prompts, and PII handling',
+        'Provenance signals & transparency patterns',
+        'Lightweight safety evaluations',
       ],
-      action: { text: 'Start Beginner', href: '/learn/prompt-engineering/beginner' },
-    },
-    {
-      level: 'Prompt Engineering · Intermediate',
-      description: 'Build modular prompt systems with tools, memory, and structured outputs.',
-      duration: '3 weeks · 5–6 hrs/week',
-      topics: [
-        'Tool-use prompting (functions / actions)',
-        'JSON/Schema-constrained output',
-        'Retriever + prompt orchestration',
-        'System prompts & safety rails',
-        'Batch testing & eval harnesses',
-      ],
-       action: { text: 'Opens Sept. 28, 2025', href: '#', disabled: true },
-    },
-    {
-      level: 'Prompt Engineering · Advanced',
-      description: 'Optimize multi-step agents with monitoring and cost/latency controls.',
-      duration: '4 weeks · 6–8 hrs/week',
-      topics: [
-        'Multi-agent patterns & routing',
-        'Self-reflection & critique loops',
-        'Optimization (cost, latency, quality)',
-        'Red-teaming prompts & jailbreak resilience',
-        'Production observability & drift',
-      ],
-       action: { text: 'Opens Sept. 28, 2025', href: '#', disabled: true },
-    },
-  ];
-
-  // AI Security & Safety track
-  const securityStages: Stage[] = [
-    {
-      level: 'AI Security & Safety · Foundations',
-      description:
-        'Understand threat models for LLM apps and basic hardening techniques to prevent common failures.',
-      duration: '2 weeks · 3–5 hrs/week',
-      topics: [
-        'Threat modeling for LLM apps',
-        'Prompt injection & data exfiltration basics',
-        'Safety policies & system prompts',
-        'PII handling & redaction patterns',
-        'Logging secrets safely',
-      ],
-       action: { text: 'Opens Sept. 8, 2025', href: '#', disabled: true },
-    },
-    {
-      level: 'AI Security & Safety · Practitioner',
-      description:
-        'Implement robust filtering, sandboxing, and guardrails. Build an eval suite to continuously test risks.',
-      duration: '3 weeks · 5–6 hrs/week',
-      topics: [
-        'Content filtering & classifier choices',
-        'Tool sandboxing & least-privilege actions',
-        'Watermarking & provenance signals',
-        'Offline + online safety evaluations',
-        'Attack libraries & red-team scripts',
-      ],
-       action: { text: 'Opens Sept. 28, 2025', href: '#', disabled: true },
-    },
-    {
-      level: 'AI Security & Safety · Advanced',
-      description:
-        'Harden agent systems under adversarial pressure, set up incident response, and prove governance readiness.',
-      duration: '4 weeks · 6–8 hrs/week',
-      topics: [
-        'Adversarial prompt design & bypasses',
-        'Policy-as-code & auto-remediation',
-        'Secure function calling & data scopes',
-        'Incident response runbooks for LLMs',
-        'Governance, audits, & compliance',
-      ],
-       action: { text: 'Opens Sept. 28, 2025', href: '#', disabled: true },
+      action: { text: 'Begin Course', href: '/learn/ethical-ai' },
     },
   ];
 
@@ -289,7 +212,7 @@ export default function LearnPage() {
         <div className="max-w-6xl mx-auto space-y-16">
           {/* Hero – ONLY one button */}
           <section className="text-center space-y-6">
-            <div className="inline-flex items-center justify-center px-4 py-1.5 bg-green-100 text-green-600 rounded-full text-sm font-medium mb-4">
+            <div className="inline-flex items-center justify-center px-4 py-1.5 bg-green-100 text-green-600 rounded-full text-sm font-medium mb-4 shadow-sm">
               <Rocket className="h-4 w-4 mr-2" />
               Transform your career with AI
             </div>
@@ -303,7 +226,7 @@ export default function LearnPage() {
             <div className="flex justify-center">
               <Link
                 href="#courses"
-                className="bg-gradient-to-r from-green-600 to-green-500 hover:brightness-110 text-white py-3 px-6 rounded-lg font-medium flex items-center justify-center transition-all"
+                className="bg-gradient-to-r from-green-600 to-green-500 hover:brightness-110 text-white py-3 px-6 rounded-lg font-medium flex items-center justify-center transition-all shadow hover:shadow-md"
               >
                 Explore Learning Path <ChevronRight className="ml-2 h-4 w-4" />
               </Link>
@@ -349,25 +272,25 @@ export default function LearnPage() {
             <div className="-mx-4 px-4 md:hidden">
               <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2">
                 <CourseCard
-                  title="Machine Learning"
-                  subtitle="Beginner → Advanced"
-                  href="#ml-track"
-                  image={mlImg}
-                  alt="Machine Learning"
-                />
-                <CourseCard
                   title="Prompt Engineering"
-                  subtitle="Beginner → Advanced"
+                  subtitle="Beginner"
                   href="#prompt-engineering"
                   image={promptImg}
                   alt="Prompt Engineering"
                 />
                 <CourseCard
-                  title="AI Security & Safety"
-                  subtitle="Foundations → Advanced"
-                  href="#ai-security"
+                  title="Machine Learning"
+                  subtitle="Beginner"
+                  href="#ml-track"
+                  image={mlImg}
+                  alt="Machine Learning"
+                />
+                <CourseCard
+                  title="Ethical AI & Safety"
+                  subtitle="Foundations"
+                  href="#ethical-ai"
                   image={secureImg}
-                  alt="AI Security & Safety"
+                  alt="Ethical AI & Safety"
                 />
               </div>
             </div>
@@ -375,31 +298,38 @@ export default function LearnPage() {
             {/* Desktop: 3-column grid */}
             <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-6">
               <CourseCard
-                title="Machine Learning"
-                subtitle="Beginner → Advanced"
-                href="#ml-track"
-                image={mlImg}
-                alt="Machine Learning"
-              />
-              <CourseCard
                 title="Prompt Engineering"
-                subtitle="Beginner → Advanced"
+                subtitle="Beginner"
                 href="#prompt-engineering"
                 image={promptImg}
                 alt="Prompt Engineering"
               />
               <CourseCard
-                title="AI Security & Safety"
-                subtitle="Foundations → Advanced"
-                href="#ai-security"
+                title="Machine Learning"
+                subtitle="Beginner"
+                href="#ml-track"
+                image={mlImg}
+                alt="Machine Learning"
+              />
+              <CourseCard
+                title="Ethical AI & Safety"
+                subtitle="Foundations"
+                href="#ethical-ai"
                 image={secureImg}
-                alt="AI Security & Safety"
+                alt="Ethical AI & Safety"
               />
             </div>
           </section>
 
           {/* Learning Paths */}
           <section id="learning-path">
+            <Track
+              title="Prompt Engineering Track"
+              badge="Start Here"
+              stages={promptStages}
+              anchorId="prompt-engineering"
+            />
+
             <Track
               title="Your Learning Journey · Machine Learning"
               badge="Recommended Path"
@@ -408,16 +338,9 @@ export default function LearnPage() {
             />
 
             <Track
-              title="Prompt Engineering Track"
-              badge="New"
-              stages={promptStages}
-              anchorId="prompt-engineering"
-            />
-
-            <Track
-              title="AI Security & Safety"
-              stages={securityStages}
-              anchorId="ai-security"
+              title="Ethical AI & Safety"
+              stages={ethicalStages}
+              anchorId="ethical-ai"
             />
           </section>
 
