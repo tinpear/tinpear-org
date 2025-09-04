@@ -65,7 +65,7 @@ export default function HeroHome() {
             </a>
             <a
               className="btn w-full bg-white text-gray-800 shadow-sm hover:bg-gray-50 sm:w-auto"
-              href="/apps"
+              href="/for-business"
             >
               For Businesses
             </a>
