@@ -16,9 +16,7 @@ import {
   CheckCircle,
   FileCode,
   Users,
-  Globe,
   Mail,
-  Rocket,
 } from 'lucide-react';
 
 import Footer from '@/components/ui/footer';
@@ -43,81 +41,56 @@ export default function ForBusinessPage() {
       <Header />
 
       <main className="min-h-screen">
-        {/* HERO (light theme, black text, green accents) */}
+        {/* HERO (centered) */}
         <section className="relative overflow-hidden bg-white">
           <div className="max-w-7xl mx-auto px-6 pt-28 pb-20">
-            <div className="grid lg:grid-cols-12 gap-10 items-center">
-              {/* Copy */}
-              <div className="lg:col-span-7">
-                <div className="inline-flex items-center gap-2 mb-5 text-[11px] font-medium uppercase tracking-wider text-green-700 bg-green-50 px-3 py-1 rounded-full">
-                  <span className="inline-block w-2 h-2 rounded-full bg-green-600" />
-                  Built for modern enterprises
-                </div>
-                <h1 className="text-4xl md:text-6xl font-extrabold leading-tight tracking-tight text-gray-900">
-                  AI that{' '}
-                  <span className="relative inline-block">
-                    <span className="text-green-600">accelerates</span>
-                    {/* animated underline */}
-                    <motion.span
-                      layoutId="underline"
-                      className="absolute left-0 right-0 -bottom-1 h-2 rounded-full bg-green-100"
-                      initial={{ scaleX: 0 }}
-                      animate={{ scaleX: 1 }}
-                      transition={{ duration: 0.9, ease: 'easeOut' }}
-                    />
-                  </span>{' '}
-                  your business
-                </h1>
-                <p className="mt-5 text-lg md:text-xl text-gray-700 max-w-2xl">
-                  From strategy to deployment, Tinpear designs and implements AI systems that automate work, augment teams, and deliver measurable ROI—securely and responsibly.
-                </p>
-                <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                  <a
-                    href="mailto:tinpear.now@gmail.com?subject=Get%20Started%20with%20Tinpear%20AI%20for%20Business"
-                    className="inline-flex items-center justify-center rounded-xl bg-gray-900 text-white font-semibold px-6 py-3 hover:bg-black transition shadow-md"
-                  >
-                    Talk to us
-                  </a>
-                  <Link
-                    href="#services"
-                    className="inline-flex items-center justify-center rounded-xl border border-gray-300 px-6 py-3 font-semibold text-gray-900 hover:bg-gray-50 transition"
-                  >
-                    Explore services
-                  </Link>
-                </div>
-
-                {/* Hero Stats */}
-                <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Stat label="Since" value="2019" />
-                  <Stat label="Industries" value="12+" />
-                  <Stat label="Projects delivered" value="150+" />
-                  <Stat label="Avg. time‑to‑value" value="< 6 wks" />
-                </div>
+            <div className="max-w-4xl mx-auto text-center">
+              <div className="inline-flex items-center gap-2 mb-5 text-[11px] font-medium uppercase tracking-wider text-green-700 bg-green-50 px-3 py-1 rounded-full">
+                <span className="inline-block w-2 h-2 rounded-full bg-green-600" />
+                Built for modern enterprises
               </div>
 
-              {/* Visual with subtle rocket animation */}
-              <div className="lg:col-span-5 relative h-[300px] md:h-[420px]">
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-gray-50 to-white border" />
-                {/* Launch pad */}
-                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-64 h-2 bg-gray-200 rounded-full" />
-                {/* Rocket */}
-                <motion.div
-                  initial={{ y: 120, opacity: 0 }}
-                  animate={{ y: -40, opacity: 1 }}
-                  transition={{ duration: 2, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' }}
-                  className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center"
-                >
-                  <div className="p-4 rounded-2xl bg-gray-900 text-white shadow-lg shadow-green-200/40">
-                    <Rocket className="w-8 h-8" />
-                  </div>
-                  {/* exhaust */}
-                  <motion.div
-                    className="mt-2 w-2 h-20 rounded-b-full bg-gradient-to-b from-green-400 to-transparent"
-                    initial={{ opacity: 0.7 }}
-                    animate={{ opacity: [0.7, 0.3, 0.7] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
+              <h1 className="text-4xl md:text-6xl font-extrabold leading-tight tracking-tight text-gray-900">
+                AI that{' '}
+                <span className="relative inline-block">
+                  <span className="text-green-600">accelerates</span>
+                  {/* animated underline */}
+                  <motion.span
+                    layoutId="underline"
+                    className="absolute left-0 right-0 -bottom-1 h-2 rounded-full bg-green-100"
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: 1 }}
+                    transition={{ duration: 0.9, ease: 'easeOut' }}
                   />
-                </motion.div>
+                </span>{' '}
+                your business
+              </h1>
+
+              <p className="mt-5 text-lg md:text-xl text-gray-700">
+                From strategy to deployment, Tinpear designs and implements AI systems that automate work, augment teams, and deliver measurable ROI—securely and responsibly.
+              </p>
+
+              <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+                <a
+                  href="mailto:tinpear.now@gmail.com?subject=Get%20Started%20with%20Tinpear%20AI%20for%20Business"
+                  className="inline-flex items-center justify-center rounded-xl bg-gray-900 text-white font-semibold px-6 py-3 hover:bg-black transition shadow-md"
+                >
+                  Talk to us
+                </a>
+                <Link
+                  href="#services"
+                  className="inline-flex items-center justify-center rounded-xl border border-gray-300 px-6 py-3 font-semibold text-gray-900 hover:bg-gray-50 transition"
+                >
+                  Explore services
+                </Link>
+              </div>
+
+              {/* Hero Stats */}
+              <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Stat label="Since" value="2019" />
+                <Stat label="Industries" value="12+" />
+                <Stat label="Projects delivered" value="150+" />
+                <Stat label="Avg. time‑to‑value" value="< 6 wks" />
               </div>
             </div>
           </div>
@@ -163,7 +136,7 @@ export default function ForBusinessPage() {
                   'Executive education & AI adoption playbooks',
                   'Responsible AI policy, governance & risk management',
                 ]}
-                image="/consult.jpg"
+                image="/consulting.jpg"
               />
 
               <ServiceCard
@@ -175,7 +148,7 @@ export default function ForBusinessPage() {
                   'Back‑office automations (ops, finance, HR)',
                   'RPA + LLM orchestration for complex workflows',
                 ]}
-                image="/automation.jpg"
+                image="/automated.jpg"
               />
 
               <ServiceCard
@@ -211,7 +184,7 @@ export default function ForBusinessPage() {
                   'Champion programs & internal academies',
                   'Playbooks, SOPs & ongoing office hours',
                 ]}
-                image="/training.jpg"
+                image="/train.jpg"
               />
 
               <ServiceCard
@@ -223,7 +196,7 @@ export default function ForBusinessPage() {
                   'Evaluation, monitoring, drift & feedback loops',
                   'SOC2‑ready patterns, audit trails & red‑teaming',
                 ]}
-                image="/security.jpg"
+                image="/sec.jpg"
               />
             </div>
           </div>
@@ -335,7 +308,7 @@ export default function ForBusinessPage() {
           </div>
         </section>
 
-        {/* INTEGRATIONS STRIP */}
+        {/* INTEGRATIONS STRIP — auto‑scrolling */}
         <section className="py-16 px-6 bg-gray-50 border-y">
           <div className="max-w-7xl mx-auto">
             <SectionHeader
@@ -343,8 +316,9 @@ export default function ForBusinessPage() {
               title="We meet you where you work"
               subtitle="Connect AI with your existing stack to unlock value fast."
             />
-            <div className="flex flex-wrap gap-3">
-              {[
+
+            <AutoScrollIntegrations
+              items={[
                 'Salesforce',
                 'HubSpot',
                 'Zendesk',
@@ -361,15 +335,10 @@ export default function ForBusinessPage() {
                 'WhatsApp Business',
                 'PostgreSQL',
                 'BigQuery',
-              ].map((name) => (
-                <span
-                  key={name}
-                  className="text-sm border rounded-full px-3 py-1 bg-white hover:bg-green-50 hover:border-green-200 transition"
-                >
-                  {name}
-                </span>
-              ))}
-            </div>
+              ]}
+              durationSeconds={40} // slower = larger number (sweet spot)
+              gapPx={12}
+            />
           </div>
         </section>
 
@@ -384,7 +353,7 @@ export default function ForBusinessPage() {
 
             <div className="grid md:grid-cols-3 gap-8">
               <UseCaseCard
-                image="/business/finance.jpg"
+                image="/fin.jpg"
                 title="Financial Services"
                 points={[
                   'KYC/AML document automation',
@@ -393,7 +362,7 @@ export default function ForBusinessPage() {
                 ]}
               />
               <UseCaseCard
-                image="/business/healthcare.jpg"
+                image="/med.jpg"
                 title="Healthcare"
                 points={[
                   'Intake, referral & discharge summaries',
@@ -402,7 +371,7 @@ export default function ForBusinessPage() {
                 ]}
               />
               <UseCaseCard
-                image="/business/ops.jpg"
+                image="/op.jpg"
                 title="Operations & CX"
                 points={[
                   'Ticket deflection & smart routing',
@@ -414,52 +383,8 @@ export default function ForBusinessPage() {
           </div>
         </section>
 
-        {/* CASE STUDY TEASERS */}
-        <section className="py-20 px-6 bg-gray-50">
-          <div className="max-w-7xl mx-auto">
-            <SectionHeader
-              eyebrow="Results"
-              title="From pilots to production"
-              subtitle="A glimpse at the kind of outcomes we deliver."
-            />
-            <div className="grid md:grid-cols-3 gap-6">
-              {[
-                {
-                  img: '/business/case-ops.jpg',
-                  tag: 'Ops Automation',
-                  title: '60% faster case resolution',
-                  desc: 'Built triage & summarization copilots integrated with ticketing and knowledge base.',
-                },
-                {
-                  img: '/business/case-sales.jpg',
-                  tag: 'Revenue Enablement',
-                  title: '2× pipeline coverage',
-                  desc: 'Deployed prospecting and drafting copilots connected to CRM and email.',
-                },
-                {
-                  img: '/business/case-support.jpg',
-                  tag: 'Customer Support',
-                  title: '35% deflection in 90 days',
-                  desc: 'Launched multilingual chat with secure retrieval and human handoff.',
-                },
-              ].map((c) => (
-                <article key={c.title} className="bg-white border rounded-2xl overflow-hidden hover:shadow-md transition">
-                  <div className="relative h-44">
-                    <Image src={c.img} alt={c.tag} fill className="object-cover" />
-                  </div>
-                  <div className="p-5">
-                    <span className="text-[11px] uppercase tracking-wider text-green-700 bg-green-50 px-2 py-1 rounded">{c.tag}</span>
-                    <h3 className="mt-2 font-semibold">{c.title}</h3>
-                    <p className="text-sm text-gray-600 mt-1">{c.desc}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
         {/* TRAINING PROGRAMS */}
-        <section className="py-20 px-6 bg-white">
+        <section className="py-20 px-6 bg-gray-50">
           <div className="max-w-7xl mx-auto">
             <SectionHeader
               eyebrow="Enablement"
@@ -484,7 +409,7 @@ export default function ForBusinessPage() {
                   desc: 'Policies, red‑team checklists and evaluation guides embedded into workflows.',
                 },
               ].map((t) => (
-                <div key={t.title} className="bg-gray-50 border rounded-2xl p-6">
+                <div key={t.title} className="bg-white border rounded-2xl p-6">
                   <div className="flex items-center gap-3">
                     {t.icon}
                     <h3 className="font-semibold">{t.title}</h3>
@@ -675,5 +600,87 @@ function UseCaseCard({
         </ul>
       </div>
     </article>
+  );
+}
+
+/* ========== Auto-scrolling Integrations Row ========== */
+function AutoScrollIntegrations({
+  items,
+  durationSeconds = 40,
+  gapPx = 12,
+}: {
+  items: string[];
+  durationSeconds?: number; // higher = slower
+  gapPx?: number;
+}) {
+  // Duplicate items to create a seamless loop
+  const doubled = [...items, ...items];
+
+  return (
+    <div className="relative">
+      {/* Edge fades to make the scroll feel polished */}
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-gray-50 to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-gray-50 to-transparent" />
+
+      <div className="overflow-hidden">
+        <div className="scroller">
+          <div className="track">
+            {doubled.map((name, idx) => (
+              <span
+                key={`${name}-${idx}`}
+                className="badge"
+                style={{ marginRight: `${gapPx}px` }}
+              >
+                {name}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* styled-jsx for the marquee effect */}
+      <style jsx>{`
+        .scroller {
+          position: relative;
+          width: 100%;
+        }
+        .track {
+          display: inline-flex;
+          white-space: nowrap;
+          will-change: transform;
+          animation: scroll linear infinite;
+          animation-duration: ${durationSeconds}s;
+        }
+        .scroller:hover .track {
+          animation-play-state: paused;
+        }
+        .badge {
+          flex: 0 0 auto;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0.25rem 0.75rem;
+          border-radius: 9999px;
+          border: 1px solid rgba(0, 0, 0, 0.1);
+          background: #ffffff;
+          font-size: 0.875rem;
+          line-height: 1.25rem;
+        }
+        @keyframes scroll {
+          from {
+            transform: translateX(0);
+          }
+          to {
+            transform: translateX(-50%);
+          }
+        }
+        /* Respect Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+          .track {
+            animation: none;
+          }
+        }
+      `}</style>
+    </div>
   );
 }
