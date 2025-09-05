@@ -4,12 +4,14 @@ import Link from 'next/link';
 import Header from '@/components/ui/header';
 import Footer from '@/components/ui/footer';
 import Image, { StaticImageData } from 'next/image';
-import { ChevronRight, Check, Star, BookOpen, Rocket, GraduationCap } from 'lucide-react';
+import { ChevronRight, Check, Star, BookOpen, GraduationCap, Sparkles } from 'lucide-react';
 
 // Import images from /public
 import mlImg from '@/public/ml.jpg';
 import promptImg from '@/public/prompt.jpg';
 import secureImg from '@/public/secure.jpg';
+
+const aiEveryoneImg = '/ai-for-everyone.jpg';
 
 type Stage = {
   level: string;
@@ -32,13 +34,13 @@ function Track({
 }) {
   return (
     <section id={anchorId} className="scroll-mt-24 mt-16">
-      <div className="flex items-center justify-between mb-8">
-        <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+      <div className="flex items-center justify-between mb-6 md:mb-8">
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-900">{title}</h2>
         {badge ? (
-          <div className="hidden md:flex items-center text-sm text-gray-500">
-            <span className="bg-green-100 text-green-600 px-2 py-1 rounded">{badge}</span>
+          <div className="hidden md:flex items-center text-sm text-gray-600">
+            <span className="bg-green-100 text-green-700 px-2 py-1 rounded">{badge}</span>
             <div className="h-0.5 w-12 bg-green-200 mx-2" />
-            <span>Self-paced</span>
+            <span>Self‑paced</span>
           </div>
         ) : null}
       </div>
@@ -47,11 +49,11 @@ function Track({
         {/* Progress line */}
         <div className="absolute left-4 top-8 bottom-8 w-0.5 bg-green-200 z-0 hidden md:block" />
 
-        <div className="space-y-10 relative z-10">
+        <div className="space-y-8 md:space-y-10 relative z-10">
           {stages.map((stage, index) => (
             <div
               key={index}
-              className="flex flex-col md:flex-row gap-6 transition-transform duration-200 will-change-transform hover:-translate-y-0.5"
+              className="flex flex-col md:flex-row gap-5 md:gap-6 transition-transform duration-200 will-change-transform hover:-translate-y-0.5"
             >
               <div className="flex items-start">
                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-green-600 to-green-500 flex items-center justify-center shadow-sm ring-2 ring-green-100">
@@ -59,9 +61,9 @@ function Track({
                 </div>
               </div>
 
-              <div className="flex-1 bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                  <h3 className="text-xl font-bold text-green-600">{stage.level}</h3>
+              <div className="flex-1 bg-white p-5 md:p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 mb-3 md:mb-4">
+                  <h3 className="text-lg md:text-xl font-bold text-green-600">{stage.level}</h3>
                   <span className="text-sm text-gray-500">{stage.duration}</span>
                 </div>
 
@@ -103,7 +105,7 @@ function Track({
 /** -------------------------------------------
  * CourseCard (single image per card)
  * - Mobile: horizontal scroll-snap
- * - Desktop: 3-column grid
+ * - Desktop: responsive grid
  * ------------------------------------------*/
 function CourseCard({
   title,
@@ -111,12 +113,14 @@ function CourseCard({
   href,
   image,
   alt,
+  badge,
 }: {
   title: string;
   subtitle: string;
   href: string;
-  image: StaticImageData;
+  image: StaticImageData | string;
   alt: string;
+  badge?: string;
 }) {
   return (
     <Link
@@ -126,13 +130,19 @@ function CourseCard({
       <div className="h-full rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden hover:shadow-md transition-shadow">
         {/* Image */}
         <div className="p-2">
-          <div className="aspect-[16/9] rounded-lg overflow-hidden bg-gray-100">
+          <div className="relative aspect-[16/9] rounded-lg overflow-hidden bg-gray-100">
+            {!!badge && (
+              <span className="absolute z-10 top-3 left-3 inline-flex items-center gap-1 text-xs font-semibold bg-white/90 backdrop-blur px-2 py-1 rounded text-green-700 border border-green-200 shadow-sm">
+                <Sparkles className="h-3.5 w-3.5" /> {badge}
+              </span>
+            )}
             <Image
               src={image}
               alt={alt}
               className="h-full w-full object-cover"
-              sizes="(max-width: 768px) 80vw, 33vw"
+              sizes="(max-width: 768px) 80vw, (max-width: 1024px) 45vw, 25vw"
               priority={false}
+              fill
             />
           </div>
         </div>
@@ -152,7 +162,25 @@ function CourseCard({
 }
 
 export default function LearnPage() {
-  // Prompt Engineering track (FIRST)
+  // AI for Everyone (Beginner, no code)
+  const aiEveryoneStages: Stage[] = [
+    {
+      level: 'AI for Everyone',
+      description:
+        "New to AI? Start here. Get a friendly tour of today's AI landscape and practical, non-technical ways to use it at work. No math, no code—just clear explanations and hands-on demos.",
+      duration: '2 weeks · 2–3 hrs/week',
+      topics: [
+        'What AI can (and can’t) do today',
+        'Everyday workflows with AI assistants',
+        'Prompting basics for better results',
+        'Ethics, safety, and privacy essentials',
+        'Choosing the right AI tool for the job',
+      ],
+      action: { text: 'Begin Course', href: '/learn/ai-for-everyone' },
+    },
+  ];
+
+  // Prompt Engineering (Beginner)
   const promptStages: Stage[] = [
     {
       level: 'Introduction to Prompt Engineering',
@@ -169,7 +197,7 @@ export default function LearnPage() {
     },
   ];
 
-  // Machine Learning track (SECOND)
+  // Machine Learning (Beginner)
   const mlStages: Stage[] = [
     {
       level: 'Introduction to Machine Learning',
@@ -186,7 +214,7 @@ export default function LearnPage() {
     },
   ];
 
-  // Ethical AI track (THIRD) — opened
+  // Ethical AI & Safety (Beginner)
   const ethicalStages: Stage[] = [
     {
       level: 'Introduction to Ethical AI & Safety',
@@ -208,27 +236,29 @@ export default function LearnPage() {
     <>
       <Header />
 
-      <main className="min-h-screen bg-white px-4 sm:px-6 py-12 text-gray-800 mt-20">
-        <div className="max-w-6xl mx-auto space-y-16">
-          {/* Hero – ONLY one button */}
-          <section className="text-center space-y-6">
-            <div className="inline-flex items-center justify-center px-4 py-1.5 bg-green-100 text-green-600 rounded-full text-sm font-medium mb-4 shadow-sm">
-              <Rocket className="h-4 w-4 mr-2" />
-              Transform your career with AI
-            </div>
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900">
-              Master Machine Learning with <span className="text-green-500">Tinpear</span>
-            </h1>
-            <p className="text-lg text-gray-700 max-w-2xl mx-auto">
-              Structured, hands-on learning path designed for real-world deployment. Go from fundamentals to
-              production-ready models.
+      <main className="min-h-screen bg-white px-4 sm:px-6 py-10 md:py-12 text-gray-800 mt-20">
+        <div className="max-w-6xl mx-auto space-y-14 md:space-y-16">
+          {/* Announcement / Onboarding Nudge */}
+          <div className="rounded-xl border border-green-200 bg-gradient-to-r from-green-50 to-white p-4 md:p-5 flex items-start gap-3">
+            <Sparkles className="h-5 w-5 text-green-600 mt-0.5" />
+            <p className="text-sm md:text-base text-gray-800">
+              <span className="font-semibold text-green-700">New to AI?</span> Take our beginner course{' '}
+              <Link href="#ai-for-everyone" className="underline decoration-green-400 underline-offset-2 hover:text-green-700">
+                AI for Everyone
+              </Link>{' '}
+              to get ahead—no coding, just clear explanations and practical skills.
             </p>
+          </div>
+
+          {/* Hero (cleaner, no top pill) */}
+          <section className="text-center space-y-5 md:space-y-6">
+            <h1 className="text-4xl md:text-6xl font-bold text-gray-900"> Master Machine Learning with <span className="text-green-500">Tinpear</span> </h1> <p className="text-lg text-gray-700 max-w-2xl mx-auto"> Structured, hands-on learning path designed for real-world deployment. Go from fundamentals to production-ready models. </p>
             <div className="flex justify-center">
               <Link
                 href="#courses"
                 className="bg-gradient-to-r from-green-600 to-green-500 hover:brightness-110 text-white py-3 px-6 rounded-lg font-medium flex items-center justify-center transition-all shadow hover:shadow-md"
               >
-                Explore Learning Path <ChevronRight className="ml-2 h-4 w-4" />
+                Explore Courses <ChevronRight className="ml-2 h-4 w-4" />
               </Link>
             </div>
           </section>
@@ -245,13 +275,13 @@ export default function LearnPage() {
                 },
                 {
                   icon: <GraduationCap className="h-8 w-8 text-green-600" />,
-                  title: 'Industry-Ready Skills',
-                  description: 'Focus on deployable models and production best practices',
+                  title: 'Beginner-Friendly',
+                  description: 'Short lessons, plain language, and guided paths',
                 },
                 {
                   icon: <Star className="h-8 w-8 text-green-600" />,
-                  title: 'Personalized Feedback',
-                  description: 'Get code reviews and guidance from experts',
+                  title: 'Practical Outcomes',
+                  description: 'Finish with portfolio pieces and confidence',
                 },
               ].map((item, index) => (
                 <div key={index} className="text-center p-4">
@@ -263,14 +293,24 @@ export default function LearnPage() {
             </div>
           </section>
 
-          {/* Course Cards (one image each) */}
+          {/* Course Cards */}
           <section id="courses" aria-label="Available courses">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Choose a Course</h2>
-            <p className="text-gray-600 mb-6">Tap a course to jump to its learning path.</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Choose a Course</h2>
+            <p className="text-gray-600 mb-6">
+              Start with <span className="font-medium text-gray-900">AI for Everyone</span>, then continue with other beginner tracks.
+            </p>
 
             {/* Mobile: horizontal scroll-snap */}
             <div className="-mx-4 px-4 md:hidden">
               <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2">
+                <CourseCard
+                  title="AI for Everyone"
+                  subtitle="Beginner · No coding"
+                  href="#ai-for-everyone"
+                  image={aiEveryoneImg}
+                  alt="AI for Everyone course"
+                  badge="New"
+                />
                 <CourseCard
                   title="Prompt Engineering"
                   subtitle="Beginner"
@@ -287,7 +327,7 @@ export default function LearnPage() {
                 />
                 <CourseCard
                   title="Ethical AI & Safety"
-                  subtitle="Foundations"
+                  subtitle="Beginner"
                   href="#ethical-ai"
                   image={secureImg}
                   alt="Ethical AI & Safety"
@@ -295,8 +335,16 @@ export default function LearnPage() {
               </div>
             </div>
 
-            {/* Desktop: 3-column grid */}
-            <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Desktop: 4-column grid */}
+            <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-6">
+              <CourseCard
+                title="AI for Everyone"
+                subtitle="Beginner · No coding"
+                href="#ai-for-everyone"
+                image={aiEveryoneImg}
+                alt="AI for Everyone course"
+                badge="New"
+              />
               <CourseCard
                 title="Prompt Engineering"
                 subtitle="Beginner"
@@ -313,7 +361,7 @@ export default function LearnPage() {
               />
               <CourseCard
                 title="Ethical AI & Safety"
-                subtitle="Foundations"
+                subtitle="Beginner"
                 href="#ethical-ai"
                 image={secureImg}
                 alt="Ethical AI & Safety"
@@ -324,47 +372,55 @@ export default function LearnPage() {
           {/* Learning Paths */}
           <section id="learning-path">
             <Track
-              title="Prompt Engineering Track"
-              badge="Start Here"
+              title="AI for Everyone"
+              badge="Beginner"
+              stages={aiEveryoneStages}
+              anchorId="ai-for-everyone"
+            />
+
+            <Track
+              title="Prompt Engineering"
+              badge="Beginner"
               stages={promptStages}
               anchorId="prompt-engineering"
             />
 
             <Track
-              title="Your Learning Journey · Machine Learning"
-              badge="Recommended Path"
+              title="Machine Learning"
+              badge="Beginner"
               stages={mlStages}
               anchorId="ml-track"
             />
 
             <Track
               title="Ethical AI & Safety"
+              badge="Beginner"
               stages={ethicalStages}
               anchorId="ethical-ai"
             />
           </section>
 
           {/* Testimonials */}
-          <section className="py-16 bg-gray-50">
+          <section className="py-14 md:py-16 bg-gray-50 rounded-xl">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
-              <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">
+              <h2 className="text-3xl font-bold text-center mb-10 md:mb-12 text-gray-900">
                 Transformative <span className="text-green-600">Learning</span> Experiences
               </h2>
 
-              <div className="grid md:grid-cols-2 gap-8">
+              <div className="grid md:grid-cols-2 gap-6 md:gap-8">
                 {/* Testimonial 1 */}
-                <div className="bg-white p-8 rounded-xl shadow-md border border-gray-100 transform hover:-translate-y-2 transition-transform duration-300">
+                <div className="bg-white p-6 md:p-8 rounded-xl shadow-md border border-gray-100 transform hover:-translate-y-2 transition-transform duration-300">
                   <div className="flex items-center mb-4">
                     {[...Array(5)].map((_, i) => (
                       <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
                     ))}
                   </div>
-                  <blockquote className="text-lg italic text-gray-700 mb-6">
+                  <blockquote className="text-base md:text-lg italic text-gray-700 mb-6">
                     "Coming from a non-tech background, I was intimidated by ML. Tinpear's 'learn-by-building' approach gave me the confidence to
                     not just understand concepts, but implement them. Within 6 months, I transitioned from marketing to a junior ML engineer role."
                   </blockquote>
                   <div className="flex items-center">
-                    <div className="relative w-14 h-14 rounded-full overflow-hidden bg-gradient-to-br from-green-100 to-green-50">
+                    <div className="relative w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden bg-gradient-to-br from-green-100 to-green-50">
                       <div className="absolute inset-0 flex items-center justify-center text-green-600 font-bold">SD</div>
                     </div>
                     <div className="ml-4">
@@ -375,19 +431,19 @@ export default function LearnPage() {
                 </div>
 
                 {/* Testimonial 2 */}
-                <div className="bg-white p-8 rounded-xl shadow-md border border-gray-100 transform hover:-translate-y-2 transition-transform duration-300">
+                <div className="bg-white p-6 md:p-8 rounded-xl shadow-md border border-gray-100 transform hover:-translate-y-2 transition-transform duration-300">
                   <div className="flex items-center mb-4">
                     {[...Array(5)].map((_, i) => (
                       <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
                     ))}
                     <span className="ml-2 text-sm text-gray-500">Capstone Project</span>
                   </div>
-                  <blockquote className="text-lg italic text-gray-700 mb-6">
+                  <blockquote className="text-base md:text-lg italic text-gray-700 mb-6">
                     "As a CS student, I knew theory but struggled with deployment. The end-to-end project guidance helped me build and deploy
                     a sentiment analysis API that became my portfolio centerpiece. Recruiters specifically mentioned it during interviews!"
                   </blockquote>
                   <div className="flex items-center">
-                    <div className="relative w-14 h-14 rounded-full overflow-hidden bg-gradient-to-br from-green-100 to-green-50">
+                    <div className="relative w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden bg-gradient-to-br from-green-100 to-green-50">
                       <div className="absolute inset-0 flex items-center justify-center text-green-600 font-bold">RK</div>
                     </div>
                     <div className="ml-4">
@@ -399,10 +455,10 @@ export default function LearnPage() {
               </div>
 
               {/* Mini Case Study */}
-              <div className="mt-12 bg-gradient-to-r from-green-600 to-green-700 rounded-xl p-8 text-white">
+              <div className="mt-10 md:mt-12 bg-gradient-to-r from-green-600 to-green-700 rounded-xl p-6 md:p-8 text-white">
                 <div className="max-w-3xl mx-auto text-center">
-                  <h3 className="text-xl font-bold mb-3">From Learning to Earning</h3>
-                  <p className="mb-5">
+                  <h3 className="text-lg md:text-xl font-bold mb-3">From Learning to Earning</h3>
+                  <p className="mb-2 md:mb-5">
                     Our students report an average <span className="font-bold">2.3x increase</span> in job interview callbacks
                     after completing projects from the curriculum
                   </p>

@@ -3,6 +3,8 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRef, useState } from 'react';
+import { supabase } from '@/lib/supabase';
 import { motion } from 'framer-motion';
 import {
   Briefcase,
@@ -90,13 +92,13 @@ export default function ForBusinessPage() {
                 <Stat label="Since" value="2019" />
                 <Stat label="Industries" value="12+" />
                 <Stat label="Projects delivered" value="150+" />
-                <Stat label="Avg. time‑to‑value" value="< 6 wks" />
+                <Stat label="Avg. time-to-value" value="< 6 wks" />
               </div>
             </div>
           </div>
         </section>
 
-        {/* TRUST STRIP (text‑only, no logos) */}
+        {/* TRUST STRIP (text-only, no logos) */}
         <section className="py-10 px-6 bg-white border-y">
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-wrap items-center justify-center gap-3 text-xs md:text-sm text-gray-600">
@@ -122,8 +124,8 @@ export default function ForBusinessPage() {
           <div className="max-w-7xl mx-auto">
             <SectionHeader
               eyebrow="What we do"
-              title="End‑to‑end AI for real business impact"
-              subtitle="A modular stack of services—from strategy and proof‑of‑value to enterprise‑grade deployment and enablement."
+              title="End-to-end AI for real business impact"
+              subtitle="A modular stack of services—from strategy and proof-of-value to enterprise-grade deployment and enablement."
             />
 
             <div className="grid md:grid-cols-2 gap-8">
@@ -142,10 +144,10 @@ export default function ForBusinessPage() {
               <ServiceCard
                 icon={<Bot className="w-6 h-6 text-green-700" />}
                 title="Automation & AI Agents"
-                description="Design autonomous and human‑in‑the‑loop agents that take work off your team’s plate while keeping humans in control."
+                description="Design autonomous and human-in-the-loop agents that take work off your team’s plate while keeping humans in control."
                 bullets={[
                   'Customer support copilots & 24/7 chat',
-                  'Back‑office automations (ops, finance, HR)',
+                  'Back-office automations (ops, finance, HR)',
                   'RPA + LLM orchestration for complex workflows',
                 ]}
                 image="/automated.jpg"
@@ -154,7 +156,7 @@ export default function ForBusinessPage() {
               <ServiceCard
                 icon={<FileCode className="w-6 h-6 text-green-700" />}
                 title="Custom AI Solutions"
-                description="Build bespoke copilots, RAG/knowledge apps, analytics copilots, and domain‑specific models tailored to your data and processes."
+                description="Build bespoke copilots, RAG/knowledge apps, analytics copilots, and domain-specific models tailored to your data and processes."
                 bullets={[
                   'LLM apps, RAG & knowledge retrieval',
                   'Forecasting, NLP, vision & classification',
@@ -180,7 +182,7 @@ export default function ForBusinessPage() {
                 title="Training & Enablement"
                 description="Upskill executives and teams to use, govern, and extend AI solutions with confidence."
                 bullets={[
-                  'Executive briefings & hands‑on workshops',
+                  'Executive briefings & hands-on workshops',
                   'Champion programs & internal academies',
                   'Playbooks, SOPs & ongoing office hours',
                 ]}
@@ -194,7 +196,7 @@ export default function ForBusinessPage() {
                 bullets={[
                   'Access controls, secret management & data isolation',
                   'Evaluation, monitoring, drift & feedback loops',
-                  'SOC2‑ready patterns, audit trails & red‑teaming',
+                  'SOC2-ready patterns, audit trails & red-teaming',
                 ]}
                 image="/sec.jpg"
               />
@@ -291,7 +293,7 @@ export default function ForBusinessPage() {
               {[
                 ['LLM apps & copilots', 'Chat, drafting, summarization, copilots embedded in your tools.'],
                 ['Retrieval (RAG) & knowledge', 'Use your documents, wikis and data safely in AI workflows.'],
-                ['Automation & orchestration', 'Multi‑step flows, human‑in‑the‑loop reviews, SLAs.'],
+                ['Automation & orchestration', 'Multi-step flows, human-in-the-loop reviews, SLAs.'],
                 ['Data engineering', 'ETL/ELT, warehouses, vector DBs, quality checks.'],
                 ['MLOps & evaluation', 'Offline/online evals, monitoring, feedback loops.'],
                 ['Security & compliance', 'Access controls, audit trails, encryption and policies.'],
@@ -308,7 +310,7 @@ export default function ForBusinessPage() {
           </div>
         </section>
 
-        {/* INTEGRATIONS STRIP — auto‑scrolling */}
+        {/* INTEGRATIONS STRIP — auto-scrolling */}
         <section className="py-16 px-6 bg-gray-50 border-y">
           <div className="max-w-7xl mx-auto">
             <SectionHeader
@@ -342,11 +344,11 @@ export default function ForBusinessPage() {
           </div>
         </section>
 
-        {/* INDUSTRY USE‑CASES */}
+        {/* INDUSTRY USE-CASES */}
         <section className="py-20 px-6 bg-white">
           <div className="max-w-7xl mx-auto">
             <SectionHeader
-              eyebrow="Use‑cases"
+              eyebrow="Use-cases"
               title="Proven patterns across industries"
               subtitle="We tailor solutions to your context while reusing what works."
             />
@@ -383,30 +385,42 @@ export default function ForBusinessPage() {
           </div>
         </section>
 
+        {/* CONTACT — stores directly to Supabase */}
+        <section className="py-20 px-6 bg-white">
+          <div className="max-w-3xl mx-auto">
+            <SectionHeader
+              eyebrow="Contact"
+              title="Request a consult"
+              subtitle="Tell us a bit about your goals and we’ll reach out."
+            />
+            <ContactForm />
+          </div>
+        </section>
+
         {/* TRAINING PROGRAMS */}
         <section className="py-20 px-6 bg-gray-50">
           <div className="max-w-7xl mx-auto">
             <SectionHeader
               eyebrow="Enablement"
               title="Training that sticks"
-              subtitle="We build capability, not just software—so your teams succeed day‑to‑day."
+              subtitle="We build capability, not just software—so your teams succeed day-to-day."
             />
             <div className="grid md:grid-cols-3 gap-6">
               {[
                 {
                   icon: <GraduationCap className="w-5 h-5 text-green-700" />,
                   title: 'Executive briefings',
-                  desc: 'Board‑level sessions on AI risk, strategy and governance, tailored to your sector.',
+                  desc: 'Board-level sessions on AI risk, strategy and governance, tailored to your sector.',
                 },
                 {
                   icon: <Users className="w-5 h-5 text-green-700" />,
-                  title: 'Hands‑on team workshops',
-                  desc: 'Role‑based curricula with exercises, templates and take‑home playbooks.',
+                  title: 'Hands-on team workshops',
+                  desc: 'Role-based curricula with exercises, templates and take-home playbooks.',
                 },
                 {
                   icon: <Shield className="w-5 h-5 text-green-700" />,
                   title: 'Responsible AI kits',
-                  desc: 'Policies, red‑team checklists and evaluation guides embedded into workflows.',
+                  desc: 'Policies, red-team checklists and evaluation guides embedded into workflows.',
                 },
               ].map((t) => (
                 <div key={t.title} className="bg-white border rounded-2xl p-6">
@@ -434,7 +448,7 @@ export default function ForBusinessPage() {
                 {
                   q: 'How do you handle data security and privacy?',
                   a:
-                    'We follow least‑privilege access, encrypt data in transit and at rest, and isolate environments by client. We can deploy in your cloud and integrate with your SSO/SCIM. Logs and prompts can be disabled or scrubbed per policy.',
+                    'We follow least-privilege access, encrypt data in transit and at rest, and isolate environments by client. We can deploy in your cloud and integrate with your SSO/SCIM. Logs and prompts can be disabled or scrubbed per policy.',
                 },
                 {
                   q: 'What does a typical project timeline look like?',
@@ -444,12 +458,12 @@ export default function ForBusinessPage() {
                 {
                   q: 'Which models and platforms do you work with?',
                   a:
-                    'We are model‑agnostic and choose what best fits your use case and constraints. We support major model providers and open‑source where appropriate, and we integrate with your existing cloud and data stack.',
+                    'We are model-agnostic and choose what best fits your use case and constraints. We support major model providers and open-source where appropriate, and we integrate with your existing cloud and data stack.',
                 },
                 {
                   q: 'Can you train our teams and help with change management?',
                   a:
-                    'Yes. Enablement is core to our approach—executive briefings, role‑based workshops, champion programs, SOPs, and ongoing office hours to embed AI into daily work.',
+                    'Yes. Enablement is core to our approach—executive briefings, role-based workshops, champion programs, SOPs, and ongoing office hours to embed AI into daily work.',
                 },
               ].map((f) => (
                 <details key={f.q} className="group p-6">
@@ -682,5 +696,122 @@ function AutoScrollIntegrations({
         }
       `}</style>
     </div>
+  );
+}
+
+/* ========== Supabase Contact Form (frontend insert) ========== */
+function ContactForm() {
+  const formRef = useRef<HTMLFormElement>(null);
+  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [error, setError] = useState('');
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError('');
+    setStatus('sending');
+
+    const fd = new FormData(formRef.current!);
+    const name = String(fd.get('name') || '').trim();
+    const email = String(fd.get('email') || '').trim();
+    const company = String(fd.get('company') || '').trim();
+    const message = String(fd.get('message') || '').trim();
+    const _hp = String(fd.get('_hp') || ''); // honeypot
+
+    try {
+      if (_hp) {
+        // bot trap: pretend success
+        setStatus('success');
+        formRef.current?.reset();
+        return;
+      }
+      if (!name || !email || !message) {
+        throw new Error('Please fill name, email, and message.');
+      }
+
+      const { error } = await supabase
+        .from('contact_messages')
+        .insert([{
+          name,
+          email,
+          company,
+          message,
+          user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : null,
+          page: typeof window !== 'undefined' ? window.location.pathname : null,
+        }]);
+
+      if (error) throw error;
+
+      setStatus('success');
+      formRef.current?.reset();
+    } catch (err: any) {
+      setError(err?.message ?? 'Something went wrong.');
+      setStatus('error');
+    }
+  };
+
+  return (
+    <form ref={formRef} onSubmit={onSubmit} className="bg-gray-50 border rounded-2xl p-6 space-y-4">
+      {/* Honeypot (hidden) */}
+      <input type="text" name="_hp" className="hidden" tabIndex={-1} autoComplete="off" />
+
+      <div className="grid md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Name</label>
+          <input
+            name="name"
+            required
+            className="mt-1 w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-green-200"
+            placeholder="Jane Doe"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Email</label>
+          <input
+            name="email"
+            type="email"
+            required
+            className="mt-1 w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-green-200"
+            placeholder="jane@company.com"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Company (optional)</label>
+        <input
+          name="company"
+          className="mt-1 w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-green-200"
+          placeholder="Acme Inc."
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Message</label>
+        <textarea
+          name="message"
+          required
+          rows={5}
+          className="mt-1 w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-green-200"
+          placeholder="Tell us about your goals…"
+        />
+      </div>
+
+      <div className="flex items-center gap-3">
+        <button
+          type="submit"
+          disabled={status === 'sending'}
+          className="inline-flex items-center justify-center rounded-xl bg-gray-900 text-white font-semibold px-6 py-3 hover:bg-black transition shadow-md disabled:opacity-60"
+        >
+          {status === 'sending' ? 'Sending…' : 'Send message'}
+        </button>
+
+        {status === 'success' && (
+          <span className="text-sm text-green-700">Thanks! We’ll be in touch shortly.</span>
+        )}
+        {status === 'error' && (
+          <span className="text-sm text-red-600">{error || 'Failed to send. Try again.'}</span>
+        )}
+      </div>
+    </form>
   );
 }
