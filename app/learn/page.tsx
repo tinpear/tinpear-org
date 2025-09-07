@@ -297,7 +297,7 @@ export default function LearnPage() {
           <section id="courses" aria-label="Available courses">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Choose a Course</h2>
             <p className="text-gray-600 mb-6">
-              Start with <span className="font-medium text-gray-900">AI for Everyone</span>, then continue with other beginner tracks.
+              New to AI ? Start with <span className="font-medium text-gray-900">AI for Everyone</span>, then continue with other beginner tracks.
             </p>
 
             {/* Mobile: horizontal scroll-snap */}
