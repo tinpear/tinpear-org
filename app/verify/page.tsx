@@ -1,8 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+
+// OPTIONAL but recommended on Netlify to skip static generation for this page
+export const dynamic = 'force-dynamic';
 
 type CertRow = {
   cert_id: string;
@@ -26,20 +29,42 @@ function extractCid(input: string): string {
   return raw;
 }
 
+/** Wrapper page with Suspense so useSearchParams can bail out to CSR safely */
 export default function VerifyPage() {
+  return (
+    <Suspense fallback={<VerifySkeleton />}>
+      <VerifyClient />
+    </Suspense>
+  );
+}
+
+/** Lightweight loading UI for Suspense */
+function VerifySkeleton() {
+  return (
+    <div className="max-w-xl mx-auto p-6">
+      <h1 className="text-2xl font-semibold text-gray-900">Verify Certificate</h1>
+      <p className="text-sm text-gray-600 mt-1">Loading…</p>
+      <div className="mt-4 h-10 rounded-lg bg-gray-100 animate-pulse" />
+    </div>
+  );
+}
+
+/** Client component that actually uses useSearchParams */
+function VerifyClient() {
   const sp = useSearchParams();
   const initialCidParam = sp.get('cid') || '';
+
   const [cid, setCid] = useState(initialCidParam);
   const [row, setRow] = useState<CertRow | null>(null);
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [checked, setChecked] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
   const showResult = checked && !loading;
 
   const displayCourse = useMemo(() => {
     if (!row?.course_key) return '';
-    // Optional nicifying
     const map: Record<string, string> = {
       'ai-everyone': 'AI for Everyone',
       'pe-beginner': 'Prompt Engineering · Beginner',
@@ -58,7 +83,7 @@ export default function VerifyPage() {
     setSignedUrl(null);
 
     try {
-      // 1) Look up by cert_id (RLS must allow SELECT by cert_id = {id})
+      // 1) Look up by cert_id (RLS must allow SELECT by cert_id)
       const { data, error: selErr } = await supabase
         .from('certificates')
         .select('cert_id, full_name, course_key, issued_at, storage_path')
@@ -66,6 +91,7 @@ export default function VerifyPage() {
         .maybeSingle<CertRow>();
 
       if (selErr) throw selErr;
+
       setRow(data ?? null);
 
       // 2) If we have a file, create a 10-min signed URL
@@ -77,7 +103,7 @@ export default function VerifyPage() {
         if (!signErr) setSignedUrl(signed?.signedUrl ?? null);
       }
 
-      // 3) Make the result link shareable (update URL without a reload)
+      // 3) Update URL to be shareable without reload
       if (typeof window !== 'undefined') {
         const url = new URL(window.location.href);
         url.searchParams.set('cid', id);
@@ -98,9 +124,7 @@ export default function VerifyPage() {
 
   const shareUrl =
     typeof window !== 'undefined' && (row?.cert_id || cid)
-      ? `${window.location.origin}/verify?cid=${encodeURIComponent(
-          row?.cert_id || cid
-        )}`
+      ? `${window.location.origin}/verify?cid=${encodeURIComponent(row?.cert_id || cid)}`
       : '';
 
   return (
@@ -133,7 +157,6 @@ export default function VerifyPage() {
         </button>
       </form>
 
-      {/* Error */}
       {error && (
         <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-amber-800 text-sm">
           {error}
@@ -187,8 +210,7 @@ export default function VerifyPage() {
           <div className="text-amber-800 font-medium">Certificate not found ❌</div>
           <div className="text-sm text-gray-800 mt-2">
             We couldn’t find a certificate with ID{' '}
-            <code className="px-1 rounded bg-white border">{extractCid(cid)}</code>.
-            Please check the ID and try again.
+            <code className="px-1 rounded bg-white border">{extractCid(cid)}</code>. Please check the ID and try again.
           </div>
         </div>
       )}
