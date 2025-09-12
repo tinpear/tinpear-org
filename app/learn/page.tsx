@@ -1,4 +1,4 @@
-'use client';
+'use client'; 
 
 import Link from 'next/link';
 import Header from '@/components/ui/header';
@@ -12,6 +12,9 @@ import promptImg from '@/public/prompt.jpg';
 import secureImg from '@/public/secure.jpg';
 
 const aiEveryoneImg = '/ai-for-everyone.jpg';
+
+// --- Added: a single source of truth for the displayed (crossed‑out) price ---
+const DISPLAY_PRICE = '$9.99';
 
 type Stage = {
   level: string;
@@ -64,7 +67,15 @@ function Track({
               <div className="flex-1 bg-white p-5 md:p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 mb-3 md:mb-4">
                   <h3 className="text-lg md:text-xl font-bold text-green-600">{stage.level}</h3>
-                  <span className="text-sm text-gray-500">{stage.duration}</span>
+
+                  {/* --- Added: price display (crossed out) + Free tag + duration --- */}
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-gray-500 line-through select-none">{DISPLAY_PRICE}</span>
+                    <span className="text-xs font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded">
+                      Free
+                    </span>
+                    <span className="text-sm text-gray-500">{stage.duration}</span>
+                  </div>
                 </div>
 
                 <p className="text-gray-700 mb-5">{stage.description}</p>
@@ -151,6 +162,13 @@ function CourseCard({
         <div className="p-4">
           <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
           <p className="text-sm text-gray-600">{subtitle}</p>
+
+          {/* --- Added: price display (crossed out) + Free tag on the card --- */}
+          <div className="mt-2 flex items-center gap-2">
+            <span className="text-sm text-gray-500 line-through select-none">{DISPLAY_PRICE}</span>
+           
+          </div>
+
           <div className="mt-3 inline-flex items-center text-green-700 font-medium">
             View learning path
             <ChevronRight className="ml-1 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
