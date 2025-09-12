@@ -1,5 +1,6 @@
 'use client';
 
+import React, { useRef, useState } from 'react';
 import {
   Document,
   Page,
@@ -10,7 +11,6 @@ import {
   Font,
   pdf,
 } from '@react-pdf/renderer';
-import { useRef, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
 /** Brand palette (greens + gold) */
@@ -146,12 +146,12 @@ async function toDataUrl(url: string): Promise<string> {
 }
 
 /** Certificate document */
-function CertificateDoc({
+export function CertificateDoc({
   fullName,
-  courseTitle = 'Prompt Engineering · Beginner',
+  courseTitle = 'Course Certificate',
   issuedAt = new Date(),
   certId,
-  logoDataUrl, // data URL or null
+  logoDataUrl,
   verifyBase = 'https://tinpear.org/verify',
   signerName = 'Chinonso Okereke',
   signerTitle = 'CEO, Tinpear',
@@ -194,7 +194,7 @@ function CertificateDoc({
           <View style={styles.flourishWrap}><View style={styles.flourish} /></View>
 
           <Text style={styles.description}>
-            has successfully completed the {courseTitle}, demonstrating knowledge, professionalism,
+            has successfully completed {courseTitle}, demonstrating knowledge, professionalism,
             and commitment throughout the program.
           </Text>
 
@@ -226,21 +226,32 @@ function CertificateDoc({
   );
 }
 
+/** Helper: fallback course title from courseKey if not provided */
+function titleFromCourseKey(courseKey?: string): string | undefined {
+  if (!courseKey) return undefined;
+  const key = courseKey.toLowerCase();
+  if (key.includes('ai-everyone')) return 'AI for Everyone';
+  if (key.includes('pe-beginner')) return 'Prompt Engineering · Beginner';
+  return undefined;
+}
+
 /** Actions: Download + (optional) Save to Supabase (Storage + certificates table)
  *
- * Key fixes:
- *  - certId is stored in a ref so it NEVER changes across re-renders.
- *  - We (optionally) record the cert row on *Download* too, so /verify works even if user didn't click "Save".
- *  - Logo is converted to a data URL so it renders reliably.
+ * - certId persists across re-renders (ref)
+ * - optional record-on-download so /verify works even without "Save to Supabase"
+ * - logo is converted to a data URL for reliable rendering
  */
 export default function CertificatePDFActions({
   fullName,
-  logoUrl = '/logo.png',           // PNG/JPG in /public
-  courseKey = 'pe-beginner',
-  certPrefix = 'pe-beginner',
+  logoUrl = '/logo.png',
+  courseKey = 'ai-everyone',
+  certPrefix = courseKey,
   showSaveToSupabase = true,
   verifyBase = 'https://tinpear.org/verify',
-  recordOnDownload = true,         // <-- new
+  recordOnDownload = true,
+  courseTitle,         // NEW: prefer explicit title
+  signerName,          // optional override
+  signerTitle,         // optional override
 }: {
   fullName: string;
   logoUrl?: string;
@@ -249,6 +260,9 @@ export default function CertificatePDFActions({
   showSaveToSupabase?: boolean;
   verifyBase?: string;
   recordOnDownload?: boolean;
+  courseTitle?: string;
+  signerName?: string;
+  signerTitle?: string;
 }) {
   const [busy, setBusy] = useState(false);
 
@@ -276,41 +290,45 @@ export default function CertificatePDFActions({
 
   async function renderBlob() {
     const logoDataUrl = await getLogoDataUrl();
+    // prefer explicit courseTitle; otherwise infer from courseKey; otherwise neutral
+    const effectiveTitle = courseTitle || titleFromCourseKey(courseKey) || 'Course Certificate';
     return pdf(
       <CertificateDoc
         fullName={fullName}
         certId={certId}
         logoDataUrl={logoDataUrl}
         verifyBase={verifyBase}
+        courseTitle={effectiveTitle}
+        signerName={signerName}
+        signerTitle={signerTitle}
       />
     ).toBlob();
   }
 
- async function recordCertificate(storage_path?: string) {
-  // Get an access token (works with the Supabase auth-helpers cookie OR Bearer)
-  const { data: sessionData } = await supabase.auth.getSession();
-  const token = sessionData?.session?.access_token;
+  async function recordCertificate(storage_path?: string) {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
 
-  const res = await fetch('/api/certificates/register', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    credentials: 'include',
-    body: JSON.stringify({
-      certId,
-      fullName,
-      courseKey,
-      ...(storage_path ? { storagePath: storage_path } : {}),
-    }),
-  });
+    const res = await fetch('/api/certificates/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        certId,
+        fullName,
+        courseKey,
+        ...(storage_path ? { storagePath: storage_path } : {}),
+      }),
+    });
 
-  if (!res.ok) {
-    const msg = await res.json().catch(() => ({}));
-    throw new Error(msg?.error || `Register failed (${res.status})`);
+    if (!res.ok) {
+      const msg = await res.json().catch(() => ({}));
+      throw new Error(msg?.error || `Register failed (${res.status})`);
+    }
   }
-}
 
   async function downloadPdf() {
     setBusy(true);
@@ -330,6 +348,8 @@ export default function CertificatePDFActions({
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
+    } catch (e: any) {
+      alert(e?.message || 'Could not generate PDF.');
     } finally {
       setBusy(false);
     }
@@ -342,7 +362,7 @@ export default function CertificatePDFActions({
       if (!data.user) throw new Error('Please sign in first.');
 
       const blob = await renderBlob();
-     const path = `${courseKey}/${data.user.id}/${certId}.pdf`;
+      const path = `${courseKey}/${data.user.id}/${certId}.pdf`;
 
       // Upload to Storage
       const { error } = await supabase.storage.from('certificates').upload(path, blob, {
@@ -361,7 +381,7 @@ export default function CertificatePDFActions({
 
       alert('Saved! ' + (signed?.signedUrl ?? ''));
     } catch (e: any) {
-      alert(e.message || 'Could not save.');
+      alert(e?.message || 'Could not save.');
     } finally {
       setBusy(false);
     }

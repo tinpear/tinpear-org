@@ -11,6 +11,7 @@ import {
   Lightbulb,
   AlertTriangle,
   ShieldCheck,
+  Home,
 } from 'lucide-react';
 
 // --- Config ------------------------------------------------------------------
@@ -133,22 +134,35 @@ export default function PromptingBasicsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Header */}
+      {/* Header (home icon, centered title, tidy mobile toggle) */}
       <header className="sticky top-0 z-30 border-b border-gray-100 backdrop-blur bg-white/70">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-gray-900">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-600 text-white">
-              <ShieldCheck className="h-4 w-4" />
-            </span>
-            <span className="font-bold">Week 1 • Prompting Basics</span>
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="h-14 grid grid-cols-[auto_1fr_auto] items-center gap-3">
+            <Link
+              href="/learn/ai-for-everyone"
+              aria-label="Go to course home"
+              prefetch={false}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-green-600 text-white hover:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
+            >
+              <Home className="h-5 w-5" />
+            </Link>
+
+            <div className="flex items-center justify-center">
+              <span className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+                Week 1 · Prompting Basics
+              </span>
+            </div>
+
+            <button
+              type="button"
+              aria-label="Toggle contents"
+              className="lg:hidden inline-flex h-10 items-center gap-2 px-3 rounded-xl border border-gray-200 text-gray-800 hover:bg-gray-50 justify-self-end focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
+              onClick={() => setSidebarOpen((v) => !v)}
+            >
+              {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              <span className="sr-only">Contents</span>
+            </button>
           </div>
-          <button
-            className="lg:hidden inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200"
-            onClick={() => setSidebarOpen((v) => !v)}
-          >
-            {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-            Contents
-          </button>
         </div>
       </header>
 
@@ -163,19 +177,24 @@ export default function PromptingBasicsPage() {
           )}
         >
           <p className="text-xs uppercase tracking-wide text-gray-500 mb-3">On this page</p>
-          <nav className="space-y-1">
-            {SECTIONS.map((s) => (
-              <a
-                key={s.id}
-                href={`#${s.id}`}
-                className={cx(
-                  'block px-3 py-2 rounded-lg text-sm',
-                  activeId === s.id ? 'bg-green-50 text-green-800' : 'hover:bg-gray-50 text-gray-700'
-                )}
-              >
-                {s.label}
-              </a>
-            ))}
+          <nav role="navigation" aria-label="On this page" className="space-y-1">
+            {SECTIONS.map((s) => {
+              const isActive = activeId === s.id;
+              return (
+                <a
+                  key={s.id}
+                  href={`#${s.id}`}
+                  aria-current={isActive ? 'true' : undefined}
+                  className={cx(
+                    'block px-3 py-2 rounded-lg text-sm',
+                    isActive ? 'bg-green-50 text-green-800' : 'hover:bg-gray-50 text-gray-700'
+                  )}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  {s.label}
+                </a>
+              );
+            })}
           </nav>
           <div className="mt-6 p-3 rounded-xl bg-gray-50 text-xs text-gray-600">
             Clear instructions → better results.
@@ -185,117 +204,126 @@ export default function PromptingBasicsPage() {
         {/* Main */}
         <main className="space-y-8">
           {/* Intro */}
-          <section id="intro" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+          <section
+            id="intro"
+            className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3"
+          >
             <h2 className="text-xl font-semibold">Why Prompts Matter</h2>
             <p className="text-gray-700">
-              A prompt is just the instruction you give an AI tool. Clear prompts save time and reduce
-              back‑and‑forth. You don’t need special words—just say what you want, add a little context,
-              and show the format you prefer.
+              A prompt is not magic language; it is simply the brief you give your assistant. When the brief is sharp, you skip the back‑and‑forth and land on a useful draft quickly. The fastest way to sharpen a prompt is to decide the outcome before you type a word. Are you asking for a summary, an email, a plan, a list of options, or a table you can paste into another tool? Once the outcome is clear in your head, the rest of the prompt becomes easy to write—and much easier for the model to satisfy.
             </p>
             <Box tone="tip" title="One small habit">
-              Before you ask, decide your outcome: summary, email, table, bullets, plan, or ideas.
+              Name the destination first—“a 120‑word executive summary,” “a friendly customer email,” or “a 6‑step plan with dates.” Everything else aligns behind that target.
             </Box>
           </section>
 
           {/* GCE */}
-          <section id="gce" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+          <section
+            id="gce"
+            className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3"
+          >
             <h2 className="text-xl font-semibold">The G‑C‑E Habit</h2>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li><span className="font-medium">Goal</span> — what you want (“a 120‑word summary for busy parents”).</li>
-              <li><span className="font-medium">Context</span> — who it’s for + key constraints (tone, must‑include, must‑avoid).</li>
-              <li><span className="font-medium">Example</span> — show a tiny sample or the format (bullets, table, steps).</li>
-            </ul>
+            <p className="text-gray-700">
+              The simplest reliable structure is Goal • Context • Example. The <span className="font-medium">Goal</span> is the outcome in one sentence—what you want and, often, the audience and length. The <span className="font-medium">Context</span> trims ambiguity by naming tone, must‑include details, constraints, and anything the model cannot reasonably guess. The <span className="font-medium">Example</span> shows the shape of success: a tiny sample of the tone you like or the exact format you want back. With G‑C‑E, your prompt becomes a short contract the model can fulfill repeatedly.
+            </p>
             <Box tone="pro" title="Copy‑paste scaffold">
-              I need <em>[output]</em> for <em>[audience]</em>. Keep it <em>[length/tone]</em>. Include <em>[must‑haves]</em>, avoid <em>[don’ts]</em>. Return it as <em>[format]</em> (show a small example if helpful).
+              I need <em>[output]</em> for <em>[audience]</em>. Keep it <em>[length/tone]</em>. Include <em>[must‑haves]</em> and avoid <em>[don’ts]</em>. Return it as <em>[format]</em>. Here is a tiny example of the style/shape I want: <em>[one or two lines]</em>.
             </Box>
           </section>
 
           {/* Examples */}
-          <section id="examples" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
+          <section
+            id="examples"
+            className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4"
+          >
             <h2 className="text-xl font-semibold">Simple Examples</h2>
-
-            <Box tone="tip" title="Email rewrite">
-              Turn this into a short, friendly email for a customer. Goal: reassure about a delay. Context: they’re waiting for an order. Example format: <br />
-              <em>Subject: …<br/>Hi …, one‑line context → key update → next step with date → thanks.</em>
+            <p className="text-gray-700">
+              To feel the habit, try it on three common tasks. For an email rewrite, tell the model you want a short, friendly message that reassures a customer about a delay. Give one line of context and ask it to lead with the key update, then close with a specific next step and date. For a report summary, ask for one tight paragraph aimed at executives and append a compact structure for key takeaways and a single risk; this makes the result easy to skim and reuse. For learning a topic, request a five‑sentence overview in plain language, two everyday examples, and three key terms with one‑line definitions so you can anchor new reading.
+            </p>
+            <Box tone="tip" title="Email rewrite (drop‑in)">
+              Turn this into a short, friendly email for a customer. Goal: reassure about a delay. Start with the key update, keep details minimal, and end with a clear next step and date. Include three subject line options.
             </Box>
-
-            <Box tone="tip" title="Report summary">
-              Summarize the following notes for executives in ~120 words. Give 3 bullet takeaways and 1 risk. Format:<br />
-              <em>Summary (120 words)<br/>• Key takeaways (3 bullets)<br/>• Risk (1 line)</em>
+            <Box tone="tip" title="Report summary (drop‑in)">
+              Summarize the following notes for executives in ~120 words. Then add a compact structure: “Key takeaways: 3 bullets” and “Risk: 1 line.”
             </Box>
-
-            <Box tone="tip" title="Learning a topic">
-              Explain <em>[topic]</em> in plain language for a beginner. Include: (1) 5‑sentence overview, (2) 2 everyday examples, (3) 3 key terms with one‑line definitions.
+            <Box tone="tip" title="Learn a topic (drop‑in)">
+              Explain <em>[topic]</em> in plain language. Provide a 5‑sentence overview, two everyday examples, and three key terms with one‑line definitions.
             </Box>
           </section>
 
           {/* Iterate */}
-          <section id="iterate" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+          <section
+            id="iterate"
+            className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3"
+          >
             <h2 className="text-xl font-semibold">Iterate & Improve</h2>
-            <p className="text-gray-700">After the first answer, add one line to steer it:</p>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li>“Shorter and more direct.”</li>
-              <li>“Add 3 options in different tones.”</li>
-              <li>“Replace jargon with simple words.”</li>
-              <li>“Turn this into a checklist with dates.”</li>
-            </ul>
+            <p className="text-gray-700">
+              The first answer is the starting line, not the finish. Ask for one deliberate improvement and watch quality jump without extra effort. You might request a shorter version with the same meaning, a tone shift that better fits your audience, or an alternative framed as a checklist you can tick off. The rhythm is simple: get a rough draft, make a single precise request, and accept the version that reads best to you. Two quick iterations usually outperform one long prompt.
+            </p>
             <Box tone="pro" title="Two‑step rhythm">
-              First: get a rough draft. Second: request one improvement. Small edits → big gains.
+              Draft → Nudge. Try “shorter and more direct,” “give three tone options,” or “replace jargon with simple words.” Small nudges compound.
             </Box>
           </section>
 
           {/* Formatting */}
-          <section id="formatting" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+          <section
+            id="formatting"
+            className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3"
+          >
             <h2 className="text-xl font-semibold">Ask for a Format</h2>
             <p className="text-gray-700">
-              Telling the AI the format you want makes it easier to reuse. Ask for bullets, steps, or a table.
+              Outputs that arrive in a consistent shape are easier to trust and reuse. If you will paste results into another tool, request bullets, numbered steps, or a small table with named columns. Predictable structure allows light validation—did every row include an owner and a date?—and turns your prompt into a reusable tool rather than a one‑off experiment.
             </p>
-            <Box tone="tip" title="Table request">
-              Return a table with columns: Task, Owner, Due date, Notes. Include 5 rows and leave Dates blank.
+            <Box tone="tip" title="Table request (drop‑in)">
+              Return a table with columns: Task, Owner, Due date, and Notes. Include five rows and leave Due date blank so I can fill it.
             </Box>
             <Box tone="pro" title="Consistent outputs">
-              Reusing the same format each time builds a “prompt you can trust” for future work.
+              Keeping the same format for similar tasks builds a mini‑library of prompts you can rely on week after week.
             </Box>
           </section>
 
           {/* Pitfalls */}
-          <section id="pitfalls" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+          <section
+            id="pitfalls"
+            className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3"
+          >
             <h2 className="text-xl font-semibold">Common Pitfalls</h2>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li><span className="font-medium">Too vague:</span> “Write something good.” → Be specific about audience, tone, and length.</li>
-              <li><span className="font-medium">No context:</span> The AI can’t guess your situation—add 1–2 lines of background.</li>
-              <li><span className="font-medium">No format:</span> Ask for bullets, steps, or a table to keep it tidy.</li>
-            </ul>
+            <p className="text-gray-700">
+              Most prompt problems trace back to vagueness, missing context, or a lack of structure. If you ask for “something good,” the assistant will guess what “good” means; tell it who you are writing for, how long it should be, and which details matter. If you assume it knows your situation, it will fill gaps with generic advice; add two lines of background and watch relevance rise. And if you do not specify a format, you will spend time cleaning up text you could have received as bullets, steps, or a tidy table.
+            </p>
             <Box tone="warn" title="Privacy check">
-              Don’t paste sensitive data (names, phone numbers, IDs). Mask or remove details before sharing.
+              Treat sensitive information with care. Redact names and identifiers, and follow your organization’s data policies. When stakes are high, verify facts before sharing externally.
             </Box>
           </section>
 
           {/* Practice */}
-          <section id="practice" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+          <section
+            id="practice"
+            className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3"
+          >
             <h2 className="text-xl font-semibold">Mini Practice (10 minutes)</h2>
-            <ol className="list-decimal pl-5 text-gray-700 space-y-2">
-              <li>Pick one real task (email, summary, plan).</li>
-              <li>Write a G‑C‑E prompt with a clear format.</li>
-              <li>Ask for 2 versions. Choose the best one.</li>
-              <li>Make one improvement request (shorter / clearer / table).</li>
-              <li>Save your prompt + best output in your notes.</li>
-            </ol>
+            <p className="text-gray-700">
+              Choose one real task from your week—a short update, a summary, or a tiny plan. Write a one‑sentence Goal, add two lines of Context that truly matter, and include a one‑line Example that shows tone or format. Ask for two versions, select the stronger draft, and request one targeted improvement. Save both the prompt and the final output in your notes; you just created a reusable asset that will save you time every time this task appears again.
+            </p>
             <Box tone="pro" title="Reuse = speed">
-              Save good prompts. Next time, you’ll start from a strong template instead of a blank page.
+              Good prompts compound. Each time you save one that works, future tasks start at 60% instead of 0%.
             </Box>
           </section>
 
           {/* Next */}
-          <section id="next" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-semibold mb-3">Next: Week 1 Wrap-up</h2>
+          <section
+            id="next"
+            className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+          >
+            <h2 className="text-xl font-semibold mb-3">Next: Week 1 Wrap‑Up</h2>
             <p className="text-gray-700 mb-4">
-              Wrap-up week1.
+              We’ll wrap the week by reviewing the key habits, capturing your best prompts in a simple library, and setting you up for steady, confident use in your daily work.
             </p>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               {/* Back */}
               <Link
                 href="/learn/ai-for-everyone/week1/everyday-workflows"
+                prefetch={false}
                 className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -316,6 +344,7 @@ export default function PromptingBasicsPage() {
               {/* Next */}
               <Link
                 href="/learn/ai-for-everyone/week1/wrap-up"
+                prefetch={false}
                 className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:shadow"
                 onClick={async () => {
                   if (!completed) await markComplete();

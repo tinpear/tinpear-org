@@ -23,6 +23,7 @@ import {
   SlidersHorizontal,
   ListChecks,
   Scale,
+  Home,
   Wand2,
 } from 'lucide-react';
 
@@ -203,32 +204,50 @@ export default function CoTVsConciseLesson() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Header */}
+      {/* ── Refactored Header (home left, centered title, right controls) ── */}
       <header className="sticky top-0 z-30 border-b border-gray-100 backdrop-blur bg-white/70">
-        <div className="max-w-6xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-gray-900">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-600 text-white">
-              <Sparkles className="h-4 w-4" />
-            </span>
-            <span className="font-bold text-sm sm:text-base">Week 2 • CoT vs Concise</span>
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-3">
-            <button
-              className="lg:hidden inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 text-sm"
-              onClick={() => setSidebarOpen((v) => !v)}
-              aria-expanded={sidebarOpen}
-              aria-controls="mobile-sidebar"
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="h-14 grid grid-cols-[auto_1fr_auto] items-center gap-3">
+            {/* Left: Home */}
+            <Link
+              href="/learn/prompt-engineering/beginner"
+              aria-label="Go to Prompt Engineering home"
+              prefetch={false}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-green-600 text-white hover:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
             >
-              {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-              Contents
-            </button>
-            <div className="text-xs sm:text-sm text-gray-600">
-              {loading ? 'Loading…' : user ? `Signed in as ${username}` : <Link href="/signin" className="underline">Sign in</Link>}
+              <Home className="h-5 w-5" />
+            </Link>
+
+            {/* Center: Title */}
+            <div className="flex items-center justify-center">
+              <span className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+                Week 2 · Chain-of-Thought
+              </span>
+            </div>
+
+            {/* Right: Mobile contents toggle + auth state */}
+            <div className="justify-self-end flex items-center gap-3">
+              <button
+                type="button"
+                aria-label="Toggle contents"
+                className="lg:hidden inline-flex h-10 items-center gap-2 px-3 rounded-xl border border-gray-200 text-gray-800 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
+                onClick={() => setSidebarOpen((v) => !v)}
+              >
+                {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                <span className="sr-only">Contents</span>
+              </button>
+
+              <div className="hidden sm:block text-sm text-gray-600">
+                {loading
+                  ? 'Loading…'
+                  : user
+                  ? `Signed in as ${username}`
+                  : <Link href="/signin" className="underline">Sign in</Link>}
+              </div>
             </div>
           </div>
         </div>
       </header>
-
       {/* Content area */}
       <div className="max-w-6xl mx-auto px-3 sm:px-4 py-6 sm:py-8 grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)] gap-4 sm:gap-6">
         {/* Sidebar */}

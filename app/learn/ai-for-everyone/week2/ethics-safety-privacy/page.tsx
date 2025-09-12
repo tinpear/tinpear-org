@@ -11,6 +11,7 @@ import {
   Lightbulb,
   AlertTriangle,
   ShieldCheck,
+  Home,
 } from 'lucide-react';
 
 // --- Config ------------------------------------------------------------------
@@ -20,8 +21,8 @@ const SECTIONS = [
   { id: 'intro', label: 'Why Safety Matters' },
   { id: 'simple-rules', label: 'Simple Rules (Plain English)' },
   { id: 'privacy-pii', label: 'Privacy & PII Basics' },
-  { id: 'redaction', label: 'Redaction Habit (Copy‑Paste)' },
-  { id: 'fact-checks', label: 'When to Double‑Check' },
+  { id: 'redaction', label: 'Redaction Habit (Copy-Paste)' },
+  { id: 'fact-checks', label: 'When to Double-Check' },
   { id: 'bias-fairness', label: 'Bias & Fairness' },
   { id: 'boundaries', label: 'Boundaries & Refusals' },
   { id: 'checklist', label: 'Safety Checklist' },
@@ -135,22 +136,35 @@ export default function EthicsSafetyPrivacyPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Header */}
+      {/* Header (home icon, centered title, tidy toggle) */}
       <header className="sticky top-0 z-30 border-b border-gray-100 backdrop-blur bg-white/70">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-gray-900">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-600 text-white">
-              <ShieldCheck className="h-4 w-4" />
-            </span>
-            <span className="font-bold">Week 2 • Ethics, Safety & Privacy</span>
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="h-14 grid grid-cols-[auto_1fr_auto] items-center gap-3">
+            <Link
+              href="/learn/ai-for-everyone"
+              aria-label="Go to course home"
+              prefetch={false}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-green-600 text-white hover:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
+            >
+              <Home className="h-5 w-5" />
+            </Link>
+
+            <div className="flex items-center justify-center">
+              <span className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+                Week 2 · Ethics, Safety & Privacy
+              </span>
+            </div>
+
+            <button
+              type="button"
+              aria-label="Toggle contents"
+              className="lg:hidden inline-flex h-10 items-center gap-2 px-3 rounded-xl border border-gray-200 text-gray-800 hover:bg-gray-50 justify-self-end focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
+              onClick={() => setSidebarOpen((v) => !v)}
+            >
+              {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              <span className="sr-only">Contents</span>
+            </button>
           </div>
-          <button
-            className="lg:hidden inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200"
-            onClick={() => setSidebarOpen((v) => !v)}
-          >
-            {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-            Contents
-          </button>
         </div>
       </header>
 
@@ -174,6 +188,7 @@ export default function EthicsSafetyPrivacyPage() {
                   'block px-3 py-2 rounded-lg text-sm',
                   activeId === s.id ? 'bg-green-50 text-green-800' : 'hover:bg-gray-50 text-gray-700'
                 )}
+                onClick={() => setSidebarOpen(false)}
               >
                 {s.label}
               </a>
@@ -187,171 +202,140 @@ export default function EthicsSafetyPrivacyPage() {
         {/* Main */}
         <main className="space-y-8">
           {/* Intro */}
-          <section id="intro" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+          <section id="intro" className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">Why Safety Matters</h2>
             <p className="text-gray-700">
-              AI is powerful and fast—but it can be confidently wrong and doesn’t know what is private or sensitive.
-              These simple habits keep you safe while still getting the benefits.
+              AI is a great helper because it writes quickly and adapts to your style. It’s also imperfect: it does not “know” what is private, and it can speak with confidence even when something is off. Safety is simply the habit of slowing down in the moments that count—protecting personal details, spotting places where a quick check is wise, and keeping a human in the loop before anything important leaves your screen. These small habits keep your work trustworthy without taking away the speed you came here for.
             </p>
-            <Box tone="tip" title="Beginner mindset">
-              Treat AI like a fast intern: helpful, but you set boundaries and review important work.
+            <Box tone="tip" title="A helpful way to think about it">
+              Imagine a fast, well-meaning intern. You give the goal and the guardrails, it drafts quickly, and you decide what’s ready to share.
             </Box>
           </section>
 
           {/* Simple rules */}
-          <section id="simple-rules" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
-            <h2 className="text-xl font-semibold">Simple Rules</h2>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li><span className="font-medium">Check important facts.</span> Ask for sources or uncertainties.</li>
-              <li><span className="font-medium">Protect privacy.</span> Remove names, IDs, and secrets before sharing.</li>
-              <li><span className="font-medium">Be fair & respectful.</span> Don’t target people unfairly or spread harm.</li>
-              <li><span className="font-medium">Know the limits.</span> When it’s high‑stakes, verify with trusted sources.</li>
-            </ul>
-            <Box tone="pro" title="One‑line request">
-              “If you’re unsure, say so and list what would make the answer more reliable.”
+          <section id="simple-rules" className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+            <h2 className="text-xl font-semibold">Simple Rules (Plain English)</h2>
+            <p className="text-gray-700">
+              Four ideas cover most situations. First, ask the model to show uncertainty rather than hide it; an honest “not sure” is useful because it tells you where to look next. Second, share only what the task needs and replace real names or IDs with placeholders. Third, aim for kindness and fairness—avoid stereotypes and ask for a mix of examples so more people see themselves in the result. Finally, when the stakes are high or the details change often, don’t guess; check the important parts with a source you trust.
+            </p>
+            <Box tone="pro" title="One line you can add to any prompt">
+              If you’re unsure, say so and list what would make your answer more reliable. Separate assumptions from the final answer.
             </Box>
           </section>
 
           {/* Privacy & PII */}
-          <section id="privacy-pii" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+          <section id="privacy-pii" className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">Privacy & PII Basics</h2>
             <p className="text-gray-700">
-              <span className="font-medium">PII (Personally Identifiable Information)</span> includes names, emails, phone numbers, addresses, ID numbers, and any detail that can identify someone.
+              PII means details that can identify a person—names, emails, phone numbers, addresses, or ID numbers. Sensitive business details like unreleased plans or access keys deserve the same care. A simple rule keeps you safe: keep it minimal and masked. If the model only needs the shape of the problem, use made-up examples or replace real details with brackets like <em>[Name]</em> or <em>[Order #]</em>. If you’re unsure whether to include something, leave it out or rewrite it in a more general way.
             </p>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li><span className="font-medium">Minimize:</span> share only what’s needed.</li>
-              <li><span className="font-medium">Mask:</span> replace with placeholders like <em>[Name]</em>, <em>[Order #]</em>.</li>
-              <li><span className="font-medium">Store safely:</span> don’t paste secrets into public tools; avoid logging sensitive data.</li>
-            </ul>
-            <Box tone="warn" title="Common pitfall">
-              Don’t upload spreadsheets of real customers. Use sample rows or masked data instead.
+            <Box tone="warn" title="Watch out for easy mistakes">
+              Avoid pasting full spreadsheets or long logs that contain real customers or staff. Create a tiny, masked sample and work from that instead.
             </Box>
           </section>
 
           {/* Redaction habit */}
-          <section id="redaction" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
-            <h2 className="text-xl font-semibold">Redaction Habit (Copy‑Paste)</h2>
-            <Box tone="tip" title="Template you can reuse">
-              Before sharing, quickly replace personal info:<br />
-              <em>
-                Replace names → [Name], phone → [Phone], email → [Email], IDs → [ID], company → [Company].
-              </em>
-            </Box>
-            <Box tone="pro" title="Ask AI to help redact">
-              “Redact any personal identifiers in the text below. Return the redacted version only.”
-            </Box>
+          <section id="redaction" className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
+            <h2 className="text-xl font-semibold">Redaction Habit (Copy-Paste)</h2>
             <p className="text-gray-700">
-              Redaction is a 20‑second habit that drastically reduces risk.
+              Redaction is a twenty-second sweep you do before sharing text. You skim once for names, emails, phone numbers, account IDs, or anything that could reveal a person or a private detail. You swap those for placeholders so the story stays clear but the people stay private. This habit cuts risk dramatically and makes your prompts reusable; next time, you just replace the placeholders and go.
             </p>
+            <Box tone="tip" title="Quick pattern you can memorize">
+              Replace names → <em>[Name]</em>, phone → <em>[Phone]</em>, email → <em>[Email]</em>, IDs → <em>[ID]</em>, company → <em>[Company]</em>. Add others like <em>[Address]</em> or <em>[Ticket #]</em> if needed.
+            </Box>
+            <Box tone="pro" title="Let the model help you redact">
+              Redact any personal identifiers in the text below. Return only the redacted version, keeping the meaning and structure intact.
+            </Box>
           </section>
 
           {/* Fact checks */}
-          <section id="fact-checks" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
-            <h2 className="text-xl font-semibold">When to Double‑Check</h2>
-            <p className="text-gray-700">Double‑check when the content is:</p>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li><span className="font-medium">Important or public</span> (emails to clients, reports, policies).</li>
-              <li><span className="font-medium">Factual or time‑sensitive</span> (dates, prices, legal/medical info).</li>
-              <li><span className="font-medium">High risk</span> if wrong (money, safety, reputation).</li>
-            </ul>
-            <Box tone="tip" title="Copy‑paste prompts">
-              “List assumptions or uncertainties in your answer.”<br />
-              “Provide 3 reputable sources I can check.”
+          <section id="fact-checks" className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+            <h2 className="text-xl font-semibold">When to Double-Check</h2>
+            <p className="text-gray-700">
+              Use a quick trigger: impact, novelty, and specificity. If the message affects customers or will be public, it has impact. If the details are new to you or likely to change, that’s novelty. If it contains exact numbers, dates, quotes, or claims, that’s specificity. Any one of these is a signal to pause and verify the key parts. Ask the model to list assumptions and confidence, then confirm the essentials with your system of record or a source you trust.
+            </p>
+            <Box tone="tip" title="Copy-paste line for careful work">
+              List any assumptions or uncertainties, then suggest two concrete ways I can verify the key claims.
             </Box>
           </section>
 
           {/* Bias & fairness */}
-          <section id="bias-fairness" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+          <section id="bias-fairness" className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">Bias & Fairness</h2>
             <p className="text-gray-700">
-              AI can reflect patterns from its training data. Avoid prompts that stereotype groups or treat people unfairly.
+              Because models learn from human text, they can repeat old patterns. You don’t need deep theory to steer them well. Use neutral language, remove personal attributes that aren’t relevant, and ask for a range of examples—different backgrounds, regions, and experience levels. As you read the output, notice who is represented and who is missing, then ask for a broader spread if it feels narrow.
             </p>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li>Use neutral, inclusive language in prompts.</li>
-              <li>Ask for diverse examples (e.g., roles, names, regions).</li>
-              <li>Remove protected attributes when they’re irrelevant.</li>
-            </ul>
-            <Box tone="pro" title="Fairness nudge">
-              “Avoid stereotypes. Provide examples that represent different backgrounds.”
+            <Box tone="pro" title="Simple fairness nudge">
+              Avoid stereotypes. Provide examples that reflect different backgrounds and experience levels without assuming traits.
             </Box>
           </section>
 
           {/* Boundaries & Refusals */}
-          <section id="boundaries" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
+          <section id="boundaries" className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h2 className="text-xl font-semibold">Boundaries & Refusals</h2>
             <p className="text-gray-700">
-              Tell AI what’s allowed and what’s not. If a request is risky, it should politely refuse and suggest a safer path.
+              Clear boundaries make the assistant easier to trust. You can set them right in your prompt: explain what the assistant may do (rewrite, summarize, organize) and what it must not do (include private identifiers, give legal/medical advice, or produce harmful content). If a request crosses a line, ask the model to refuse briefly and offer a safer alternative. That way, the default behavior matches your standards even when you are moving quickly.
             </p>
-            <Box tone="tip" title="Policy prompt skeleton (you can adapt)">
-              <span className="block">1) Scope & Intent — what the assistant helps with.</span>
-              <span className="block">2) Allowed Examples — safe use cases.</span>
-              <span className="block">3) Disallowed Examples — what to refuse and how (polite, concise).</span>
-              <span className="block">4) When to escalate — suggest human review when needed.</span>
+            <Box tone="tip" title="Tiny policy preface you can reuse">
+              You may help with rewriting, summarizing, and organizing general information. Do not include private identifiers or give legal/medical advice. If a request needs restricted data or expert review, say “Insufficient information for a safe answer,” explain why, and suggest a safer next step.
             </Box>
-            <Box tone="warn" title="If you see risky output">
-              Stop, don’t share it. Ask for a safer alternative or rewrite with clearer constraints.
+            <Box tone="warn" title="If something looks risky">
+              Stop and don’t forward it. Ask for a safer rewrite or remove sensitive details, then do the quick check on the parts that matter most.
             </Box>
           </section>
 
           {/* Checklist */}
-          <section id="checklist" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
-            <h2 className="text-xl font-semibold">Safety Checklist (copy this to your notes)</h2>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li>🔒 Redact names/IDs before sharing (use placeholders).</li>
-              <li>🔎 Ask for sources/uncertainties on important facts.</li>
-              <li>⚖️ Request inclusive, stereotype‑free examples.</li>
-              <li>🧭 Define what’s allowed/denied for your task.</li>
-              <li>🧪 If it matters, verify with trusted sources.</li>
-            </ul>
-            <Box tone="pro" title="One‑liner">
-              “Follow my safety checklist. If something looks risky, say why and offer a safer alternative.”
+          <section id="checklist" className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
+            <h2 className="text-xl font-semibold">Safety Checklist</h2>
+            <p className="text-gray-700">
+              Before you hit send, do one smooth pass: redact names and identifiers, ask the model to surface uncertainties, scan for fairness and tone, restate what’s in-scope and out-of-scope if needed, and verify any numbers, dates, or claims that could cause trouble if they’re wrong. This takes a minute, and it pays you back in trust.
+            </p>
+            <Box tone="pro" title="One-liner to pin in your notes">
+              Follow my safety checklist. If something looks risky, explain why and offer a safer alternative before proceeding.
             </Box>
           </section>
 
           {/* Practice */}
-          <section id="practice" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+          <section id="practice" className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">Mini Practice (10 minutes)</h2>
-            <ol className="list-decimal pl-5 text-gray-700 space-y-2">
-              <li>Take a real piece of text (email/notes). Redact PII → <em>[Name]</em>, <em>[Email]</em>, <em>[Order #]</em>.</li>
-              <li>Ask AI to improve it. Add: “If unsure, state uncertainties. Avoid stereotypes. Keep it respectful.”</li>
-              <li>If it contains facts, ask for 2–3 sources or a short “assumptions” list.</li>
-              <li>Save your edited prompt as part of your Safety Checklist.</li>
-            </ol>
-            <Box tone="tip" title="Small upgrade">
-              Create a text snippet or keyboard shortcut for your redaction placeholders.
+            <p className="text-gray-700">
+              Grab a short paragraph from your real work—a note, an email, or a tiny update. Do a quick redaction sweep and replace anything identifying with placeholders. Paste it into your AI tool along with your policy preface and ask for a clearer, kinder version. Request a separate “Assumptions / Uncertainties” section so you know what might need checking. If the text contains facts, ask for two specific ways to confirm them. Save the prompt and the improved version in your notes so you can reuse the pattern next time.
+            </p>
+            <Box tone="tip" title="Starter prompt you can adapt">
+              Redact private identifiers in the text below if any remain. Then rewrite for clarity and kindness. Separate the final answer from “Assumptions/Uncertainties.” If a safer alternative makes sense, offer it briefly.
             </Box>
           </section>
 
           {/* Next */}
-          <section id="next" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <section id="next" className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-semibold mb-3">Next: Choosing the Right AI Tool</h2>
             <p className="text-gray-700 mb-4">
-              Learn a quick decision guide to pick the best tool for text, images, or light automations.
+              With a simple safety net in place, you’re ready to pick the right tool for each job—text, visuals, or small automations. A good pick turns careful habits into faster results.
             </p>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              {/* Back */}
               <Link
                 href="/learn/ai-for-everyone/week2"
+                prefetch={false}
                 className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50"
               >
                 <ChevronLeft className="h-4 w-4" />
                 Back
               </Link>
 
-              {/* Mark complete */}
               <button
                 onClick={markComplete}
                 className={cx(
                   'px-4 py-2 rounded-lg border',
                   completed ? 'border-green-200 bg-green-50 text-green-800' : 'border-gray-200 hover:bg-gray-50'
                 )}
+                disabled={completed || loading}
               >
                 {completed ? 'Progress saved ✓' : 'Mark page complete'}
               </button>
 
-              {/* Next */}
               <Link
                 href="/learn/ai-for-everyone/week2/choosing-tools"
+                prefetch={false}
                 className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:shadow"
                 onClick={async () => {
                   if (!completed && user) await markComplete();

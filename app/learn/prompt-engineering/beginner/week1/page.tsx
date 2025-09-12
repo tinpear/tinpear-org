@@ -13,6 +13,7 @@ import {
   CheckCircle2,
   AlertTriangle,
   Lightbulb,
+  Home, // ⬅️ added for the home button
 } from 'lucide-react';
 
 // --- Config ------------------------------------------------------------------
@@ -132,21 +133,46 @@ export default function PromptEngineeringWeek1Start() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Header */}
+      {/* ── Refactored Header (home left, centered title, right controls) ── */}
       <header className="sticky top-0 z-30 border-b border-gray-100 backdrop-blur bg-white/70">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-gray-900">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-600 text-white"><Sparkles className="h-4 w-4"/></span>
-            <span className="font-bold">Week 1 • Prompt Engineering</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <button className="lg:hidden inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200"
-              onClick={() => setSidebarOpen(v => !v)}>
-              {sidebarOpen ? <X className="h-4 w-4"/> : <Menu className="h-4 w-4"/>}
-              Contents
-            </button>
-            <div className="text-sm text-gray-600">
-              {loading ? 'Loading…' : user ? `Signed in as ${username}` : <Link href="/signin" className="underline">Sign in</Link>}
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="h-14 grid grid-cols-[auto_1fr_auto] items-center gap-3">
+            {/* Left: Home */}
+            <Link
+              href="/learn/prompt-engineering/beginner"
+              aria-label="Go to Prompt Engineering home"
+              prefetch={false}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-green-600 text-white hover:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
+            >
+              <Home className="h-5 w-5" />
+            </Link>
+
+            {/* Center: Title */}
+            <div className="flex items-center justify-center">
+              <span className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+                Week 1 · Prompt Engineering
+              </span>
+            </div>
+
+            {/* Right: Mobile contents toggle + auth state */}
+            <div className="justify-self-end flex items-center gap-3">
+              <button
+                type="button"
+                aria-label="Toggle contents"
+                className="lg:hidden inline-flex h-10 items-center gap-2 px-3 rounded-xl border border-gray-200 text-gray-800 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
+                onClick={() => setSidebarOpen(v => !v)}
+              >
+                {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                <span className="sr-only">Contents</span>
+              </button>
+
+              <div className="hidden sm:block text-sm text-gray-600">
+                {loading
+                  ? 'Loading…'
+                  : user
+                  ? `Signed in as ${username}`
+                  : <Link href="/signin" className="underline">Sign in</Link>}
+              </div>
             </div>
           </div>
         </div>
@@ -209,7 +235,7 @@ export default function PromptEngineeringWeek1Start() {
               Clear prompts measurably improve model performance because they reduce ambiguity, spotlight relevant context, and define success in advance. When your instructions are explicit, the model spends less capacity inferring what you meant and more capacity producing what you asked for. This translates to higher quality outputs, fewer retries, and faster iteration cycles.
             </p>
             <p className="text-gray-700">
-              Structure also unlocks automation. Once your prompt produces predictable formats—checklists, JSON schemas, or step‑by‑step explanations—you can plug the results into downstream systems, run batch jobs, or evaluate outputs at scale. With structure and light evaluation, you can detect drift early, reduce hallucinations by anchoring answers to sources, and create feedback loops that keep quality stable over time.
+              Structure also unlocks automation. Once your prompt produces predictable formats—checklists, JSON schemas, or step-by-step explanations—you can plug the results into downstream systems, run batch jobs, or evaluate outputs at scale. With structure and light evaluation, you can detect drift early, reduce hallucinations by anchoring answers to sources, and create feedback loops that keep quality stable over time.
             </p>
           </section>
 
@@ -222,14 +248,14 @@ export default function PromptEngineeringWeek1Start() {
               When you need consistency across many runs, define the response format explicitly and include any required fields. If an answer could be interpreted in multiple ways, offer a brief clarification of your preferred interpretation and a short example that illustrates it. A little specificity—dates in ISO format, currency codes, references to named sources—goes a long way toward repeatable results.
             </p>
             <Box tone="warn" title="Avoid ambiguity">
-              Words like “optimize,” “improve,” or “best” are too open‑ended on their own. Replace them with concrete targets—latency under 200ms, a reading level for a specific audience, or adherence to a documented style guide—and the model will align with far less trial and error.
+              Words like “optimize,” “improve,” or “best” are too open-ended on their own. Replace them with concrete targets—latency under 200ms, a reading level for a specific audience, or adherence to a documented style guide—and the model will align with far less trial and error.
             </Box>
           </section>
 
           <section id="structure-patterns" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">Few-shot & Structure</h2>
             <p className="text-gray-700">
-              Examples are the fastest way to compress your intent. A well‑chosen few‑shot set demonstrates the pattern you expect, the tone you prefer, and the boundaries of acceptable answers. One to three high‑quality examples are usually enough; more can help, but only when they add new signal rather than repeating the same idea.
+              Examples are the fastest way to compress your intent. A well-chosen few-shot set demonstrates the pattern you expect, the tone you prefer, and the boundaries of acceptable answers. One to three high-quality examples are usually enough; more can help, but only when they add new signal rather than repeating the same idea.
             </p>
             <p className="text-gray-700">
               Pair your examples with an instruction and a format. The instruction declares the goal; the format makes the result testable; the examples bridge any remaining gaps. If your task involves classification, include borderline cases so the model learns how to decide. If your task involves generation, include a short sample that reveals structure, not just style. As you iterate, refresh your examples with the toughest cases you’ve encountered so your prompt keeps getting sharper.
@@ -245,7 +271,7 @@ export default function PromptEngineeringWeek1Start() {
               Treat every prompt like a small experiment. Start with a tiny set of known inputs and define what success looks like before you run anything. If your output is structured, you can validate fields automatically; if it’s prose, you can still check for criteria like presence of sources, required sections, or adherence to tone. These lightweight checks prevent you from shipping a prompt that “felt” good once but fails under pressure.
             </p>
             <p className="text-gray-700">
-              As you harden the prompt, add a couple of deliberately tricky cases to your test set—the kinds of inputs that previously caused confusion. When the prompt handles both the sunny‑day and edge‑case scenarios, you can scale it with much more confidence. Over time, keep a small library of prompts and tests so you can reuse what works instead of reinventing from scratch.
+              As you harden the prompt, add a couple of deliberately tricky cases to your test set—the kinds of inputs that previously caused confusion. When the prompt handles both the sunny-day and edge-case scenarios, you can scale it with much more confidence. Over time, keep a small library of prompts and tests so you can reuse what works instead of reinventing from scratch.
             </p>
           </section>
 
@@ -267,7 +293,7 @@ export default function PromptEngineeringWeek1Start() {
             <p className="text-gray-700 mb-4">
               In the next lesson you’ll craft robust instruction prompts that clearly define role, goal, and constraints, then you’ll shape the output so it can be trusted and reused. If you want additional context before advancing, review{' '}
               <Link href="/learn/ai-for-everyone" className="text-green-700 underline">AI for Everyone</Link>{' '}
-              to reinforce foundational concepts, or explore your organization’s internal style guides and data policies so you can anchor your prompts to real‑world standards.
+              to reinforce foundational concepts, or explore your organization’s internal style guides and data policies so you can anchor your prompts to real-world standards.
             </p>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               {/* NEW: Previous button */}
