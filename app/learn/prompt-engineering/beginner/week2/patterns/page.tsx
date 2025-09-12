@@ -13,14 +13,9 @@ import {
   AlertTriangle,
   CheckCircle2,
   Layers,
-  ListStart,
-  Quote,
-  Split,
-  Brackets,
-  FileCode2,
-  Hammer,
-  Ban,
-  BookOpenCheck,
+  Workflow,
+  Rocket,
+  Target,
 } from 'lucide-react';
 
 // --- Config ------------------------------------------------------------------
@@ -28,15 +23,15 @@ const PROGRESS_KEY = 'pe-week-2:patterns';
 
 const SECTIONS = [
   { id: 'intro', label: 'Intro' },
-  { id: 'why', label: 'Why Few‑Shot' },
-  { id: 'style-lock', label: 'Pattern: Style Lock' },
-  { id: 'contrastive', label: 'Pattern: Contrastive Pairs' },
-  { id: 'structured', label: 'Pattern: Structured Examples' },
-  { id: 'error', label: 'Pattern: Error Exemplars' },
-  { id: 'mixing', label: 'Mixing Patterns (Safely)' },
-  { id: 'antipatterns', label: 'Anti‑Patterns' },
-  { id: 'exercise', label: 'Exercise: Build a Set' },
-  { id: 'checklist', label: 'Checklist & Save' },
+  { id: 'why', label: 'Why Few-Shot' },
+  { id: 'style-lock', label: 'Style Locks' },
+  { id: 'contrastive', label: 'Contrastive Pairs' },
+  { id: 'schema-true', label: 'Stay Schema-True' },
+  { id: 'minimal', label: 'Keep It Minimal' },
+  { id: 'craft', label: 'Crafting High-Signal Examples' },
+  { id: 'antipatterns', label: 'Anti-Patterns to Avoid' },
+  { id: 'practice', label: 'Practice' },
+  { id: 'next', label: 'Save & Next' },
 ];
 
 // --- Utilities ---------------------------------------------------------------
@@ -60,9 +55,13 @@ function Box({
       ? 'border-amber-200 bg-amber-50 text-amber-900'
       : 'border-sky-200 bg-sky-50 text-sky-900';
   const icon =
-    tone === 'tip' ? <Lightbulb className="h-4 w-4" /> :
-    tone === 'warn' ? <AlertTriangle className="h-4 w-4" /> :
-    <Sparkles className="h-4 w-4" />;
+    tone === 'tip' ? (
+      <Lightbulb className="h-4 w-4" />
+    ) : tone === 'warn' ? (
+      <AlertTriangle className="h-4 w-4" />
+    ) : (
+      <Sparkles className="h-4 w-4" />
+    );
   return (
     <div className={cx('rounded-xl border p-3 md:p-4 flex gap-3 items-start', palette)}>
       <div className="mt-0.5 shrink-0">{icon}</div>
@@ -75,7 +74,7 @@ function Box({
 }
 
 // --- Page --------------------------------------------------------------------
-export default function FewShotPatternsLesson() {
+export default function FewShotPatterns() {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -167,7 +166,7 @@ export default function FewShotPatternsLesson() {
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-600 text-white">
               <Sparkles className="h-4 w-4" />
             </span>
-            <span className="font-bold text-sm sm:text-base">Week 2 • Few‑Shot Patterns</span>
+            <span className="font-bold text-sm sm:text-base">Week 2 • Few-Shot Patterns</span>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
@@ -216,7 +215,7 @@ export default function FewShotPatternsLesson() {
           </nav>
 
           <div className="mt-4 sm:mt-6 p-3 rounded-xl bg-gray-50 text-[11px] sm:text-xs text-gray-600">
-            Examples must follow the same <b>contract</b> you expect in outputs.
+            Keep your Week-1 contract handy; every example should honor it.
           </div>
         </aside>
 
@@ -224,257 +223,205 @@ export default function FewShotPatternsLesson() {
         <main className="space-y-4 sm:space-y-6">
           {/* Intro */}
           <section id="intro" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-2">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">Few‑Shot Patterns (Show, Not Tell)</h1>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">Welcome back! {user ? `, ${username}` : ''}</h1>
             <p className="text-base sm:text-lg text-gray-700">
-              You’ll design small, high‑signal examples that lock tone, structure, and boundaries. We’ll keep them aligned with your Week‑1 JSON contract for easy evals.
+              Few-shot prompting is the art of teaching by example. Instead of stacking more instructions, you show the model exactly what “good” looks like and let those examples carry the style, structure, and boundaries you care about. The shift is subtle but powerful: with one or two carefully chosen samples, your prompt becomes steadier, outputs grow more consistent, and small changes become easier to measure.
             </p>
-            <Box tone="tip" title="How many examples?">
-              1–3 great examples beat a dozen mediocre ones. Keep them short, polished, and schema‑true.
+            <Box tone="tip" title="Mindset">
+              Think like a coach. Each example should demonstrate one thing you want repeated, not five. Precision beats variety at this stage.
             </Box>
           </section>
 
-          {/* Why Few‑Shot */}
+          {/* Why Few-Shot */}
           <section id="why" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <ListStart className="h-5 w-5 text-green-700" />
-              <h2 className="text-lg sm:text-xl font-semibold">Why Few‑Shot</h2>
+              <Target className="h-5 w-5 text-green-700" />
+              <h2 className="text-lg sm:text-xl font-semibold">Why Few-Shot</h2>
             </div>
-            <ul className="list-disc pl-5 text-sm sm:text-base text-gray-700 space-y-1">
-              <li><b>Style transfer:</b> the model mirrors your sample’s tone and structure.</li>
-              <li><b>Disambiguation:</b> examples show boundaries better than prose.</li>
-              <li><b>Reliability:</b> schema‑true examples reduce format errors.</li>
-            </ul>
+            <p className="text-sm sm:text-base text-gray-700">
+              Instructions describe the destination; examples draw the map. When examples echo your desired tone and format, the model stops guessing about voice or structure and starts imitating with confidence. This is especially useful when you need consistent phrasing, a specific rhythm, or a strict response shape. By grounding abstract rules in concrete samples, you also make evaluation simpler: if an output diverges from the pattern, you immediately see where and why.
+            </p>
+            <div className="rounded-lg border border-gray-200 p-3 sm:p-4 bg-gray-50">
+              <p className="font-medium mb-1">Plain-text illustration</p>
+              <pre className="text-xs md:text-sm p-3 rounded bg-white border border-gray-200 overflow-auto whitespace-pre-wrap">
+Intent: Write a one-line, energetic tagline for a note app used by busy managers.
+Example you show:
+→ "Meet less. Decide faster."
+Why it works: short, punchy, benefit-first; no fluff or buzzwords.
+            </pre>
+            </div>
           </section>
 
-          {/* Style Lock */}
+          {/* Style Locks */}
           <section id="style-lock" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-3">
             <div className="flex items-center gap-2">
               <Layers className="h-5 w-5 text-green-700" />
-              <h2 className="text-lg sm:text-xl font-semibold">Pattern: Style Lock</h2>
+              <h2 className="text-lg sm:text-xl font-semibold">Style Locks</h2>
             </div>
-            <p className="text-sm sm:text-base text-gray-700">Use 1–2 short, perfect exemplars that match tone + format exactly.</p>
-            <div className="rounded-xl border border-gray-200 bg-gray-50 p-3 sm:p-4">
-              <h3 className="font-medium mb-2">Example (homepage tagline, ≤ 12 words)</h3>
-              <pre className="text-xs md:text-sm p-3 rounded bg-white border border-gray-200 overflow-auto whitespace-pre-wrap break-words">
-{`# Contract
-Return JSON: { "tagline": string, "rationale": string, "word_count": number }
-
-# Example
-Input: "AI note tool for managers; saves time; better follow‑ups."
-Output:
-{
-  "tagline": "Meet less. Decide faster.",
-  "rationale": "Time saving + decisive tone",
-  "word_count": 4
-}`}
+            <p className="text-sm sm:text-base text-gray-700">
+              A style lock is a single, polished sample that the model can safely mimic. It sets the voice, the tempo, and the level of specificity. The trick is to choose one exemplar that is unmistakably on brand. When users or teammates look at your style-lock example, they should nod and say, “Yes — more like this.”
+            </p>
+            <p className="text-sm sm:text-base text-gray-700">
+              Keep the sample short so the signal stays clean. If you need a little context, add a brief note that explains the audience or the constraint in natural language. Then let the line itself carry the style you want repeated.
+            </p>
+            <div className="rounded-lg border border-gray-200 p-3 sm:p-4 bg-gray-50">
+              <p className="font-medium mb-1">Style-lock example</p>
+              <pre className="text-xs md:text-sm p-3 rounded bg-white border border-gray-200 overflow-auto whitespace-pre-wrap">
+Task: One-sentence homepage blurb for a B2B note app; audience is time-pressed managers.
+Exemplar:
+→ "Turn meetings into decisions — in minutes, not hours."
+Signal carried: direct benefit, time contrast, no hype words.
               </pre>
             </div>
-            <Box tone="pro" title="Keep exemplars tiny">
-              Trim rationale to one sentence. The exemplar should be faster to scan than reading rules.
+            <Box tone="pro" title="Make it repeatable">
+              If you wouldn’t publish your example as-is on a landing page, it isn’t a style lock yet. Polish until you would.
             </Box>
           </section>
 
-          {/* Contrastive */}
+          {/* Contrastive Pairs */}
           <section id="contrastive" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-3">
             <div className="flex items-center gap-2">
-              <Split className="h-5 w-5 text-green-700" />
-              <h2 className="text-lg sm:text-xl font-semibold">Pattern: Contrastive Pairs</h2>
-            </div>
-            <p className="text-sm sm:text-base text-gray-700">Show a bad vs good example to clarify boundaries fast.</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-              <div className="rounded-lg border border-gray-200 p-3 sm:p-4 bg-gray-50">
-                <h3 className="font-medium mb-1">❌ Bad</h3>
-                <pre className="text-xs md:text-sm p-3 rounded bg-white border border-gray-200 overflow-auto whitespace-pre-wrap break-words">
-{`"Revolutionary synergy for modern managers"  // buzzwords
-JSON: { "tagline": "Revolutionary synergy...", "word_count": 2 }  // wrong count`}
-                </pre>
-              </div>
-              <div className="rounded-lg border border-gray-200 p-3 sm:p-4 bg-gray-50">
-                <h3 className="font-medium mb-1">✅ Good</h3>
-                <pre className="text-xs md:text-sm p-3 rounded bg-white border border-gray-200 overflow-auto whitespace-pre-wrap break-words">
-{`"Never miss a follow‑up."  // concrete benefit
-JSON: { "tagline": "Never miss a follow‑up.", "rationale": "Benefit‑centric", "word_count": 4 }`}
-                </pre>
-              </div>
-            </div>
-            <Box tone="tip" title="One pair is often enough">
-              Add a second pair only if it clarifies a <i>different</i> boundary.
-            </Box>
-          </section>
-
-          {/* Structured */}
-          <section id="structured" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-3">
-            <div className="flex items-center gap-2">
-              <Brackets className="h-5 w-5 text-green-700" />
-              <h2 className="text-lg sm:text-xl font-semibold">Pattern: Structured Examples</h2>
+              <Workflow className="h-5 w-5 text-green-700" />
+              <h2 className="text-lg sm:text-xl font-semibold">Contrastive Pairs</h2>
             </div>
             <p className="text-sm sm:text-base text-gray-700">
-              Each example’s output must follow the <b>same JSON keys & types</b> as your contract. This is essential for assertions and parsing.
+              Sometimes it’s faster to teach by showing a miss. A contrastive pair places a weak example next to a strong one so the boundary becomes obvious. This is perfect for eliminating clichés, wordiness, or the wrong tone. The model doesn’t just learn what to do; it learns what to avoid.
             </p>
-            <div className="rounded-xl border border-gray-200 bg-gray-50 p-3 sm:p-4">
-              <h3 className="font-medium mb-2">Example (triage)</h3>
-              <pre className="text-xs md:text-sm p-3 rounded bg-white border border-gray-200 overflow-auto whitespace-pre-wrap break-words">
-{`Contract:
-{
-  "severity": "P0" | "P1" | "P2",
-  "component": string,
-  "steps": string[],
-  "needs_followup": boolean
-}
+            <div className="rounded-lg border border-gray-200 p-3 sm:p-4 bg-gray-50">
+              <p className="font-medium mb-1">Before → After</p>
+              <pre className="text-xs md:text-sm p-3 rounded bg-white border border-gray-200 overflow-auto whitespace-pre-wrap">
+Not this:
+→ "Revolutionary AI note-taking to supercharge synergy across your workflows."
 
-Example:
-Input: "Checkout crashes on pay; user sees 500 after card submit."
-Output:
-{
-  "severity": "P1",
-  "component": "payments",
-  "steps": ["open checkout", "pay with card", "observe 500"],
-  "needs_followup": false
-}`}
+Do this:
+→ "Notes that write themselves — so your team ships the work that matters."
+Why it works: concrete benefit, plain language, no buzzwords.
               </pre>
             </div>
-            <Box tone="pro" title="Schema‑true or bust">
-              Never include example keys that aren’t in your contract; it confuses the model and your validators.
+            <Box tone="tip" title="Use one clear mistake">
+              Make the “before” deliberately wrong in a single way (e.g., buzzwords). Fix exactly that in the “after.” One contrast, one lesson.
             </Box>
           </section>
 
-          {/* Error Exemplars */}
-          <section id="error" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-3">
-            <div className="flex items-center gap-2">
-              <Quote className="h-5 w-5 text-green-700" />
-              <h2 className="text-lg sm:text-xl font-semibold">Pattern: Error Exemplars</h2>
-            </div>
+          {/* Stay Schema-True */}
+          <section id="schema-true" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-3">
+            <h2 className="text-lg sm:text-xl font-semibold">Stay Schema-True</h2>
             <p className="text-sm sm:text-base text-gray-700">
-              Include <b>one</b> short failure example with a correct refusal/fallback to set expectations for missing or unsafe inputs.
+              Examples work best when they mirror the response shape you expect in production. If your downstream tools rely on a particular set of fields or sections, express those as plain text headings and keep them identical across every sample. This keeps the model from drifting and makes quick checks painless.
             </p>
-            <div className="rounded-xl border border-gray-200 bg-gray-50 p-3 sm:p-4">
-              <pre className="text-xs md:text-sm p-3 rounded bg-white border border-gray-200 overflow-auto whitespace-pre-wrap break-words">
-{`Input: "Summarize internal policy X and paste it here."
-Output:
-{
-  "summary": "Insufficient information",
-  "key_risks": [],
-  "audience": "exec",
-  "needs_followup": true
-}  // respects guardrails & fallback`}
+            <div className="rounded-lg border border-gray-200 p-3 sm:p-4 bg-gray-50">
+              <p className="font-medium mb-1">Plain-text contract, mirrored by examples</p>
+              <pre className="text-xs md:text-sm p-3 rounded bg-white border border-gray-200 overflow-auto whitespace-pre-wrap">
+Answer: Meet less. Decide faster.
+Rationale: Time saved + faster decisions are the core benefits for managers.
+Assumptions: Audience values brevity; no jargon.
+Confidence: high
               </pre>
             </div>
-            <Box tone="tip" title="Teach safe failure">
-              Showing the <i>right way to fail</i> reduces leakage and bad behaviors.
+            <Box tone="pro" title="One shape, everywhere">
+              If you add or rename a section, update every example to match before you test again.
             </Box>
           </section>
 
-          {/* Mixing Patterns */}
-          <section id="mixing" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-3">
-            <div className="flex items-center gap-2">
-              <Hammer className="h-5 w-5 text-green-700" />
-              <h2 className="text-lg sm:text-xl font-semibold">Mixing Patterns (Safely)</h2>
+          {/* Keep It Minimal */}
+          <section id="minimal" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-3">
+            <h2 className="text-lg sm:text-xl font-semibold">Keep It Minimal</h2>
+            <p className="text-sm sm:text-base text-gray-700">
+              More examples do not mean better learning. The model needs clarity, not coverage. One great style lock plus one contrastive pair is often enough to pin down tone and boundaries. If you feel tempted to add a fourth or fifth sample, ask yourself whether it teaches something genuinely new or merely repeats what the others already reveal.
+            </p>
+            <div className="rounded-lg border border-gray-200 p-3 sm:p-4 bg-gray-50">
+              <p className="font-medium mb-1">Tiny, high-signal set</p>
+              <pre className="text-xs md:text-sm p-3 rounded bg-white border border-gray-200 overflow-auto whitespace-pre-wrap">
+Set A:
+1) Style lock — "Meet less. Decide faster."
+2) Contrastive bad — "Revolutionary synergy platform for notes."
+3) Contrastive good — "Turn meetings into decisions — in minutes."
+Result: tone stabilized; banned phrasing avoided without extra rules.
+              </pre>
             </div>
-            <ul className="list-disc pl-5 text-sm sm:text-base text-gray-700 space-y-1">
-              <li><b>One primary pattern</b> (e.g., style lock) + optional <b>one</b> support (e.g., single contrastive pair).</li>
-              <li>Keep total examples ≤ 3 (plus 1 failure exemplar).</li>
-              <li>All outputs must remain schema‑true.</li>
-            </ul>
-            <Box tone="pro" title="Iteration tip">
-              Change <i>one</i> element (add/remove a single example) and re‑run your golden set to see impact.
-            </Box>
           </section>
 
-          {/* Anti‑Patterns */}
+          {/* Crafting High-Signal Examples */}
+          <section id="craft" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-3">
+            <h2 className="text-lg sm:text-xl font-semibold">Crafting High-Signal Examples</h2>
+            <p className="text-sm sm:text-base text-gray-700">
+              Begin by naming the audience and the success condition in a single sentence; this quiet context helps without bloating the prompt. Draft three short candidates and say them out loud — the one that lands cleanly is usually your style lock. If your task has must-avoid language, include a contrastive pair so the model learns the boundary by sight rather than by rule. Finally, rewrite your example to mirror your response sections exactly, then trim any filler until only the signal remains.
+            </p>
+            <div className="rounded-lg border border-gray-200 p-3 sm:p-4 bg-gray-50">
+              <p className="font-medium mb-1">From raw idea to polished example</p>
+              <pre className="text-xs md:text-sm p-3 rounded bg-white border border-gray-200 overflow-auto whitespace-pre-wrap">
+Raw thought: "We save time after meetings."
+Polished exemplar:
+Answer: "Minutes to decisions, not hours of notes."
+Rationale: Emphasizes time savings and outcome.
+Assumptions: Manager audience; brevity valued.
+Confidence: medium
+              </pre>
+            </div>
+          </section>
+
+          {/* Anti-Patterns */}
           <section id="antipatterns" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-3">
-            <div className="flex items-center gap-2">
-              <Ban className="h-5 w-5 text-amber-700" />
-              <h2 className="text-lg sm:text-xl font-semibold">Anti‑Patterns</h2>
-            </div>
-            <ul className="list-disc pl-5 text-sm sm:text-base text-gray-700 space-y-1">
-              <li><b>Example soup:</b> 8–12 examples with mixed tone/format.</li>
-              <li><b>Schema drift:</b> examples adding extra keys or different types.</li>
-              <li><b>Verbose rationales:</b> distract from structure; keep tight.</li>
-            </ul>
-            <Box tone="warn" title="Fix it fast">
-              Delete weak examples; keep only the most precise, contract‑true ones.
+            <h2 className="text-lg sm:text-xl font-semibold">Anti-Patterns to Avoid</h2>
+            <p className="text-sm sm:text-base text-gray-700">
+              Mixing formats across examples confuses the model, even if the samples look individually strong. Long, rambling exemplars bury the style signal under extra words and invite drift. Changing tone or audience mid-set teaches the model that inconsistency is allowed. Treat your examples like a small chorus: every voice should sing the same song, at the same tempo, in the same key.
+            </p>
+            <Box tone="warn" title="Simple safeguard">
+              After you prepare your set, skim each example and check that the sections, tone, and length match. Consistency here prevents most surprises later.
             </Box>
           </section>
 
-          {/* Exercise */}
-          <section id="exercise" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-3">
-            <div className="flex items-center gap-2">
-              <FileCode2 className="h-5 w-5 text-green-700" />
-              <h2 className="text-lg sm:text-xl font-semibold">Exercise: Build a Few‑Shot Set</h2>
-            </div>
-            <p className="text-sm sm:text-base text-gray-700">Using your Week‑1 contract (JSON keys), create:</p>
-            <ol className="list-decimal pl-5 text-sm sm:text-base text-gray-700 space-y-2">
-              <li><b>1 style‑lock</b> exemplar (perfect tone, concise rationale).</li>
-              <li><b>1 contrastive pair</b> (clearly shows a boundary).</li>
-              <li><b>1 error exemplar</b> (proper refusal/fallback).</li>
-            </ol>
-            <div className="rounded-xl border border-gray-200 bg-gray-50 p-3 sm:p-4">
-              <h3 className="font-medium mb-2">Template (fill in)</h3>
-              <pre className="text-xs md:text-sm p-3 rounded bg-white border border-gray-200 overflow-auto whitespace-pre-wrap break-words">
-{`# Contract (paste yours)
-Return JSON:
-{ ...your keys... }
-
-# Style‑lock example
-Input: "..."
-Output: { ...schema‑true... }
-
-# Contrastive pair
-Bad → (explain boundary quickly)
-Good →
-Output: { ...schema‑true... }
-
-# Error exemplar
-Input: "..."  // unsafe or missing info
-Output: { "answer": "Insufficient information", "needs_followup": true, ... }`}
+          {/* Practice */}
+          <section id="practice" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-3">
+            <h2 className="text-lg sm:text-xl font-semibold">Practice</h2>
+            <p className="text-sm sm:text-base text-gray-700">
+              Pick a task you actually run at work — for example, a one-sentence summary for executives or a short product tagline. Create one style lock that you would be proud to publish. Add a contrastive pair that eliminates a single bad habit you often see. Mirror your response sections exactly, then run three very different inputs through your prompt and observe whether the outputs keep the tone and structure you set. If they wobble, refine the exemplar rather than adding more rules, and try again.
+            </p>
+            <div className="rounded-lg border border-gray-200 p-3 sm:p-4 bg-gray-50">
+              <p className="font-medium mb-1">Starter template (plain text)</p>
+              <pre className="text-xs md:text-sm p-3 rounded bg-white border border-gray-200 overflow-auto whitespace-pre-wrap">
+Context: Audience = busy managers; goal = one-line benefit; avoid hype words.
+Exemplar (style lock):
+Answer: "Meet less. Decide faster."
+Rationale: Concise, outcome-oriented, no buzzwords.
+Assumptions: Managers value brevity and decision speed.
+Confidence: high
               </pre>
             </div>
-            <Box tone="tip" title="Ship with evals">
-              Add 8–12 golden inputs + assertions (from Week‑1) and keep a tiny changelog.
-            </Box>
+            <div className="mt-2 flex items-center gap-2 text-green-700">
+              <CheckCircle2 className="h-5 w-5" />
+              <p className="text-sm">When your three test inputs produce outputs that “sound like” your exemplar, you’ve locked the style.</p>
+            </div>
           </section>
 
-          {/* Checklist & Save */}
-          <section id="checklist" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <BookOpenCheck className="h-5 w-5 text-green-700" />
-              <h2 className="text-lg sm:text-xl font-semibold">Checklist</h2>
-            </div>
-            <ul className="list-disc pl-5 text-sm sm:text-base text-gray-700 space-y-1">
-              <li>Examples ≤ 3 (+1 failure), all schema‑true.</li>
-              <li>One primary pattern; optional one support pattern.</li>
-              <li>Run golden set; log impacts before/after.</li>
-            </ul>
-
-            {/* Bottom Nav & Save */}
-            <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-3">
-              <Link
-                href="/learn/prompt-engineering/beginner/week2"
-                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 w-full sm:w-auto"
+          {/* Bottom Nav & Save */}
+          <section id="next" className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-3">
+            <Link
+              href="/learn/prompt-engineering/beginner/week2"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 w-full sm:w-auto"
+            >
+              <ChevronLeft className="h-4 w-4" /> Back to Week 2 Overview
+            </Link>
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+              <button
+                onClick={markComplete}
+                className={cx(
+                  'px-4 py-2 rounded-lg border w-full sm:w-auto',
+                  completed
+                    ? 'border-green-200 bg-green-50 text-green-800'
+                    : 'border-gray-200 hover:bg-gray-50'
+                )}
+                title={user ? 'Save progress for this page' : 'Sign in to save progress'}
               >
-                <ChevronLeft className="h-4 w-4" /> Back to Week 2 Overview
+                {completed ? 'Progress saved ✓' : 'Mark patterns lesson complete'}
+              </button>
+              <Link
+                href="/learn/prompt-engineering/beginner/week2/cot-vs-concise"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:shadow w-full sm:w-auto"
+                onClick={async () => { if (!completed) await markComplete(); }}
+              >
+                Next: CoT vs Concise <ChevronRight className="h-4 w-4" />
               </Link>
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
-                <button
-                  onClick={markComplete}
-                  className={cx(
-                    'px-4 py-2 rounded-lg border w-full sm:w-auto',
-                    completed
-                      ? 'border-green-200 bg-green-50 text-green-800'
-                      : 'border-gray-200 hover:bg-gray-50'
-                  )}
-                  title={user ? 'Save progress for this page' : 'Sign in to save progress'}
-                >
-                  {completed ? 'Progress saved ✓' : 'Mark complete'}
-                </button>
-                <Link
-                  href="/learn/prompt-engineering/beginner/week2/cot-vs-concise"
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:shadow w-full sm:w-auto"
-                  onClick={async () => { if (!completed) await markComplete(); }}
-                >
-                  Next: CoT vs Concise <ChevronRight className="h-4 w-4" />
-                </Link>
-              </div>
             </div>
           </section>
         </main>

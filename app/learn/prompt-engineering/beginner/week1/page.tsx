@@ -179,69 +179,96 @@ export default function PromptEngineeringWeek1Start() {
         {/* Main */}
         <main className="space-y-8">
           <section id="welcome" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Welcome{user ? `, ${username}` : ''} </h1>
-            <p className="text-lg text-gray-700">This week, you’ll learn to design prompts that are clear, testable, and useful — from simple tasks to advanced workflows.</p>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Hello{user ? `, ${username}` : ''}</h1>
+            <p className="text-lg text-gray-700">
+              This week you’ll learn how to translate intent into language that systems can consistently understand and execute. Think of prompt engineering as a set of muscles: clarity, structure, and iteration. We’ll strengthen each one so that by the end of this module you can move from a fuzzy idea to a reliable workflow, not just once, but repeatedly and with confidence.
+            </p>
+            <p className="text-gray-700">
+              Prerequisites for this course include a basic understanding of AI concepts such as models, training data, inference, and evaluation. If you’re new to these ideas, start with our{' '}
+              <Link href="/learn/ai-for-everyone" className="text-green-700 underline">AI for Everyone</Link>{' '}
+              course, then return here ready to dive deeper. Some light familiarity with problem decomposition and basic testing will also help, but we’ll reinforce those skills along the way.
+            </p>
             <Box tone="tip" title="Keep it repeatable">
-              The best prompts work again and again. We’ll show you how to think in patterns and run quick evaluations.
+              The best prompts aren’t lucky—they’re designed. As you learn patterns and quick evaluation habits, you’ll shift from experimenting blindly to building small, reusable components you can trust across tasks and domains.
             </Box>
           </section>
 
           <section id="what-is-pe" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">What is Prompt Engineering?</h2>
-            <p className="text-gray-700">Prompt engineering is the craft of turning intent into structured input for language models. It bridges ideas with execution.</p>
+            <p className="text-gray-700">
+              Prompt engineering is the practice of turning human intent into a precise set of instructions that guide a model toward useful, verifiable outputs. It is neither magic nor mere phrasing. Instead, it is a practical discipline that blends communication, product thinking, and lightweight evaluation. A good prompt clarifies the role the model should play, the goal it should pursue, the constraints it must respect, and the shape of the answer you expect to receive.
+            </p>
+            <p className="text-gray-700">
+              At its core, prompt engineering reduces uncertainty. Natural language is rich but ambiguous; models respond best when your intent is framed as an unambiguous contract. Throughout this page you will see how contracts are formed with instructions, how examples reduce interpretation gaps, and how small tests allow you to iterate intelligently rather than guessing what might work.
+            </p>
           </section>
 
           <section id="why-it-matters" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">Why It Matters</h2>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li>Clear prompts = better model performance</li>
-              <li>Structure allows automation + eval</li>
-              <li>Helps reduce hallucinations and errors</li>
-            </ul>
+            <p className="text-gray-700">
+              Clear prompts measurably improve model performance because they reduce ambiguity, spotlight relevant context, and define success in advance. When your instructions are explicit, the model spends less capacity inferring what you meant and more capacity producing what you asked for. This translates to higher quality outputs, fewer retries, and faster iteration cycles.
+            </p>
+            <p className="text-gray-700">
+              Structure also unlocks automation. Once your prompt produces predictable formats—checklists, JSON schemas, or step‑by‑step explanations—you can plug the results into downstream systems, run batch jobs, or evaluate outputs at scale. With structure and light evaluation, you can detect drift early, reduce hallucinations by anchoring answers to sources, and create feedback loops that keep quality stable over time.
+            </p>
           </section>
 
           <section id="clarity-techniques" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">Clarity Techniques</h2>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li>Specify role, goal, constraints</li>
-              <li>Ask for structured output</li>
-              <li>Pre-define edge cases to avoid confusion</li>
-            </ul>
+            <p className="text-gray-700">
+              Begin by stating the role and objective plainly: tell the model who it is and what outcome matters. Add constraints that narrow the search space—word limits, tone guidelines, domain boundaries, or formatting rules. When a task has edge cases, surface them early so the model understands the boundaries of acceptable behavior. Finally, ask for structured output so you can verify the result quickly and feed it into other tools without manual cleanup.
+            </p>
+            <p className="text-gray-700">
+              When you need consistency across many runs, define the response format explicitly and include any required fields. If an answer could be interpreted in multiple ways, offer a brief clarification of your preferred interpretation and a short example that illustrates it. A little specificity—dates in ISO format, currency codes, references to named sources—goes a long way toward repeatable results.
+            </p>
             <Box tone="warn" title="Avoid ambiguity">
-              Words like “optimize” or “best” are vague. Add context or examples to make your intent clear.
+              Words like “optimize,” “improve,” or “best” are too open‑ended on their own. Replace them with concrete targets—latency under 200ms, a reading level for a specific audience, or adherence to a documented style guide—and the model will align with far less trial and error.
             </Box>
           </section>
 
           <section id="structure-patterns" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">Few-shot & Structure</h2>
-            <p className="text-gray-700">Show what you expect. Use 1–3 high-quality examples to train the model mid-prompt.</p>
+            <p className="text-gray-700">
+              Examples are the fastest way to compress your intent. A well‑chosen few‑shot set demonstrates the pattern you expect, the tone you prefer, and the boundaries of acceptable answers. One to three high‑quality examples are usually enough; more can help, but only when they add new signal rather than repeating the same idea.
+            </p>
+            <p className="text-gray-700">
+              Pair your examples with an instruction and a format. The instruction declares the goal; the format makes the result testable; the examples bridge any remaining gaps. If your task involves classification, include borderline cases so the model learns how to decide. If your task involves generation, include a short sample that reveals structure, not just style. As you iterate, refresh your examples with the toughest cases you’ve encountered so your prompt keeps getting sharper.
+            </p>
             <Box tone="tip" title="Instruction + format + sample = clarity">
-              Models perform better when they know what the answer should look like. Add samples inline.
+              Models excel when they can see the destination and the road to get there. Show the shape of the answer, provide a compact sample, and your results will become both faster to obtain and easier to evaluate.
             </Box>
           </section>
 
           <section id="evaluation" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">Quick Evaluation</h2>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li>Sanity check with known inputs</li>
-              <li>Define pass/fail rules or outputs</li>
-              <li>Use dummy data to test formatting</li>
-            </ul>
+            <p className="text-gray-700">
+              Treat every prompt like a small experiment. Start with a tiny set of known inputs and define what success looks like before you run anything. If your output is structured, you can validate fields automatically; if it’s prose, you can still check for criteria like presence of sources, required sections, or adherence to tone. These lightweight checks prevent you from shipping a prompt that “felt” good once but fails under pressure.
+            </p>
+            <p className="text-gray-700">
+              As you harden the prompt, add a couple of deliberately tricky cases to your test set—the kinds of inputs that previously caused confusion. When the prompt handles both the sunny‑day and edge‑case scenarios, you can scale it with much more confidence. Over time, keep a small library of prompts and tests so you can reuse what works instead of reinventing from scratch.
+            </p>
           </section>
 
           <section id="mistakes" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">🚨 Common Mistakes</h2>
+            <p className="text-gray-700">
+              Most issues trace back to either overloaded instructions or missing feedback. If you find yourself adding more and more clauses to a single prompt, pause and split the task into steps. If you aren’t measuring results in any way, even informally, you’ll struggle to know whether changes are helping or hurting.
+            </p>
             <Box tone="warn" title="Overloading the prompt">
-              Don’t cram too many instructions. Models have limited attention — prioritize clarity.
+              A single prompt does not need to do everything. Break complex workflows into stages—gather requirements, transform data, then generate a final answer—and the model will perform each stage with far greater accuracy.
             </Box>
             <Box tone="warn" title="Skipping evals">
-              Without feedback, prompts drift. Always test before shipping.
+              Without even the simplest checks, quality drifts. A few repeatable tests save hours of manual review and make your improvements real instead of anecdotal.
             </Box>
           </section>
 
           <section id="next" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-semibold mb-3">Ready to begin?</h2>
-            <p className="text-gray-700 mb-4">Let’s dive into instruction prompts next — where you’ll define role, goal, and constraints.</p>
+            <p className="text-gray-700 mb-4">
+              In the next lesson you’ll craft robust instruction prompts that clearly define role, goal, and constraints, then you’ll shape the output so it can be trusted and reused. If you want additional context before advancing, review{' '}
+              <Link href="/learn/ai-for-everyone" className="text-green-700 underline">AI for Everyone</Link>{' '}
+              to reinforce foundational concepts, or explore your organization’s internal style guides and data policies so you can anchor your prompts to real‑world standards.
+            </p>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               {/* NEW: Previous button */}
               <Link

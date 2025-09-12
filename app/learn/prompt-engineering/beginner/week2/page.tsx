@@ -27,8 +27,8 @@ const SECTIONS = [
   { id: 'overview', label: 'Overview' },
   { id: 'goals', label: 'Goals for Week 2' },
   { id: 'map', label: 'Lesson Map' },
-  { id: 'patterns', label: 'Few‑Shot Patterns' },
-  { id: 'cot', label: 'Chain‑of‑Thought vs Concise' },
+  { id: 'patterns', label: 'Few-Shot Patterns' },
+  { id: 'cot', label: 'Chain-of-Thought vs Concise' },
   { id: 'capstone', label: 'Capstone: Ship It' },
   { id: 'tips', label: 'Tips & Pitfalls' },
   { id: 'next', label: 'Save & Start' },
@@ -214,7 +214,7 @@ export default function Week2Overview() {
           </nav>
 
           <div className="mt-4 sm:mt-6 p-3 rounded-xl bg-gray-50 text-[11px] sm:text-xs text-gray-600">
-            Bring your Week‑1 artifacts (contract + golden set). We’ll build on them.
+            Bring your Week-1 artifacts (contract + golden set). We’ll build on them.
           </div>
         </aside>
 
@@ -222,12 +222,18 @@ export default function Week2Overview() {
         <main className="space-y-4 sm:space-y-6">
           {/* Overview */}
           <section id="overview" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-2">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">Week 2 • Few‑Shot Patterns & Reasoning</h1>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">Hello{user ? `, ${username}` : ''}</h1>
             <p className="text-base sm:text-lg text-gray-700">
-              This week is about <b>patterning</b> and <b>reasoning control</b>. You’ll use small, high‑quality examples to lock style and structure, then decide when to expand internal reasoning (Chain‑of‑Thought) versus keeping outputs concise and fast.
+              This second week moves you from careful prompt authorship into the world of reusable patterns and deliberate reasoning. You will learn to steer a model not only with instructions but with a handful of high-signal examples that quietly teach tone, format, and boundaries. As you do, you’ll also decide when to let the model reason step-by-step and when to keep it focused and fast, so you can ship outputs that are both reliable and efficient.
+            </p>
+            <p className="text-base sm:text-lg text-gray-700">
+              Before you dive in, make sure the foundations are in place. The ideal prerequisite is a working understanding of how modern AI systems generate text and why structure improves reliability. If that feels new or you want a refresher, start with our
+              {' '}
+              <Link href="/learn/ai-for-everyone" className="underline decoration-dotted underline-offset-4">AI for Everyone</Link>
+              {' '}primer; it will give you the mental model to move quickly here. You will also get more from this week if you bring your Week-1 artifacts — your instruction prompt, your compact output contract, and your small golden set — because each lesson will extend and pressure-test them rather than start from scratch.
             </p>
             <Box tone="tip" title="Bring your contract">
-              Keep using structured JSON outputs — they make patterns measurable and regression‑safe.
+              Keep using structured outputs when you practice these patterns. Treat them as a safety net: they make style locks measurable, keep examples consistent, and turn subjective quality into something you can quickly check.
             </Box>
           </section>
 
@@ -237,11 +243,9 @@ export default function Week2Overview() {
               <Target className="h-5 w-5 text-green-700" />
               <h2 className="text-lg sm:text-xl font-semibold">Goals for Week 2</h2>
             </div>
-            <ul className="list-disc pl-5 text-sm sm:text-base text-gray-700 space-y-1">
-              <li>Design effective <b>few‑shot examples</b> that “show, not tell”.</li>
-              <li>Choose between <b>CoT</b> and <b>Concise</b> prompting for reliability and speed.</li>
-              <li>Combine patterns + quick evals to <b>ship reliably</b>.</li>
-            </ul>
+            <p className="text-sm sm:text-base text-gray-700">
+              By the end of this week you will be able to craft tiny sets of examples that do far more than decorate a prompt — they will lock tone and structure so tightly that outputs feel consistent even as tasks vary. You will know when to switch between step-by-step reasoning and a concise, schema-first response, based on the stakes, the latency budget, and the need for transparency. Most importantly, you will combine these habits with the quick evaluations you built last week so that each change is measurable, each improvement is repeatable, and each prompt you ship is easier to trust.
+            </p>
           </section>
 
           {/* Lesson Map */}
@@ -257,9 +261,9 @@ export default function Week2Overview() {
               >
                 <div className="flex items-center gap-2 mb-1">
                   <Layers className="h-4 w-4 text-green-700" />
-                  <h3 className="font-medium">Few‑Shot Patterns</h3>
+                  <h3 className="font-medium">Few-Shot Patterns</h3>
                 </div>
-                <p className="text-sm text-gray-700">Contrastive pairs, style locks, structured examples, and anti‑patterns.</p>
+                <p className="text-sm text-gray-700">Contrastive pairs, style locks, and schema-true examples that “show, not tell.”</p>
               </Link>
 
               <Link
@@ -268,9 +272,9 @@ export default function Week2Overview() {
               >
                 <div className="flex items-center gap-2 mb-1">
                   <Workflow className="h-4 w-4 text-green-700" />
-                  <h3 className="font-medium">Chain‑of‑Thought vs Concise</h3>
+                  <h3 className="font-medium">Chain-of-Thought vs Concise</h3>
                 </div>
-                <p className="text-sm text-gray-700">When to reason step‑by‑step vs demand compact answers.</p>
+                <p className="text-sm text-gray-700">When to reason step-by-step and when to keep outputs tight and fast.</p>
               </Link>
 
               <Link
@@ -281,7 +285,7 @@ export default function Week2Overview() {
                   <Rocket className="h-4 w-4 text-green-700" />
                   <h3 className="font-medium">Capstone: Ship It</h3>
                 </div>
-                <p className="text-sm text-gray-700">Bundle prompt + examples + contract + golden set; run A/B + regression.</p>
+                <p className="text-sm text-gray-700">Bundle prompt + examples + contract + golden set, then A/B and regress.</p>
               </Link>
             </div>
           </section>
@@ -290,16 +294,16 @@ export default function Week2Overview() {
           <section id="patterns" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-3">
             <div className="flex items-center gap-2">
               <Layers className="h-5 w-5 text-green-700" />
-              <h2 className="text-lg sm:text-xl font-semibold">Few‑Shot Patterns (Show, Not Tell)</h2>
+              <h2 className="text-lg sm:text-xl font-semibold">Few-Shot Patterns (Show, Not Tell)</h2>
             </div>
-            <ul className="list-disc pl-5 text-sm sm:text-base text-gray-700 space-y-1">
-              <li><b>Style locks:</b> short, polished samples that match your contract exactly.</li>
-              <li><b>Contrastive pairs:</b> show a bad vs good example to clarify boundaries.</li>
-              <li><b>Schema‑true outputs:</b> every example follows your JSON keys & types.</li>
-              <li><b>Minimal set:</b> 1–3 examples usually suffice; avoid “example soup”.</li>
-            </ul>
+            <p className="text-sm sm:text-base text-gray-700">
+              Think of examples as the tone-setters and alignment anchors of your prompt. A single, crisp example can communicate more than a paragraph of instructions: it reveals voice, pacing, and the exact shape of an acceptable answer. When those examples echo your output contract, the model learns the boundary of what is “in” and what is “out,” and you get fewer surprises. The best sets are tiny — often one to three samples — selected not for variety but for clarity, so the signal stays sharp and the model’s attention is never diluted.
+            </p>
+            <p className="text-sm sm:text-base text-gray-700">
+              Two styles are especially effective. The first is the style lock: a polished, on-brand sample that the model can imitate without drifting, perfect for copy, summaries, or structured extractions. The second is the contrastive pair: one example that is deliberately wrong beside one that is right, a side-by-side that teaches boundaries in a way text alone rarely can. As you add these, keep every example “schema-true” — if your contract expects particular fields or sections, your examples must honor them exactly, so the model never receives mixed signals.
+            </p>
             <Box tone="pro" title="Golden rule">
-              Examples must be <i>perfectly aligned</i> with your desired output contract.
+              Treat each example like a unit test for style and structure. If your example breaks your own format or tone, the model will too — polish it until it becomes the standard you want repeated.
             </Box>
           </section>
 
@@ -307,15 +311,16 @@ export default function Week2Overview() {
           <section id="cot" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-3">
             <div className="flex items-center gap-2">
               <Workflow className="h-5 w-5 text-green-700" />
-              <h2 className="text-lg sm:text-xl font-semibold">Chain‑of‑Thought vs Concise</h2>
+              <h2 className="text-lg sm:text-xl font-semibold">Chain-of-Thought vs Concise</h2>
             </div>
-            <ul className="list-disc pl-5 text-sm sm:text-base text-gray-700 space-y-1">
-              <li><b>Use CoT</b> when tasks require reasoning or multi‑step checks.</li>
-              <li><b>Use Concise</b> for deterministic, format‑heavy outputs and speed.</li>
-              <li><b>Hybrid:</b> reason privately, then emit concise JSON with a short rationale.</li>
-            </ul>
+            <p className="text-sm sm:text-base text-gray-700">
+              Reasoning is a tool, not a default. When a task benefits from checking assumptions, comparing options, or walking through rules, it helps to invite the model to reason step-by-step and show its work. This can raise accuracy on multi-step problems and creates a transparent record of how the answer was formed. Yet not every task needs that level of narration. For well-scoped, format-heavy outputs — think standardized summaries, extractions, and transformations — concise instructions paired with a strict response contract are faster, cheaper, and easier to validate.
+            </p>
+            <p className="text-sm sm:text-base text-gray-700">
+              Many teams settle on a hybrid: allow the model to think privately and then return only the final, structured answer with a short rationale. You get the benefit of careful internal reasoning without paying for long public explanations on every call. Use the slow path when the stakes or ambiguity are high; stay concise when your schema and assertions already make quality obvious at a glance.
+            </p>
             <Box tone="tip" title="Latency matters">
-              CoT can increase cost/latency; prefer concise when the schema + assertions already keep quality high.
+              Chain-of-Thought can add tokens and time. Prefer concise outputs for routine tasks, and reserve explicit reasoning for moments where it clearly improves reliability.
             </Box>
           </section>
 
@@ -325,14 +330,14 @@ export default function Week2Overview() {
               <Rocket className="h-5 w-5 text-green-700" />
               <h2 className="text-lg sm:text-xl font-semibold">Capstone: Ship a Reliable Prompt</h2>
             </div>
-            <ol className="list-decimal pl-5 text-sm sm:text-base text-gray-700 space-y-2">
-              <li>Start from your Week‑1 contract; add 1–3 few‑shot examples.</li>
-              <li>Decide CoT vs concise; add a brief rationale if needed.</li>
-              <li>Run your golden set + assertions + a tiny rubric; save results.</li>
-              <li>Try one A/B variant; keep the winner; log changes.</li>
-            </ol>
+            <p className="text-sm sm:text-base text-gray-700">
+              Your capstone this week is a small, shippable bundle that a teammate could drop into production with confidence. Start from the prompt and output contract you finalized in Week 1, then add a handful of impeccably chosen examples that lock voice and structure. Decide whether this task merits explicit reasoning or if a concise response is sufficient; if in doubt, include a one-sentence rationale field so reviewers see the “why” without wading through long explanations.
+            </p>
+            <p className="text-sm sm:text-base text-gray-700">
+              When the bundle is ready, run your golden set and note what passes, what fails, and why. If you see quick wins, try a lightweight A/B between two prompt variants and keep the one that demonstrably improves results. Capture what changed and the effect it had in a short note. By the end, you will have a self-contained folder that includes your prompt, examples, contract, golden items, and a tiny eval record — the kind of artifact that makes future maintenance easy.
+            </p>
             <Box tone="tip" title="Deliverable">
-              A single folder containing: prompt.md, examples.jsonl, schema.json, golden.json, eval-notes.md.
+              Aim for a single folder you can hand to anyone on your team. If they can run it and understand how success is measured in under five minutes, you’ve done it right.
             </Box>
           </section>
 
@@ -342,11 +347,12 @@ export default function Week2Overview() {
               <FlaskConical className="h-5 w-5 text-green-700" />
               <h2 className="text-lg sm:text-xl font-semibold">Tips & Pitfalls</h2>
             </div>
-            <ul className="list-disc pl-5 text-sm sm:text-base text-gray-700 space-y-1">
-              <li>Avoid long example blocks — they dilute signal.</li>
-              <li>Never mix example formats — keep keys/types identical.</li>
-              <li>Change one variable at a time (role, example count, constraint).</li>
-            </ul>
+            <p className="text-sm sm:text-base text-gray-700">
+              Keep your example set small enough that every item earns its place; long blocks dilute the signal and invite drift. Hold the line on format: if one example breaks the schema or switches voice, the model will follow it off course. And as you iterate, change one thing at a time — a role tweak, a constraint adjustment, or a single new example — so you always know what produced the improvement you see.
+            </p>
+            <Box tone="warn" title="Common trap">
+              Mixing formats across examples is the fastest way to confuse the model. If the contract changes, update every example to match before you test again.
+            </Box>
           </section>
 
           {/* Bottom Nav & Save */}
@@ -355,7 +361,7 @@ export default function Week2Overview() {
               href="/learn/prompt-engineering/beginner/week1/wrap-up"
               className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 w-full sm:w-auto"
             >
-              <ChevronLeft className="h-4 w-4" /> Back to Week 1 Wrap‑Up
+              <ChevronLeft className="h-4 w-4" /> Back to Week 1 Wrap-Up
             </Link>
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
               <button
@@ -375,7 +381,7 @@ export default function Week2Overview() {
                 className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:shadow w-full sm:w-auto"
                 onClick={async () => { if (!completed) await markComplete(); }}
               >
-                Start: Few‑Shot Patterns <ChevronRight className="h-4 w-4" />
+                Start: Few-Shot Patterns <ChevronRight className="h-4 w-4" />
               </Link>
             </div>
           </section>

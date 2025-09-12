@@ -81,10 +81,8 @@ export default function QuickEvalsLesson() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeId, setActiveId] = useState(SECTIONS[0].id);
 
-  // Playground state
-  const [pgOutput, setPgOutput] = useState<string>(
-    `{"tagline":"Meet less. Decide faster.","word_count":4}`
-  );
+  // Playground state (now plain text, not JSON)
+  const [pgOutput, setPgOutput] = useState<string>('Meet less. Decide faster.');
   const [pgMaxWords, setPgMaxWords] = useState<string>('12');
   const [pgBanned, setPgBanned] = useState<string>('revolutionary, synergy');
   const [pgMustInclude, setPgMustInclude] = useState<string>('meet, decide');
@@ -165,26 +163,25 @@ export default function QuickEvalsLesson() {
     return () => observer.disconnect();
   }, []);
 
-  // Playground checker (mirrors the simple JS from the lesson)
+  // Playground checker (plain text)
   function runPlaygroundCheck() {
-    try {
-      const o = JSON.parse(pgOutput);
-      const maxWords = Number(pgMaxWords);
-      const banned = pgBanned.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
-      const must = pgMustInclude.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
-
-      const asText = JSON.stringify(o).toLowerCase();
-      const mainText = String(o.tagline || o.summary || o.answer || '').trim();
-      const wc = mainText ? mainText.split(/\s+/).filter(Boolean).length : 0;
-
-      if (maxWords && wc > maxWords) return setPgResult(`❌ Too many words (${wc} > ${maxWords})`);
-      for (const w of banned) { if (w && asText.includes(w)) return setPgResult(`❌ Contains banned term: ${w}`); }
-      for (const w of must) { if (w && !asText.includes(w)) return setPgResult(`❌ Missing keyword: ${w}`); }
-
-      setPgResult('✅ ok');
-    } catch {
-      setPgResult('❌ Invalid JSON');
+    const text = String(pgOutput || '').trim();
+    if (!text) return setPgResult('❌ Please paste a response to check.');
+    const maxWords = Number(pgMaxWords);
+    const words = text.split(/\s+/).filter(Boolean);
+    if (maxWords && words.length > maxWords) {
+      return setPgResult(`❌ Too many words (${words.length} > ${maxWords})`);
     }
+    const hay = text.toLowerCase();
+    const banned = pgBanned.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+    for (const w of banned) {
+      if (w && hay.includes(w)) return setPgResult(`❌ Contains banned term: ${w}`);
+    }
+    const must = pgMustInclude.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+    for (const w of must) {
+      if (w && !hay.includes(w)) return setPgResult(`❌ Missing required idea: ${w}`);
+    }
+    setPgResult('✅ Looks good based on your rules.');
   }
 
   return (
@@ -255,23 +252,27 @@ export default function QuickEvalsLesson() {
           <section id="intro" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-2 sm:space-y-3">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">Quick Evaluations (Lightweight)</h1>
             <p className="text-base sm:text-lg text-gray-700">
-              Think of quick evals like a <b>pre‑flight checklist</b>. In a few minutes, you confirm your prompt still flies: correct format, right tone, within limits.
+              Quick evaluations are the pre-flight ritual that keeps your prompts aligned with your promise. In a short pass you confirm that the answer still has the right shape, speaks in the tone you chose, and respects the limits you set earlier. It is not heavy testing; it is a focused moment that says, “this still does what we said.”
+            </p>
+            <p className="text-sm sm:text-base text-gray-700">
+              Imagine shipping a tagline generator for a marketing team. Yesterday it produced tight, eight-word lines. Today, after adding a cheerful example, the same prompt wanders into sixteen-word sentences. A two-minute evaluation would have caught that drift before users ever saw it.
             </p>
             <Box tone="tip" title="Outcome">
-              A tiny eval kit you can run before shipping a prompt — and rerun after any change.
+              By the end of this page you will have a simple, repeatable way to judge whether a prompt is safe to ship right now, and a habit you can reuse after every change.
             </Box>
           </section>
 
           {/* Why quick evals */}
           <section id="why" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-3">
             <h2 className="text-lg sm:text-xl font-semibold">Why Quick Evals</h2>
-            <ul className="list-disc pl-5 text-sm sm:text-base text-gray-700 space-y-1">
-              <li>Catch regressions early (format, tone, accuracy).</li>
-              <li>Give stakeholders confidence without heavy infra.</li>
-              <li>Guide iteration with fast feedback loops.</li>
-            </ul>
+            <p className="text-sm sm:text-base text-gray-700">
+              Prompts drift for quiet reasons. One extra sentence in the instruction suggests a new tone. An inspiring example encourages longer outputs. A constraint meant to help collides with your format. Quick evals intercept those micro-shifts at the edge of your promise so the experience stays consistent.
+            </p>
+            <p className="text-sm sm:text-base text-gray-700">
+              Consider an internal policy summarizer. You intend a one-sentence executive brief. A teammate edits the prompt to be “more explanatory,” and now the model often returns a paragraph. A quick evaluation anchored to a one-sentence contract would immediately flag the length issue, letting you adjust the instruction rather than change your product scope.
+            </p>
             <Box tone="pro" title="Keep it tiny">
-              Start with 5–20 examples; increase only when the prompt stabilizes.
+              Focus on the few checks you would defend in front of a user—shape, length, banned phrases, and one must-have idea. Add more only when repeated failures prove they deserve protection.
             </Box>
           </section>
 
@@ -282,32 +283,13 @@ export default function QuickEvalsLesson() {
               <h2 className="text-lg sm:text-xl font-semibold">Golden Set (Small & Strong)</h2>
             </div>
             <p className="text-sm sm:text-base text-gray-700">
-              A <b>golden set</b> is a handful of <i>canonical</i> inputs that represent what success looks like (plus 1–2 tricky edge cases).
+              The golden set is your compass: a tiny collection of inputs that make “good” unmistakable, plus one or two that used to trip you up. Its job is to reveal direction, not cover the world. When the golden set passes, you can ship with confidence; when it fails, you immediately see where you drifted.
             </p>
-            <div className="rounded-lg border border-gray-200 p-3 sm:p-4 bg-gray-50">
-              <div className="font-medium mb-2">Example golden items</div>
-              <pre className="text-xs md:text-sm p-3 rounded bg-white border border-gray-200 overflow-auto whitespace-pre-wrap break-words">
-{`[
-  {
-    "input": "Draft a 1-sentence summary for 6th graders about recycling.",
-    "must_include": ["recycling", "benefit"],
-    "max_words": 20
-  },
-  {
-    "input": "Create a tagline for an AI note tool (≤ 12 words).",
-    "banned": ["revolutionary", "synergy"],
-    "max_words": 12
-  },
-  {
-    "input": "Explain what to do if info is missing.",
-    "must_include": ["insufficient information"],
-    "max_words": 18
-  }
-]`}
-              </pre>
-            </div>
+            <p className="text-sm sm:text-base text-gray-700">
+              For a tagline prompt, your set might include a straightforward product where the right answer is short and benefit-driven, a product with clunky jargon where clarity matters more than cleverness, and an input that intentionally omits the audience so the correct response is to say there is insufficient information. Those examples take seconds to run but they define your promise sharply.
+            </p>
             <Box tone="tip" title="Balance the set">
-              Include edge cases: short/long inputs, tricky tone, missing info. Keep it <b>small</b> but <b>representative</b>.
+              Blend everyday scenarios with a single edge case that once caused rework. The balance keeps you honest without slowing you down.
             </Box>
           </section>
 
@@ -318,58 +300,37 @@ export default function QuickEvalsLesson() {
               <h2 className="text-lg sm:text-xl font-semibold">Assertions & Pass/Fail</h2>
             </div>
             <p className="text-sm sm:text-base text-gray-700">
-              Assertions are simple rules that outputs must obey. They turn fuzzy “looks good” into <b>yes/no checks</b>.
+              Assertions are the must-haves you refuse to compromise on. They convert “seems fine” into a clean yes or no. Instead of vaguely asking for a “short” line, you decide that a tagline must be twelve words or fewer. Instead of hoping for professionalism, you decide that clichés like “revolutionary” or “synergy” are not allowed. Instead of trusting the model to remember the point, you decide a concrete benefit must appear. These statements are small, but together they protect your product’s promise.
             </p>
-            <div className="rounded-lg border border-gray-200 p-3 sm:p-4 bg-gray-50">
-              <pre className="text-xs md:text-sm p-3 rounded bg-white border border-gray-200 overflow-auto whitespace-pre-wrap break-words">
-{`function check(output, rules) {
-  let o; try { o = JSON.parse(output); } catch { return 'Invalid JSON'; }
-
-  if (rules.max_words) {
-    const txt = String(o.tagline || o.summary || o.answer || '').trim();
-    const wc = txt ? txt.split(/\\s+/).filter(Boolean).length : 0;
-    if (wc > rules.max_words) return 'Too many words';
-  }
-  if (rules.banned) {
-    const hay = JSON.stringify(o).toLowerCase();
-    for (const w of rules.banned) {
-      if (hay.includes(w)) return 'Contains banned term: ' + w;
-    }
-  }
-  if (rules.must_include) {
-    const hay = JSON.stringify(o).toLowerCase();
-    for (const w of rules.must_include) {
-      if (!hay.includes(w)) return 'Missing: ' + w;
-    }
-  }
-  return 'ok';
-}`}
-              </pre>
-            </div>
-            <Box tone="pro" title="Tip">
-              Assertions are easiest when your prompt returns <b>structured JSON</b>.
+            <p className="text-sm sm:text-base text-gray-700">
+              Picture a help-center summarizer. Your assertion might be that every summary names the audience in the first clause, states the main action clearly, and explicitly marks when information is missing. With those rules in place, you do not debate taste; you check whether the response respects the contract you set.
+            </p>
+            <Box tone="pro" title="Contract first, checks second">
+              Decide the shape of the answer before you verify it. A predictable structure makes assertions effortless and keeps attention on outcomes rather than parsing.
             </Box>
           </section>
 
-          {/* Assertion Playground */}
+          {/* Assertion Playground (plain text, no JSON) */}
           <section id="playground" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
               <Hammer className="h-5 w-5 text-green-700" />
               <h2 className="text-lg sm:text-xl font-semibold">Assertion Playground</h2>
             </div>
-            <p className="text-sm sm:text-base text-gray-700 mb-3">
-              Paste a JSON output and run quick checks locally. No backend required.
+            <p className="text-sm sm:text-base text-gray-700">
+              Paste a normal response, not code. Set a maximum word count that matches your definition of “short.” List any phrases you never want to appear. Add one or two words or ideas the answer must include. Press “Check” to see whether this response respects your rules. If it fails, adjust the prompt—keep the rules steady—and try again with the same input. When it passes, repeat with the tricky edge case from your golden set to confirm stability.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <div className="text-xs text-gray-600 mb-1">Output JSON</div>
+                <div className="text-xs text-gray-600 mb-1">Model response (paste text)</div>
                 <textarea
-                  className="w-full min-h-[180px] rounded-xl border border-gray-200 p-3 font-mono text-xs sm:text-sm bg-white"
+                  className="w-full min-h-[180px] rounded-xl border border-gray-200 p-3 text-sm bg-white"
                   value={pgOutput}
                   onChange={(e) => setPgOutput(e.target.value)}
-                  spellCheck={false}
                 />
+                <div className="mt-2 text-xs text-gray-600">
+                  Try pasting: <em>“Write less. Decide faster.”</em> or <em>“Our revolutionary AI saves time for synergy.”</em> to see how banned phrases trigger a failure.
+                </div>
               </div>
               <div className="rounded-xl border border-gray-200 p-3 sm:p-4 bg-gray-50">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -383,7 +344,7 @@ export default function QuickEvalsLesson() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">Banned terms (comma‑sep)</label>
+                    <label className="block text-xs text-gray-600 mb-1">Banned phrases (comma-sep)</label>
                     <input
                       className="w-full rounded-lg border border-gray-200 p-2 text-sm bg-white"
                       value={pgBanned}
@@ -392,7 +353,7 @@ export default function QuickEvalsLesson() {
                     />
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="block text-xs text-gray-600 mb-1">Must include (comma‑sep)</label>
+                    <label className="block text-xs text-gray-600 mb-1">Must include (comma-sep)</label>
                     <input
                       className="w-full rounded-lg border border-gray-200 p-2 text-sm bg-white"
                       value={pgMustInclude}
@@ -416,6 +377,9 @@ export default function QuickEvalsLesson() {
                     {pgResult || 'Result will appear here'}
                   </span>
                 </div>
+                <div className="mt-3 text-xs text-gray-600">
+                  Example flow: paste <em>“Meet less. Decide faster.”</em>, set the word limit to twelve, ban “revolutionary, synergy,” and require “meet, decide.” A pass means the response is short, avoids clichés, and mentions your key ideas.
+                </div>
               </div>
             </div>
           </section>
@@ -427,21 +391,13 @@ export default function QuickEvalsLesson() {
               <h2 className="text-lg sm:text-xl font-semibold">Rubrics (Score 1–5)</h2>
             </div>
             <p className="text-sm sm:text-base text-gray-700">
-              When pass/fail is too strict, add a tiny rubric. Score 2–4 things that matter most.
+              Some qualities need nuance. When pass/fail feels too blunt, score just the essentials on a five-point scale. For a tagline, clarity asks, “would a busy manager grasp this instantly,” and tone asks, “does it energize without sounding cheesy.” A three is acceptable; a five is something you would proudly ship. Two variants may both pass your rules, yet the rubric will reveal which one communicates better.
             </p>
-            <div className="rounded-lg border border-gray-200 p-3 sm:p-4 bg-gray-50">
-              <div className="font-medium mb-2">Sample rubric (tagline)</div>
-              <pre className="text-xs md:text-sm p-3 rounded bg-white border border-gray-200 overflow-auto whitespace-pre-wrap break-words">
-{`{
-  "clarity": 1..5,     // understandable for target audience
-  "specificity": 1..5, // avoids vague claims
-  "tone": 1..5,        // matches instructions (e.g., energetic)
-  "format": 1..5       // respects length/JSON contract
-}`}
-              </pre>
-            </div>
-            <Box tone="tip" title="Keep rubric tiny">
-              Two or three dimensions often suffice — too many slows you down.
+            <p className="text-sm sm:text-base text-gray-700">
+              For instance, Variant A might read, “Capture meetings in minutes.” Variant B might read, “Never miss a follow-up.” Both are short and avoid banned phrases, but if B scores higher on clarity for your audience, that hint directs the team toward what to keep.
+            </p>
+            <Box tone="tip" title="Score what you’ll act on">
+              If a dimension would not change your decision to ship, revise, or discard a variant, leave it out. A short rubric guides; a long one distracts.
             </Box>
           </section>
 
@@ -451,22 +407,14 @@ export default function QuickEvalsLesson() {
               <GitCompare className="h-5 w-5 text-green-700" />
               <h2 className="text-lg sm:text-xl font-semibold">A/B & Regression</h2>
             </div>
-            <p className="text-sm sm:text-base text-gray-700">Compare prompt variants and guard against backslides.</p>
-            <div className="rounded-lg border border-gray-200 p-3 sm:p-4 bg-gray-50">
-              <div className="font-medium mb-2">Mini A/B plan</div>
-              <pre className="text-xs md:text-sm p-3 rounded bg-white border border-gray-200 overflow-auto whitespace-pre-wrap break-words">
-{`Variants:
-- A: Current prompt
-- B: Add explicit audience + banned term list
-
-Procedure:
-- Run both on the golden set
-- Tally pass/fail + average rubric score
-- Keep the variant with higher pass rate and score`}
-              </pre>
-            </div>
-            <Box tone="pro" title="Regression set">
-              Save failing cases. When fixed, they become permanent tests to prevent future regressions.
+            <p className="text-sm sm:text-base text-gray-700">
+              Comparing variants becomes straightforward when your compass and rules are in place. Run Variant A and Variant B on the same inputs, tally how many pass your assertions, and note the average rubric score. Keep the version that performs better and archive the other for reference. As you fix failures, move those exact cases into a small regression set so they never sneak back.
+            </p>
+            <p className="text-sm sm:text-base text-gray-700">
+              Imagine a support reply rewriter. Variant A merely asks for a “friendly” tone. Variant B names the audience, sets a length, and bans apologies unless a concrete mistake exists. On your golden set, both variants pass for structure, but B earns higher clarity and tone and avoids unnecessary apologies on the edge case. B wins, and the edge case becomes part of your permanent guardrails.
+            </p>
+            <Box tone="pro" title="Consistency over cleverness">
+              Keep evaluation conditions steady so differences reflect the prompts themselves, not shifting contexts or inputs.
             </Box>
           </section>
 
@@ -477,44 +425,38 @@ Procedure:
               <h2 className="text-lg sm:text-xl font-semibold">Logging & Notes</h2>
             </div>
             <p className="text-sm sm:text-base text-gray-700">
-              Keep a lightweight log so you know what actually helped.
+              A compact changelog turns iteration into learning. Write today’s date, state the specific tweak, record the golden set pass rate before and after, and add one sentence about why you think the change helped. These short notes give collaborators context without meetings and save you from repeating old experiments.
             </p>
-            <div className="rounded-lg border border-gray-200 p-3 sm:p-4 bg-gray-50">
-              <div className="font-medium mb-2">Changelog template</div>
-              <pre className="text-xs md:text-sm p-3 rounded bg-white border border-gray-200 overflow-auto whitespace-pre-wrap break-words">
-{`# Date: 2025-08-31
-Change: Added audience, banned terms.
-Golden pass: 12/15 → 14/15
-Rubric avg: 3.6 → 4.2
-Notes: Fewer verbose outputs; one edge case still fails (missing audience).`}
-              </pre>
-            </div>
+            <p className="text-sm sm:text-base text-gray-700">
+              For example: “Sept 3 — named the audience and banned ‘revolutionary.’ Golden pass moved from twelve to fourteen. Average clarity increased from 3.6 to 4.2. One case still omits the audience; strengthening that instruction next.”
+            </p>
+            <Box tone="tip" title="Make it a habit">
+              Pair every prompt change with a dated note and fresh results. The ritual takes seconds and compounds over time.
+            </Box>
           </section>
 
           {/* Pitfalls */}
           <section id="pitfalls" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-3">
             <h2 className="text-lg sm:text-xl font-semibold">Common Pitfalls</h2>
-            <ul className="list-disc pl-5 text-sm sm:text-base text-gray-700 space-y-1">
-              <li>Oversized golden sets → slow iteration, little benefit.</li>
-              <li>Unstructured outputs → can’t assert pass/fail easily.</li>
-              <li>Changing multiple things at once → unclear what helped.</li>
-            </ul>
-            <Box tone="warn" title="One‑change rule">
-              Adjust one variable per iteration (role, constraint, format) to isolate impact.
+            <p className="text-sm sm:text-base text-gray-700">
+              The easiest way to lose momentum is to make evaluation heavy. Oversized golden sets blur the signal and slow iteration. Unstructured answers force subjective debates and tempt teams to skip checks entirely. Changing several things at once hides which tweak helped. Keep the kit small, insist on a predictable answer shape, and change one variable at a time so cause and effect stays visible.
+            </p>
+            <p className="text-sm sm:text-base text-gray-700">
+              A practical example: a team added five dimensions to their rubric and doubled the golden set. Reviews became long, scores grew inconsistent, and iteration stalled. They returned to two dimensions, trimmed the set to ten examples, and progress resumed the same week.
+            </p>
+            <Box tone="warn" title="One-change rule">
+              Alter a single element—role, constraint, example, or format—per iteration so you can attribute improvement with confidence.
             </Box>
           </section>
 
           {/* Practice */}
           <section id="exercise" className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-3">
             <h2 className="text-lg sm:text-xl font-semibold">Practice: Build a Tiny Eval Kit</h2>
-            <ol className="list-decimal pl-5 text-sm sm:text-base text-gray-700 space-y-2">
-              <li>Create a <b>golden set</b> of 8–10 inputs for your current prompt.</li>
-              <li>Write 3–5 <b>assertions</b> (format, word count, banned terms).</li>
-              <li>Add a <b>rubric</b> with 2 dimensions (clarity, tone).</li>
-              <li>Test Variant A vs B; keep the winner and log the result.</li>
-            </ol>
+            <p className="text-sm sm:text-base text-gray-700">
+              Build your kit now. Choose a small set of inputs that define success for your task and include a single edge case that once failed. Write three plain-English assertions that match your promise, such as a word limit, a short list of phrases to avoid, and one idea that must appear. If you need nuance, add a two-dimension rubric like clarity and tone. Run two prompt variants against the same inputs, keep the winner, and record a short note about what changed and why it helped. Store the set, rules, and notes beside the prompt so they evolve together.
+            </p>
             <Box tone="tip" title="Ship it">
-              Store your golden set and checks alongside the prompt so they evolve together.
+              The goal is not perfect coverage. It is fast, reliable confidence that this prompt still delivers what you promised.
             </Box>
           </section>
 
