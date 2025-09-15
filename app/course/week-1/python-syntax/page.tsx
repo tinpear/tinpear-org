@@ -11,6 +11,7 @@ import {
   Sparkles,
   Lightbulb,
   AlertTriangle,
+  Home,
 } from 'lucide-react';
 
 /**
@@ -96,14 +97,12 @@ export default function PythonSyntaxPage() {
   useEffect(() => {
     try {
       const el = document.documentElement;
-      el.classList.remove('dark');              // if your app toggles this
-      el.style.colorScheme = 'light';           // respect light UI on iOS/Android
-      // Normalize any typical theme keys used by libraries or your own code
-      ['theme', 'color-theme', 'ui-theme', 'chakra-ui-color-mode', 'mantine-color-scheme', 'next-theme']
+      el.classList.remove('dark');
+      el.style.colorScheme = 'light';
+      ;['theme', 'color-theme', 'ui-theme', 'chakra-ui-color-mode', 'mantine-color-scheme', 'next-theme']
         .forEach((k) => {
           if (localStorage.getItem(k) !== 'light') localStorage.setItem(k, 'light');
         });
-      // If some global toggle stores boolean
       if (localStorage.getItem('darkMode') === 'true') localStorage.setItem('darkMode', 'false');
     } catch {}
   }, []);
@@ -168,25 +167,40 @@ export default function PythonSyntaxPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Header */}
+      {/* Header (home icon, centered title, tidy mobile toggle) */}
       <header className="sticky top-0 z-30 border-b border-gray-100 backdrop-blur bg-white/70">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-gray-900">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-600 text-white">
-              <Sparkles className="h-4 w-4" />
-            </span>
-            <span className="font-bold">Week 1 • Python Syntax</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              className="lg:hidden inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200"
-              onClick={() => setSidebarOpen((v) => !v)}
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="h-14 grid grid-cols-[auto_1fr_auto] items-center gap-3">
+            {/* Left: Home icon */}
+            <Link
+              href="/learn/beginner"
+              aria-label="Go to beginner home"
+              prefetch={false}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-green-600 text-white hover:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
             >
-              {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-              Contents
-            </button>
-            <div className="text-sm text-gray-600">
-              {loading ? 'Loading…' : user ? 'Signed in' : <Link href="/signin" className="underline">Sign in</Link>}
+              <Home className="h-5 w-5" />
+            </Link>
+
+            {/* Center: Title */}
+            <div className="flex items-center justify-center">
+              <span className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+                Week 1 · Python Syntax
+              </span>
+            </div>
+
+            {/* Right: Contents toggle (mobile only) + status */}
+            <div className="flex items-center gap-2 justify-self-end">
+              <button
+                className="lg:hidden inline-flex h-10 items-center gap-2 px-3 rounded-xl border border-gray-200 text-gray-800 hover:bg-gray-50"
+                onClick={() => setSidebarOpen((v) => !v)}
+                aria-label="Toggle contents"
+              >
+                {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                <span className="sr-only">Contents</span>
+              </button>
+              <div className="hidden sm:block text-sm text-gray-600">
+                {loading ? 'Loading…' : user ? 'Signed in' : <Link href="/signin" className="underline">Sign in</Link>}
+              </div>
             </div>
           </div>
         </div>
@@ -212,6 +226,7 @@ export default function PythonSyntaxPage() {
                   'block px-3 py-2 rounded-lg text-sm',
                   activeId === s.id ? 'bg-green-50 text-green-800' : 'hover:bg-gray-50 text-gray-700'
                 )}
+                onClick={() => setSidebarOpen(false)}
               >
                 {s.label}
               </a>
@@ -228,10 +243,13 @@ export default function PythonSyntaxPage() {
           <section id="intro" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Python Syntax, calmly explained</h1>
             <p className="text-gray-700">
-              Think of Python as talking to the computer in friendly, precise sentences. In this lesson, we’ll build your core vocabulary and grammar one brick at a time.
+              Think of Python as speaking to the computer in friendly, precise sentences. This lesson builds your
+              core vocabulary and grammar one brick at a time, so each new idea sits comfortably on the last. We’ll
+              trade bullet lists for short, readable explanations and tiny examples you can run immediately.
             </p>
             <Box tone="tip" title="Mindset">
-              Progress over perfection. It’s okay to make mistakes — each error message is feedback, not failure.
+              Progress over perfection. Errors are feedback, not failure. Read messages from top to bottom, change one
+              thing, and try again. That loop is how programmers learn—no drama required.
             </Box>
           </section>
 
@@ -239,20 +257,30 @@ export default function PythonSyntaxPage() {
           <section id="variables" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">Variables: labeled containers</h2>
             <p className="text-gray-700">
-              A <em>variable</em> is a label you stick on a value so you can find it later, like a jar on a shelf: <code className="px-1 rounded bg-gray-100">sugar</code> → <code className="px-1 rounded bg-gray-100">'sweet'</code>.
+              A <em>variable</em> is a small label you stick on a value so you can refer to it later—like jars on a shelf.
+              In Python you don’t declare types up front; you simply assign a name to a value and start using it. Choose
+              descriptive names in <code>lowercase_with_underscores</code> so your intent is obvious at a glance, and avoid
+              reusing names like <code>list</code> or <code>dict</code> that belong to Python itself.
             </p>
             <pre className="text-sm bg-gray-50 p-3 rounded whitespace-pre-wrap">{`total_cookies = 12
 friend_name = 'Ada'
 pi = 3.14159
 is_hungry = True`}</pre>
             <Box tone="pro" title="Naming like a pro">
-              Use <code>lowercase_with_underscores</code> (e.g., <code>total_sales</code>). Avoid naming a variable <code>list</code>, <code>str</code>, <code>dict</code> — those are built-ins.
+              Prefer concrete nouns (<code>total_sales</code>, <code>customer_name</code>) over placeholders (<code>x</code>, <code>thing</code>). Your future
+              self will thank you when you return to the file next week.
             </Box>
           </section>
 
           {/* Core types */}
           <section id="types" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">Core types (int · float · str · bool)</h2>
+            <p className="text-gray-700">
+              Python’s built‑in types cover everyday needs without ceremony. Numbers come as integers and floating‑point
+              values; text lives in strings; truth values are booleans. You can mix them freely in expressions, and a few
+              small operators unlock most tasks—<code>//</code> for floor division, <code>**</code> for powers, and methods like
+              <code>.upper()</code> on strings when you need simple transformations.
+            </p>
             <div className="grid md:grid-cols-2 gap-4">
               <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
                 <h3 className="font-medium mb-1">Numbers</h3>
@@ -262,124 +290,226 @@ print(apples * price)`}</pre>
                 <p className="text-sm text-gray-600 mt-2">Use <code>//</code> for floor division and <code>**</code> for powers.</p>
               </div>
               <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
-                <h3 className="font-medium mb-1">Text & Truth</h3>
-                <pre className="text-sm whitespace-pre-wrap">{`greeting = 'hello' # str
-is_weekend = False  # bool
+                <h3 className="font-medium mb-1">Text & truth</h3>
+                <pre className="text-sm whitespace-pre-wrap">{`greeting = 'hello'  # str
+is_weekend = False   # bool
 print(greeting.upper(), bool(1), bool(''))`}</pre>
-                <p className="text-sm text-gray-600 mt-2">
-                  <em>Truthiness</em>: empty things are <code>False</code> (<code>''</code>, <code>[]</code>, <code>{'{}'}</code>), others are <code>True</code>.
-                </p>
+                <p className="text-sm text-gray-600 mt-2">Empty things are <code>False</code> (<code>''</code>, <code>[]</code>, <code>{'{}'}</code>); others are <code>True</code>.</p>
               </div>
             </div>
             <Box tone="warn" title="Beginner trap: = vs ==">
-              <code>=</code> assigns a value (<code>x = 3</code>). <code>==</code> checks equality (<code>x == 3</code>). Mixing them up causes errors.
+              <code>=</code> assigns a value (<code>x = 3</code>), while <code>==</code> checks equality (<code>x == 3</code>). Mixing them up causes errors.
             </Box>
           </section>
 
-          {/* Printing */}
-          <section id="print" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
-            <h2 className="text-xl font-semibold">Printing & f-strings</h2>
-            <p className="text-gray-700">Use <code>print()</code> to see what’s going on. f-strings are like fill-in-the-blank templates.</p>
-            <pre className="text-sm bg-gray-50 p-3 rounded whitespace-pre-wrap">{`name = 'Grace'
+         {/* Printing */}
+<section
+  id="print"
+  className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3"
+>
+  <h2 className="text-xl font-semibold">Printing & f-strings</h2>
+  <p className="text-gray-700">
+    Printing is your window into the program’s brain. Use <code>print()</code>{" "}
+    to inspect values as you go. f-strings are lightweight templates—place names
+    inside curly braces and let Python fill the blanks, formatting numbers or
+    text as needed.
+  </p>
+
+  {/* Code */}
+  <div className="space-y-2">
+    <pre className="text-sm bg-gray-50 p-3 rounded whitespace-pre-wrap">{`name = 'Grace'
 score = 93.756
 print(f'Hello {name}, score: {score:.1f}')`}</pre>
-            <Box tone="tip" title="Why this matters">
-              Printing as you go is the fastest way to debug and build intuition.
-            </Box>
-          </section>
 
-          {/* Control flow */}
-          <section id="control" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
-            <h2 className="text-xl font-semibold">Decisions: <code>if</code> / <code>elif</code> / <code>else</code></h2>
-            <p className="text-gray-700">Tell the computer what to do depending on a condition.</p>
-            <pre className="text-sm bg-gray-50 p-3 rounded whitespace-pre-wrap">{`temp = 28
-if temp >= 30:
-    status = 'hot'
-elif temp >= 20:
-    status = 'warm'
-else:
-    status = 'cool'
-print(status)`}</pre>
-            <Box tone="warn" title="Mind the colon & indentation">
-              Every <code>if</code>/<code>elif</code>/<code>else</code> line ends with <code>:</code>, and the following block is indented (use 4 spaces).
-            </Box>
-          </section>
+    {/* Output */}
+    <div className="text-sm bg-gray-900 text-green-200 p-3 rounded font-mono">
+      Hello Grace, score: 93.8
+    </div>
+  </div>
+
+  <Box tone="tip" title="Why this matters">
+    Seeing the data flow is the fastest way to build intuition and fix bugs
+    early.
+  </Box>
+</section>
+
 
           {/* Loops */}
-          <section id="loops" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
-            <h2 className="text-xl font-semibold">Loops: <code>for</code> & <code>while</code></h2>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
-                <h3 className="font-medium mb-1">for: go through a collection</h3>
-                <pre className="text-sm whitespace-pre-wrap">{`for n in [1,2,3,4]:
+<section
+  id="loops"
+  className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3"
+>
+  <h2 className="text-xl font-semibold">
+    Loops: <code>for</code> & <code>while</code>
+  </h2>
+  <p className="text-gray-700">
+    Use <code>for</code> when you want to visit each item in a collection; reach
+    for <code>while</code> when you need to repeat until a condition changes.
+    Both rely on clear stopping rules, and both reward small, readable bodies
+    over big, tangled ones.
+  </p>
+
+  <div className="grid md:grid-cols-2 gap-4">
+    {/* for loop */}
+    <div className="rounded-xl border border-gray-200 p-4 bg-gray-50 space-y-2">
+      <h3 className="font-medium mb-1">for: walk a collection</h3>
+      <pre className="text-sm whitespace-pre-wrap">{`for n in [1,2,3,4]:
     print(n*n)`}</pre>
-              </div>
-              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
-                <h3 className="font-medium mb-1">while: repeat until a condition</h3>
-                <pre className="text-sm whitespace-pre-wrap">{`total, i = 0, 0
+
+      {/* Output */}
+      <div className="text-sm bg-gray-900 text-green-200 p-3 rounded font-mono">
+        1<br />
+        4<br />
+        9<br />
+        16
+      </div>
+    </div>
+
+    {/* while loop */}
+    <div className="rounded-xl border border-gray-200 p-4 bg-gray-50 space-y-2">
+      <h3 className="font-medium mb-1">while: repeat until</h3>
+      <pre className="text-sm whitespace-pre-wrap">{`total, i = 0, 0
 nums = [3, 5, 2]
 while i < len(nums):
     total += nums[i]
     i += 1
 print(total)`}</pre>
-                <p className="text-sm text-gray-600 mt-2">Use <code>while</code> when you don’t know how many times you’ll loop.</p>
-              </div>
-            </div>
-            <Box tone="warn" title="Beginner trap: infinite loop">
-              Always make progress towards the stopping condition (e.g., increment <code>i</code>). If your loop never ends, press the runner’s Stop/refresh.
-            </Box>
-          </section>
+
+      {/* Output */}
+      <div className="text-sm bg-gray-900 text-green-200 p-3 rounded font-mono">
+        10
+      </div>
+
+      <p className="text-sm text-gray-600 mt-2">
+        Use <code>while</code> when the number of steps isn’t known ahead of
+        time.
+      </p>
+    </div>
+  </div>
+
+  <Box tone="warn" title="Beginner trap: infinite loop">
+    Always move toward the stopping condition (e.g., increment <code>i</code>).
+    If your loop never ends, refresh the runner to regain control.
+  </Box>
+</section>
 
           {/* Helpers */}
-          <section id="helpers" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
-            <h2 className="text-xl font-semibold">Handy helpers: <code>range</code>, <code>enumerate</code>, <code>zip</code></h2>
-            <pre className="text-sm bg-gray-50 p-3 rounded whitespace-pre-wrap">{`for i in range(3):
-    print('i =', i)
+<section
+  id="helpers"
+  className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3"
+>
+  <h2 className="text-xl font-semibold">
+    Handy helpers: <code>range</code>, <code>enumerate</code>, <code>zip</code>
+  </h2>
+  <p className="text-gray-700">
+    As you loop, three tiny tools make life easier. <code>range(n)</code> gives
+    you a stream of numbers without building a list by hand.{" "}
+    <code>enumerate(seq)</code> lets you iterate with both index and value in
+    one neat pair. And <code>zip(a, b)</code> walks multiple sequences in
+    lock-step so related items travel together.
+  </p>
 
-names = ['Ada','Grace','Linus']
+  <div className="space-y-4">
+    {/* range */}
+    <div className="rounded-xl border border-gray-200 p-4 bg-gray-50 space-y-2">
+      <h3 className="font-medium mb-1">range</h3>
+      <pre className="text-sm whitespace-pre-wrap">{`for i in range(3):
+    print('i =', i)`}</pre>
+      <div className="text-sm bg-gray-900 text-green-200 p-3 rounded font-mono">
+        i = 0<br />
+        i = 1<br />
+        i = 2
+      </div>
+    </div>
+
+    {/* enumerate */}
+    <div className="rounded-xl border border-gray-200 p-4 bg-gray-50 space-y-2">
+      <h3 className="font-medium mb-1">enumerate</h3>
+      <pre className="text-sm whitespace-pre-wrap">{`names = ['Ada','Grace','Linus']
 for idx, name in enumerate(names):
-    print(idx, name)
+    print(idx, name)`}</pre>
+      <div className="text-sm bg-gray-900 text-green-200 p-3 rounded font-mono">
+        0 Ada<br />
+        1 Grace<br />
+        2 Linus
+      </div>
+    </div>
 
-xs, ys = [1,2,3], [10,20,30]
+    {/* zip */}
+    <div className="rounded-xl border border-gray-200 p-4 bg-gray-50 space-y-2">
+      <h3 className="font-medium mb-1">zip</h3>
+      <pre className="text-sm whitespace-pre-wrap">{`xs, ys = [1,2,3], [10,20,30]
 for x, y in zip(xs, ys):
     print(x, y)`}</pre>
-          </section>
+      <div className="text-sm bg-gray-900 text-green-200 p-3 rounded font-mono">
+        1 10<br />
+        2 20<br />
+        3 30
+      </div>
+    </div>
+  </div>
+</section>
 
           {/* Functions */}
-          <section id="functions" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
-            <h2 className="text-xl font-semibold">Functions: your own commands</h2>
-            <p className="text-gray-700">A function is a recipe: inputs (ingredients) go in, steps run, and a result comes out.</p>
-            <pre className="text-sm bg-gray-50 p-3 rounded whitespace-pre-wrap">{`def greet(name='World'):
+<section
+  id="functions"
+  className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3"
+>
+  <h2 className="text-xl font-semibold">Functions: your own commands</h2>
+  <p className="text-gray-700">
+    A function is a small machine with a name. You hand it inputs, it performs a
+    few steps, and it returns a result. Functions keep programs tidy by
+    gathering related logic in one place and giving it a clear purpose.
+  </p>
+
+  <div className="space-y-2">
+    {/* Code */}
+    <pre className="text-sm bg-gray-50 p-3 rounded whitespace-pre-wrap">{`def greet(name='World'):
     """Return a friendly message."""
     return f'Hello, {name}!'
 
 print(greet())
 print(greet('Ada'))`}</pre>
-            <Box tone="tip" title="Why use functions?">
-              They reduce repetition, make testing easier, and keep code readable.
-            </Box>
-          </section>
+
+    {/* Output */}
+    <div className="text-sm bg-gray-900 text-green-200 p-3 rounded font-mono">
+      Hello, World!<br />
+      Hello, Ada!
+    </div>
+  </div>
+
+  <Box tone="tip" title="Why use functions?">
+    They reduce repetition, make testing easier, and turn long scripts into
+    simple, well-named blocks you can reason about quickly.
+  </Box>
+</section>
 
           {/* Pitfalls */}
           <section id="pitfalls" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h2 className="text-xl font-semibold">🚨 Common Mistake Prevention</h2>
             <Box tone="warn" title="Shadowing built-ins">
-              Don’t name variables <code>list</code>, <code>dict</code>, <code>str</code>, <code>sum</code>, etc. Use <code>items_list</code>, <code>user_dict</code>, <code>total_sum</code>.
+              Avoid naming variables <code>list</code>, <code>dict</code>, <code>str</code>, <code>sum</code>, etc. Prefer <code>items_list</code>, <code>user_dict</code>,
+              or <code>total_sum</code> to keep the real built‑ins available.
             </Box>
             <Box tone="warn" title="Indentation & colons">
-              Blocks must be indented with spaces; lines like <code>if</code>, <code>for</code>, <code>def</code> end with <code>:</code>.
+              Blocks must be indented with spaces; lines like <code>if</code>, <code>for</code>, and <code>def</code> end with <code>:</code>.
             </Box>
             <Box tone="warn" title="Equality vs assignment">
-              <code>==</code> compares; <code>=</code> assigns. <code>if x = 3</code> is invalid — write <code>if x == 3</code>.
+              <code>==</code> compares; <code>=</code> assigns. <code>if x = 3</code> is invalid—write <code>if x == 3</code>.
             </Box>
-            <Box tone="pro" title="Pro tip: read errors top-to-bottom">
-              The last lines show where it failed; earlier lines explain why. Copy the minimal snippet and experiment in the runner.
+            <Box tone="pro" title="Read errors top → bottom">
+              The final lines show where execution stopped; earlier lines explain why. Copy a minimal snippet into the
+              runner and experiment.
             </Box>
           </section>
 
           {/* Practice */}
           <section id="practice" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h2 className="text-xl font-semibold">Practice — three levels</h2>
+            <p className="text-gray-700">
+              Warm up with small reps, then build to a tiny challenge. Treat each prompt like a conversation with the
+              computer: write a little, run it, adjust, repeat. Mastery comes from cycles, not cramming.
+            </p>
             <div className="grid md:grid-cols-3 gap-4">
               <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
                 <h3 className="font-medium mb-2">Level 1 · Foundations</h3>
@@ -394,7 +524,7 @@ print(greet('Ada'))`}</pre>
 # Write only_evens(nums) that returns a new list with even numbers.`}</pre>
               </div>
               <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
-                <h3 className="font-medium mb-2">Level 3 · Mini-challenge</h3>
+                <h3 className="font-medium mb-2">Level 3 · Mini‑challenge</h3>
                 <pre className="text-sm whitespace-pre-wrap">{`# Return a letter grade from a list of scores.
 # A: >=90, B: >=80, C: >=70, else D.
 
@@ -409,7 +539,7 @@ print(grade_average([88, 92, 79, 90]))`}</pre>
               </div>
             </div>
             <Box tone="tip" title="Confidence boost">
-              Each exercise you finish is a real win. Celebrate small steps — they add up quickly.
+              Each exercise you finish is a real win. Celebrate small steps—they add up quickly.
             </Box>
           </section>
 
@@ -554,7 +684,7 @@ function PythonRunnerWorker() {
         </div>
       </div>
       <textarea
-        className="w-full min-h-[200px] rounded-xl border border-gray-200 p-3 font-mono text-sm bg-white"
+        className="w-full min-h[200px] rounded-xl border border-gray-200 p-3 font-mono text-sm bg-white"
         value={code}
         onChange={(e) => setCode(e.target.value)}
         spellCheck={false}

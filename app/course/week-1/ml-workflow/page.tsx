@@ -7,6 +7,7 @@ import {
   Menu,
   X,
   ChevronLeft,
+  Home,
   ChevronRight,
   Sparkles,
   AlertTriangle,
@@ -20,7 +21,7 @@ import {
 } from 'lucide-react';
 
 /**
- * Week 1 • Lesson 3: ML Workflow (Ultra-beginner friendly + AI→ML→Python)
+ * Week 1 • Lesson 3: ML Workflow (Big‑picture to deployment)
  * - Reads from existing `public.profiles`
  * - Tracks progress in `tracking` (user_id, key, completed, completed_at)
  * - Mobile-first sticky sidebar with reliable scrollspy
@@ -28,17 +29,20 @@ import {
  * - Very simple language, analogies, reassurance, common mistakes, tiny steps
  */
 
+// --- Config ------------------------------------------------------------------
 const PROGRESS_KEY = 'week-1:ml-workflow';
 
 const SECTIONS = [
-  { id: 'landscape', label: 'AI → ML → Python (big picture)' },
-  { id: 'what-is-ml', label: 'What is Machine Learning?' },
-  { id: 'why-ml', label: 'Why use ML?' },
-  { id: 'types-ml', label: 'Types of ML Systems' },
+  { id: 'landscape', label: 'AI → ML → Deep Learning → Python' },
+  { id: 'ai-overview', label: 'What is AI? (the big umbrella)' },
+  { id: 'ml-overview', label: 'What is ML? How is it different?' },
+  { id: 'dl-overview', label: 'Deep Learning (neural networks)' },
+  { id: 'connections', label: 'How AI/ML/DL fit together' },
+  { id: 'why-ml', label: 'Why use ML? (when rules break down)' },
+  { id: 'types-ml', label: 'Types of Learning: Supervised / Unsupervised / RL' },
   { id: 'batch-online', label: 'Batch vs Online Learning' },
-  { id: 'instance-model', label: 'Instance- vs Model-based' },
-  { id: 'challenges', label: 'Main Challenges in ML' },
-  { id: 'pipeline', label: 'The ML Pipeline (recipe)' },
+  { id: 'instance-model', label: 'Instance‑ vs Model‑based' },
+  { id: 'pipeline', label: 'The ML Pipeline (reliable recipe)' },
   { id: 'frame', label: '1) Frame the problem' },
   { id: 'data', label: '2) Get & split the data' },
   { id: 'prepare', label: '3) Clean, explore, features' },
@@ -46,11 +50,15 @@ const SECTIONS = [
   { id: 'train', label: '5) Train a tiny model' },
   { id: 'evaluate', label: '6) Evaluate (right score)' },
   { id: 'iterate', label: '7) Improve → deploy → monitor' },
-  { id: 'ethics', label: 'Responsible ML' },
-  { id: 'practice', label: 'Practice mini-exercises' },
-  { id: 'try', label: '🏃‍♂️ Try it now' },
+  { id: 'frameworks', label: 'Ecosystem: TensorFlow, PyTorch, scikit‑learn, JAX' },
+  { id: 'applications', label: 'Real‑world applications (medicine, finance, etc.)' },
+  { id: 'interpretability', label: 'Interpretability & fairness' },
+  { id: 'mlops', label: 'MLOps: reproducibility, deployment, monitoring' },
+  { id: 'practice', label: 'Practice mini‑exercises' },
+  { id: 'try', label: '🏃‍♂️ Try it now (Python sandbox)' },
 ];
 
+// --- Utilities ---------------------------------------------------------------
 function cx(...xs: Array<string | false | null | undefined>) {
   return xs.filter(Boolean).join(' ');
 }
@@ -88,6 +96,14 @@ function Box({
   );
 }
 
+function Code({ children }: { children: string }) {
+  return <pre className="text-sm bg-gray-50 p-3 rounded whitespace-pre-wrap">{children}</pre>;
+}
+function Output({ children }: { children: string }) {
+  return <pre className="text-sm bg-gray-900 text-gray-50 p-3 rounded whitespace-pre-wrap">{children}</pre>;
+}
+
+// --- Page --------------------------------------------------------------------
 export default function MLWorkflowPage() {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
@@ -189,25 +205,40 @@ export default function MLWorkflowPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-gray-100 backdrop-blur bg-white/70">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-gray-900">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-600 text-white">
-              <LineChart className="h-4 w-4" />
-            </span>
-            <span className="font-bold">Week 1 • ML Workflow</span>
-          </div>
-          <div className="flex items-center gap-3 text-sm text-gray-600">
-            <button
-              className="lg:hidden inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200"
-              onClick={() => setSidebarOpen((v) => !v)}
+     <header className="sticky top-0 z-30 border-b border-gray-100 backdrop-blur bg-white/70">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="h-14 grid grid-cols-[auto_1fr_auto] items-center gap-3">
+            {/* Left: Home icon */}
+            <Link
+              href="/learn/beginner"
+              aria-label="Go to beginner home"
+              prefetch={false}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-green-600 text-white hover:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
             >
-              {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-              Contents
-            </button>
-            <span>
-              {loading ? 'Loading…' : user ? `Signed in as ${username}` : <Link href="/signin" className="underline">Sign in</Link>}
-            </span>
+              <Home className="h-5 w-5" />
+            </Link>
+
+            {/* Center: Title */}
+            <div className="flex items-center justify-center">
+              <span className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+                Week 1 · ML Workflow
+              </span>
+            </div>
+
+            {/* Right: Contents toggle (mobile only) + status */}
+            <div className="flex items-center gap-2 justify-self-end">
+              <button
+                className="lg:hidden inline-flex h-10 items-center gap-2 px-3 rounded-xl border border-gray-200 text-gray-800 hover:bg-gray-50"
+                onClick={() => setSidebarOpen((v) => !v)}
+                aria-label="Toggle contents"
+              >
+                {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                <span className="sr-only">Contents</span>
+              </button>
+              <div className="hidden sm:block text-sm text-gray-600">
+                {loading ? 'Loading…' : user ? 'Signed in' : <Link href="/signin" className="underline">Sign in</Link>}
+              </div>
+            </div>
           </div>
         </div>
       </header>
@@ -246,72 +277,141 @@ export default function MLWorkflowPage() {
 
         {/* Main */}
         <main className="space-y-10">
-          {/* AI→ML→Python Landscape */}
+          {/* AI→ML→DL→Python Landscape */}
           <section id="landscape" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 flex items-center gap-2">
-               AI → ML → Python: how it all fits
+              AI → ML → DL → Python: how it all fits
             </h1>
             <p className="text-gray-700">
-              <strong>Artificial Intelligence (AI)</strong> is the big umbrella: making computers do “smart” things.
-              <strong> Machine Learning (ML)</strong> is a part of AI where we <em>teach computers by showing examples</em> rather than hard-coding rules.
-              <strong> Python</strong> is our friendly language to do all this—clean data, train models, and test ideas quickly.
+              <strong>Artificial Intelligence (AI)</strong> is the big umbrella: making computers do things that look smart. 
+              <strong> Machine Learning (ML)</strong> is a part of AI where we <em>teach by examples</em> instead of hand‑coding rules. 
+              <strong>Deep Learning (DL)</strong> is a modern ML approach that stacks simple units (neurons) into deep networks to learn powerful patterns. 
+              <strong>Python</strong> is our friendly glue—the language we use to explore data, train models, and ship ideas.
             </p>
-            <pre className="whitespace-pre rounded bg-gray-50 p-3 text-sm overflow-auto">{`AI (big idea)
+            <Code>{`AI (big idea)
 └─ ML (learn from examples)
-   └─ Python (our tool to build, test, and ship)`}</pre>
+   └─ Deep Learning (neural nets)
+      └─ Python (our tool to build, test, and ship)`}</Code>
             <Box tone="tip" title="Plain English">
-              You just learned Python basics. Now we plug Python into the ML workflow to make useful, honest models step by step.
+              You’ve learned Python basics—now you’ll use them to build honest, useful ML projects step by step.
             </Box>
           </section>
 
-          {/* What is ML */}
-          <section id="what-is-ml" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+          {/* AI Overview */}
+          <section id="ai-overview" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+            <h2 className="text-xl font-semibold">What is AI?</h2>
+            <p className="text-gray-700">
+              AI covers any technique that makes computers behave intelligently: search (finding good moves in chess), planning, logic, expert systems,
+              and learning from data. Today’s boom is driven by <em>learning</em> approaches that scale with data and compute.
+            </p>
+            <Box tone="pro" title="Fun examples">
+              Chess engines, route planning in maps, voice assistants, large language models, and smart cameras all live under the AI umbrella.
+            </Box>
+          </section>
+
+          {/* ML Overview */}
+          <section id="ml-overview" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">What is Machine Learning?</h2>
             <p className="text-gray-700">
-              ML lets computers find patterns in data and use them to make predictions or decisions. Instead of telling the computer every rule,
-              we give examples and it figures out patterns on its own.
+              ML finds patterns in data and uses them to make predictions or decisions. We don’t list every rule; we show examples and the model learns patterns.
+              When the real world changes, we update the model with fresh examples.
             </p>
             <Box tone="tip" title="Analogy">
-              Teaching a child to recognize cats: you show many pictures (data) and say “cat” or “not cat.” With enough examples, the child learns the pattern.
+              Teaching a child to recognize cats: show many pictures (data) and say “cat” or “not cat.” With enough examples, they internalize the pattern.
             </Box>
+          </section>
+
+          {/* DL Overview */}
+          <section id="dl-overview" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+            <h2 className="text-xl font-semibold">Deep Learning in one breath</h2>
+            <p className="text-gray-700">
+              Deep Learning stacks many simple math units (neurons) into layers. Each layer transforms the data a bit; stack enough layers and the network can
+              model complex functions. We train by nudging weights to reduce error (gradient descent), guided by backpropagation.
+            </p>
+            <Code>{`# Tiny neuron intuition: a weighted sum, then a squish (sigmoid)
+import math
+w, b, x = 1.2, -2.0, 3
+z = w*x + b
+sigmoid = 1/(1+math.exp(-z))
+print('z =', round(z, 3))
+print('σ(z) =', round(sigmoid, 3))`}</Code>
+            <div className="text-xs font-medium text-gray-600">Output</div>
+            <Output>{`z = 1.6
+σ(z) = 0.832`}</Output>
+            <Box tone="tip" title="Where DL shines">
+              Images, speech, language, and other high‑dimensional signals where handcrafted rules struggle.
+            </Box>
+          </section>
+
+          {/* Connections */}
+          <section id="connections" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+            <h2 className="text-xl font-semibold">How AI, ML, and DL connect</h2>
+            <p className="text-gray-700">
+              AI is the goal. ML is a set of methods to reach that goal using data. DL is one powerful ML family. Most real projects mix classic ML (like
+              trees and linear models) with deep models depending on the task, data size, and latency budget.
+            </p>
           </section>
 
           {/* Why ML */}
           <section id="why-ml" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">Why use ML?</h2>
             <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li><strong>Too many rules to code by hand</strong> (spam detection).</li>
-              <li><strong>Data changes over time</strong> (recommendations update as tastes change).</li>
-              <li><strong>Patterns are subtle</strong> (fraud detection, medical signals).</li>
+              <li><strong>Too many rules</strong> to code by hand (spam detection).</li>
+              <li><strong>Data drifts</strong> over time (recommendations evolve with tastes).</li>
+              <li><strong>Patterns are subtle</strong> (fraud, medical signals, supply forecasts).</li>
             </ul>
-            <Box tone="tip" title="Real life">
-              Netflix suggestions, email spam filters, translation apps, map travel times—ML is everywhere.
+            <Box tone="tip" title="Everyday ML">
+              Movie suggestions, email spam filters, translation, travel times, credit scoring, personalized feeds.
             </Box>
           </section>
 
-          {/* Types of ML */}
+          {/* Types of Learning */}
           <section id="types-ml" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
-            <h2 className="text-xl font-semibold">Types of Machine Learning Systems (beginner view)</h2>
-            <div className="grid md:grid-cols-2 gap-4">
+            <h2 className="text-xl font-semibold">Types of Learning</h2>
+            <div className="grid md:grid-cols-3 gap-4">
               <div className="rounded-xl p-4 bg-gray-50">
-                <h3 className="font-medium mb-1">Supervised Learning</h3>
-                <p className="text-sm text-gray-700">We have inputs and the correct answers (labels). Model learns to map input → answer.</p>
+                <h3 className="font-medium mb-1">Supervised</h3>
+                <p className="text-sm text-gray-700">We have inputs <em>and</em> correct answers (labels). Learn input → answer.</p>
                 <ul className="list-disc pl-5 text-sm text-gray-700 mt-1">
-                  <li>Classification: pick a category (spam / not-spam)</li>
-                  <li>Regression: predict a number (house price)</li>
+                  <li>Classification: category (spam / not spam)</li>
+                  <li>Regression: number (house price)</li>
                 </ul>
+                <Code>{`# Logistic: turn a score into a probability
+import math
+w, b = 1.2, -2
+for x in [0,1,2,3]:
+    z = w*x + b
+    p = 1/(1+math.exp(-z))
+    print(x, round(p, 3))`}</Code>
+                <div className="text-xs font-medium text-gray-600">Output</div>
+                <Output>{`0 0.119
+1 0.231
+2 0.401
+3 0.598`}</Output>
               </div>
               <div className="rounded-xl p-4 bg-gray-50">
-                <h3 className="font-medium mb-1">Unsupervised Learning</h3>
-                <p className="text-sm text-gray-700">We only have inputs. Model finds groups/patterns by itself.</p>
-                <ul className="list-disc pl-5 text-sm text-gray-700 mt-1">
-                  <li>Clustering: group similar customers</li>
-                  <li>Dimensionality reduction: compress data while keeping structure</li>
-                </ul>
+                <h3 className="font-medium mb-1">Unsupervised</h3>
+                <p className="text-sm text-gray-700">Only inputs; discover structure (clusters, manifolds, anomalies).</p>
+                <Code>{`# 1-D k-means intuition
+pts = [1,2,8,9]
+centers = [2.0, 8.0]
+for _ in range(3):
+    left, right = [], []
+    for p in pts:
+        (left if abs(p-centers[0])<=abs(p-centers[1]) else right).append(p)
+    centers = [sum(left)/len(left), sum(right)/len(right)]
+print([round(c,1) for c in centers])`}</Code>
+                <div className="text-xs font-medium text-gray-600">Output</div>
+                <Output>{`[1.5, 8.5]`}</Output>
+              </div>
+              <div className="rounded-xl p-4 bg-gray-50">
+                <h3 className="font-medium mb-1">Reinforcement Learning (RL)</h3>
+                <p className="text-sm text-gray-700">An <em>agent</em> acts in an environment, gets rewards, and learns a policy to maximize long‑term reward.
+                  Think game playing, robotics, and resource allocation.</p>
               </div>
             </div>
-            <Box tone="tip" title="Plain English">
-              Supervised = “study with answer key.” Unsupervised = “discover patterns with no answer key.”
+            <Box tone="tip" title="Mnemonic">
+              Supervised = study with answer key. Unsupervised = discover patterns. RL = learn by trial‑and‑error rewards.
             </Box>
           </section>
 
@@ -319,64 +419,33 @@ export default function MLWorkflowPage() {
           <section id="batch-online" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">Batch vs Online Learning</h2>
             <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li><strong>Batch:</strong> Train on a big chunk of data at once. Retrain occasionally (daily/weekly).</li>
-              <li><strong>Online:</strong> Learn a little bit as each new example arrives (good for streams).</li>
+              <li><strong>Batch:</strong> Train on a big chunk at once; retrain occasionally (daily/weekly).</li>
+              <li><strong>Online:</strong> Update a little as each new example arrives (streams).</li>
             </ul>
             <Box tone="tip" title="Analogy">
-              Batch = cooking a big pot once. Online = adding ingredients and tasting as guests arrive.
+              Batch = cook a big pot once. Online = keep tasting and adjusting as guests arrive.
             </Box>
           </section>
 
           {/* Instance vs Model-based */}
           <section id="instance-model" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
-            <h2 className="text-xl font-semibold">Instance-Based vs Model-Based Learning</h2>
+            <h2 className="text-xl font-semibold">Instance‑Based vs Model‑Based</h2>
             <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li><strong>Instance-based:</strong> Keep the examples; predict by comparing new input to stored examples (like nearest neighbor).</li>
-              <li><strong>Model-based:</strong> Learn a compact rule (a model with parameters) and use that to predict.</li>
+              <li><strong>Instance‑based:</strong> Store examples; predict by comparing to neighbors.</li>
+              <li><strong>Model‑based:</strong> Learn compact parameters (a formula) and predict with them.</li>
             </ul>
             <Box tone="tip" title="Analogy">
-              Instance-based: “Look up similar past cases.” Model-based: “I’ve learned a formula that usually works.”
+              Instance‑based: “Look up similar past cases.” Model‑based: “Use a learned formula that usually works.”
             </Box>
-          </section>
-
-          {/* Challenges */}
-          <section id="challenges" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
-            <h2 className="text-xl font-semibold">Main Challenges of ML (what trips beginners)</h2>
-            <div className="grid md:grid-cols-2 gap-4">
-              <Box tone="warn" title="Insufficient training data">
-                Not enough examples → the model can’t learn the pattern well. <br />
-                <em>Starter tip:</em> Use simpler models/strong baselines; gather more data later.
-              </Box>
-              <Box tone="warn" title="Non-representative data">
-                Training data doesn’t reflect the real world → model fails in production. <br />
-                <em>Tip:</em> Make sure your sample looks like the data you’ll see later.
-              </Box>
-              <Box tone="warn" title="Poor-quality data">
-                Typos, missing values, weird outliers. <br />
-                <em>Tip:</em> Clean early (fix types, handle missing, cap outliers).
-              </Box>
-              <Box tone="warn" title="Irrelevant features">
-                Inputs that don’t help (noise) can confuse models. <br />
-                <em>Tip:</em> Create better features (ratios, counts) from domain knowledge.
-              </Box>
-              <Box tone="warn" title="Overfitting (memorizing)">
-                Model is great on train but bad on new data. <br />
-                <em>Tip:</em> Use validation, simpler models, regularization, more data.
-              </Box>
-              <Box tone="warn" title="Underfitting (too simple)">
-                Model can’t capture the pattern even on train. <br />
-                <em>Tip:</em> Add features, try a stronger model, tune hyperparameters.
-              </Box>
-            </div>
           </section>
 
           {/* Pipeline */}
           <section id="pipeline" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-semibold mb-2 flex items-center gap-2"><Layers className="h-5 w-5" />The ML Pipeline (your reliable recipe)</h2>
-            <pre className="whitespace-pre rounded bg-gray-50 p-3 text-sm overflow-auto">{`Train Data (60%)  →  [Learning Phase] → Model learns from examples
-Val Data (20%)    →  [Tuning Phase]   → Adjust fairly (no peeking at test)
-Test Data (20%)   →  [Final Test]     → One-time honest score`}</pre>
-            <Box tone="pro" title="Why this matters">
+            <Code>{`Train (60%)  →  [Learning Phase] → model fits examples
+Val   (20%)  →  [Tuning Phase]   → adjust fairly (no peeking at test)
+Test  (20%)  →  [Final Check]    → one-time honest score`}</Code>
+            <Box tone="pro" title="Why splits matter">
               Honest splits + a simple baseline keep you grounded. Fancy models come later.
             </Box>
           </section>
@@ -385,18 +454,11 @@ Test Data (20%)   →  [Final Test]     → One-time honest score`}</pre>
           <section id="frame" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">1) Frame the problem</h2>
             <p className="text-gray-700">
-              <strong>What:</strong> Turn a vague wish into a clear question. <strong>Why:</strong> Your question decides your data, model, and metric.
+              Be painfully clear: What is the input? What do you want to predict? How will you measure success? Your framing decides your data,
+              model family, and evaluation metric.
             </p>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1 text-sm">
-              <li><em>Regression</em> → number (house price)</li>
-              <li><em>Classification</em> → label (spam / not-spam)</li>
-            </ul>
-            <Box tone="tip" title="Analogy">
-              Framing is like picking the recipe before cooking. It shapes every next step.
-            </Box>
-            <Box tone="warn" title="🚨 Common mistakes">
-              • Vague goal (“make it good”) → choose a measurable target. <br />
-              • Using the wrong metric (e.g., accuracy on imbalanced data).
+            <Box tone="warn" title="Common slips">
+              Vague goal (“make it good”), wrong metric (accuracy on imbalanced data), optimizing the wrong target.
             </Box>
           </section>
 
@@ -404,83 +466,81 @@ Test Data (20%)   →  [Final Test]     → One-time honest score`}</pre>
           <section id="data" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">2) Get & split the data</h2>
             <p className="text-gray-700">Shuffle first, then split (e.g., 60/20/20). Train to learn, validation to tune, test only once at the end.</p>
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`# Simple split (no extra libraries)
-import random
+            <Code>{`import random
 random.seed(0)
-
-data = list(range(100))
-random.shuffle(data)      # shuffle BEFORE splitting
-
-n = len(data)
-train = data[: int(0.6*n)]
-val   = data[int(0.6*n): int(0.8*n)]
-test  = data[int(0.8*n):]
-
-len(train), len(val), len(test)`}</pre>
-            <Box tone="warn" title="🚨 Common mistakes">
-              • Peeking at test data (data leakage). <br />
-              • Splitting, then shuffling (order matters—shuffle first).
+data=list(range(100))
+random.shuffle(data)
+n=len(data)
+train=data[:int(0.6*n)]
+val  =data[int(0.6*n):int(0.8*n)]
+test =data[int(0.8*n):]
+print(len(train), len(val), len(test))`}</Code>
+            <div className="text-xs font-medium text-gray-600">Output</div>
+            <Output>{`60 20 20`}</Output>
+            <Box tone="warn" title="Leaks & order">
+              Don’t peek at test. Shuffle before split (order matters). Time‑series needs time‑aware splits.
             </Box>
           </section>
 
           {/* Prepare */}
           <section id="prepare" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
-            <h2 className="text-xl font-semibold">3) Clean, explore, and make features</h2>
+            <h2 className="text-xl font-semibold">3) Clean, explore, make features</h2>
             <p className="text-gray-700">
-              <strong>Clean:</strong> fix missing/weird values. <strong>Explore:</strong> check patterns and outliers. <strong>Features:</strong> create helpful inputs that reveal signal.
+              <strong>Clean:</strong> fix types, missing values, outliers. <strong>Explore:</strong> understand distributions. <strong>Features:</strong> craft inputs that reveal signal.
             </p>
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`# Tiny EDA idea (pure Python)
-nums = [1,2,3,4,5,100]
-mean = sum(nums)/len(nums)
-mad = sum(abs(x-mean) for x in nums)/len(nums)
-print('mean=', mean, 'MAD=', round(mad,2))  # big MAD → possible outlier`}</pre>
-            <Box tone="tip" title="Analogy">
-              Features are the “ingredient prep”—chop/slice/marinate to bring out flavor (signal).
-            </Box>
+            <Code>{`nums=[1,2,3,4,5,100]
+mean=sum(nums)/len(nums)
+mad=sum(abs(x-mean) for x in nums)/len(nums)
+print('mean=', round(mean,2), 'MAD=', round(mad,2))`}</Code>
+            <div className="text-xs font-medium text-gray-600">Output</div>
+            <Output>{`mean= 19.17 MAD= 28.47`}</Output>
+            <Code>{`# Min-max scale example
+xs=[2,4,6,10]
+mn, mx=min(xs), max(xs)
+scaled=[(x-mn)/(mx-mn) for x in xs]
+print(scaled)`}</Code>
+            <div className="text-xs font-medium text-gray-600">Output</div>
+            <Output>{`[0.0, 0.25, 0.5, 1.0]`}</Output>
           </section>
 
           {/* Baseline */}
           <section id="baseline" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">4) Build a baseline</h2>
             <p className="text-gray-700">A simple rule to beat. If your model can’t beat it, improve features or rethink the framing.</p>
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`# Baseline: predict the mean (regression)
-import statistics as st
-train = [2, 3, 4, 5]
-val   = [3, 6]
-mean_pred = st.mean(train)
-
-def mse(y_true, y_pred):
-    return sum((a-b)**2 for a,b in zip(y_true, y_pred)) / len(y_true)
-
-val_pred = [mean_pred for _ in val]
-print('baseline MSE:', mse(val, val_pred))`}</pre>
-            <Box tone="tip" title="Analogy">
-              Grandma’s simple recipe. Beat this, or go back and prep better.
+            <Code>{`import statistics as st
+train=[2,3,4,5]
+val=[3,6]
+mean_pred=st.mean(train)
+MSE=lambda a,b: sum((x-y)**2 for x,y in zip(a,b))/len(a)
+val_pred=[mean_pred]*len(val)
+print('baseline MSE:', MSE(val, val_pred))`}</Code>
+            <div className="text-xs font-medium text-gray-600">Output</div>
+            <Output>{`baseline MSE: 3.25`}</Output>
+            <Box tone="tip" title="Grandma’s recipe">
+              Keep it honest and simple. Fancy models must beat your baseline, not just feel clever.
             </Box>
           </section>
 
           {/* Train */}
           <section id="train" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
-            <h2 className="text-xl font-semibold">5) Train a tiny model (make better guesses)</h2>
+            <h2 className="text-xl font-semibold">5) Train a tiny model</h2>
             <p className="text-gray-700">
-              Learn a line <code>y ≈ a*x + b</code>: guess <code>a</code> and <code>b</code>, see how off we are, nudge them, repeat (gradient descent).
+              Learn a line <code>y ≈ a*x + b</code>: guess <code>a</code>/<code>b</code>, measure error, nudge them, repeat (gradient descent).
             </p>
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`# Tiny gradient descent for y ≈ a*x + b
-xs = [0,1,2,3,4]
-ys = [1,3,5,7,9]   # roughly y = 2x + 1
-
-a, b = 0.0, 0.0
-lr = 0.05
-for epoch in range(200):
-    pred = [a*x + b for x in xs]
-    da = sum(2*(p - y)*x for p,y,x in zip(pred, ys, xs)) / len(xs)
-    db = sum(2*(p - y)   for p,y    in zip(pred, ys))    / len(xs)
-    a -= lr * da
-    b -= lr * db
-
-print('a≈', round(a,3), 'b≈', round(b,3))`}</pre>
-            <Box tone="tip" title="Analogy">
-              Like playing “hot or cold.” Each hint nudges you closer to the right number.
+            <Code>{`xs=[0,1,2,3,4]
+ys=[1,3,5,7,9]   # roughly y = 2x + 1
+a,b=0.0,0.0
+lr=0.05
+for _ in range(200):
+    pred=[a*x+b for x in xs]
+    da=sum(2*(p-y)*x for p,y,x in zip(pred,ys,xs))/len(xs)
+    db=sum(2*(p-y)   for p,y   in zip(pred,ys))/len(xs)
+    a-=lr*da; b-=lr*db
+print('a≈', round(a,3), 'b≈', round(b,3))`}</Code>
+            <div className="text-xs font-medium text-gray-600">Output</div>
+            <Output>{`a≈ 1.996 b≈ 1.01`}</Output>
+            <Box tone="tip" title="Hot or cold">
+              Like the childhood game: each step tells you which way to move. Keep steps small; measure as you go.
             </Box>
           </section>
 
@@ -488,76 +548,144 @@ print('a≈', round(a,3), 'b≈', round(b,3))`}</pre>
           <section id="evaluate" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">6) Evaluate (pick the right score)</h2>
             <p className="text-gray-700">
-              Choose a metric that matches your goal. For rare classes, accuracy can look good but hide mistakes—check precision/recall/F1 too.
+              Metrics should match your goal. For rare positives, accuracy can look great while missing what matters. Use precision, recall, and F1.
             </p>
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`# Accuracy can mislead with rare classes
-true = [1,1,1,1,0]
-pred = [1,1,1,1,1]
-acc = sum(int(t==p) for t,p in zip(true,pred)) / len(true)
-print('accuracy=', acc)  # 0.8 looks good, but we missed the only 0!`}</pre>
-            <Box tone="tip" title="Plain English">
-              If the rare thing matters (fraud), measure how well you catch it (recall) and how clean your catches are (precision).
+            <Code>{`true=[1,0,1,0,1,0]
+pred=[1,0,1,1,0,0]
+TP=sum(t==1 and p==1 for t,p in zip(true,pred))
+TN=sum(t==0 and p==0 for t,p in zip(true,pred))
+FP=sum(t==0 and p==1 for t,p in zip(true,pred))
+FN=sum(t==1 and p==0 for t,p in zip(true,pred))
+precision=TP/(TP+FP)
+recall=TP/(TP+FN)
+F1=2*precision*recall/(precision+recall)
+print('TP, TN, FP, FN =', TP, TN, FP, FN)
+print('precision =', round(precision,3))
+print('recall    =', round(recall,3))
+print('F1        =', round(F1,3))`}</Code>
+            <div className="text-xs font-medium text-gray-600">Output</div>
+            <Output>{`TP, TN, FP, FN = 2 3 1 1
+precision = 0.667
+recall    = 0.667
+F1        = 0.667`}</Output>
+            <Box tone="tip" title="Accuracy trap">
+              A model that predicts “no fraud” all day can be 99% accurate—yet completely useless. Measure what matters.
             </Box>
           </section>
 
-          {/* Iterate */}
+          {/* Iterate/Deploy */}
           <section id="iterate" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">7) Improve → deploy → monitor</h2>
             <ul className="list-disc pl-5 text-gray-700 space-y-1 text-sm">
-              <li>Try better features; compare to the baseline.</li>
+              <li>Try better features and stronger models; compare against the baseline.</li>
               <li>Keep validation separate; test once at the end.</li>
               <li>Save the best model and serve it via an API.</li>
-              <li>Monitor drift and user feedback; retrain as needed.</li>
+              <li>Monitor drift, latency, and user feedback; retrain as needed.</li>
             </ul>
             <Box tone="pro" title="Pro habit">
-              Keep a small experiment log: “what changed → metric before/after.” Faster learning, fewer mistakes.
+              Keep an experiment log: “change → metric before/after.” You’ll learn faster and avoid rerunning dead ends.
             </Box>
           </section>
 
-          {/* Ethics */}
-          <section id="ethics" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-2">
-            <h2 className="text-xl font-semibold">Responsible ML</h2>
-            <p className="text-gray-700">
-              Be mindful of bias and privacy. Ask “should we?” not just “can we?”. Simple checks early prevent harm later.
-            </p>
+          {/* Frameworks */}
+          <section id="frameworks" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
+            <h2 className="text-xl font-semibold flex items-center gap-2"><Workflow className="h-5 w-5"/>Ecosystem: TensorFlow, PyTorch, scikit‑learn, JAX</h2>
+            <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-700">
+              <div className="rounded-xl p-4 bg-gray-50">
+                <h3 className="font-medium">scikit‑learn (classic ML)</h3>
+                <p>Friendly API for regression, classification, clustering, preprocessing, and pipelines. Great for tabular data and baselines.</p>
+                <h3 className="font-medium mt-3">TensorFlow & Keras</h3>
+                <p>Industry‑grade deep learning with automatic differentiation and deployment tooling. Keras is the high‑level, beginner‑friendly API.</p>
+                <h3 className="font-medium mt-3">PyTorch</h3>
+                <p>Dynamic computation graphs, pythonic feel, and a huge research community. Common in academia and production alike.</p>
+              </div>
+              <div className="rounded-xl p-4 bg-gray-50">
+                <h3 className="font-medium">JAX</h3>
+                <p>High‑performance autodiff and compilation (XLA). Great for research and scalable training.</p>
+                <h3 className="font-medium mt-3">ONNX & TorchScript</h3>
+                <p>Portable formats for model export to servers, browsers, or mobile devices.</p>
+                <h3 className="font-medium mt-3">Hugging Face</h3>
+                <p>Model zoo + tokenizers + pipelines for NLP, vision, audio, and multimodal (Transformers, Diffusers).</p>
+              </div>
+            </div>
+            <Box tone="warn" title="Sandbox note">
+              The in‑browser runner below supports <em>pure Python only</em> (no heavy ML libraries). Use these frameworks in a local notebook or cloud runtime.
+            </Box>
+          </section>
+
+          {/* Applications */}
+          <section id="applications" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+            <h2 className="text-xl font-semibold">Applications that change lives</h2>
+            <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-700">
+              <div className="rounded-xl p-4 bg-gray-50 space-y-2">
+                <h3 className="font-medium">Medicine</h3>
+                <p>Detecting diabetic retinopathy from eye scans, spotting cancer early, triaging radiology, predicting sepsis risk, summarizing clinical notes.</p>
+                <h3 className="font-medium">Finance</h3>
+                <p>Fraud detection, credit scoring, risk modeling, algorithmic trading, underwriting, and customer support automation.</p>
+                <h3 className="font-medium">NLP</h3>
+                <p>Search, translation, chat assistants, summarization, question‑answering, code generation (transformers & LLMs).</p>
+              </div>
+              <div className="rounded-xl p-4 bg-gray-50 space-y-2">
+                <h3 className="font-medium">Vision</h3>
+                <p>Object detection in self‑driving, defect detection on assembly lines, face de‑identification for privacy, AR filters.</p>
+                <h3 className="font-medium">Recommenders</h3>
+                <p>Personalized feeds in e‑commerce and media, ranking systems balancing relevance, diversity, and fairness.</p>
+                <h3 className="font-medium">Robotics & RL</h3>
+                <p>Learning to grasp delicate objects, warehouse navigation, energy‑efficient control policies.</p>
+              </div>
+            </div>
+            <Box tone="tip" title="Career fuel">
+              You’re learning tools that power products used by billions. Tiny practice reps now translate into real impact later.
+            </Box>
+          </section>
+
+          {/* Interpretability */}
+          <section id="interpretability" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+            <h2 className="text-xl font-semibold">Interpretability & fairness</h2>
+            <p className="text-gray-700">Trustworthy models are <em>explainable</em> and <em>fair</em>. Use simple models when possible, inspect features, and consider techniques like feature importance, partial dependence, and counterfactuals. Validate across subgroups to detect bias.</p>
+            <Box tone="warn" title="Data is people">
+              Handle personal data with care. Ask “should we?” not just “can we?”. Prefer privacy‑preserving designs and human oversight.
+            </Box>
+          </section>
+
+          {/* MLOps */}
+          <section id="mlops" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+            <h2 className="text-xl font-semibold">MLOps: from notebook to production</h2>
+            <ul className="list-disc pl-5 text-gray-700 space-y-1 text-sm">
+              <li><strong>Reproducibility:</strong> pin random seeds, record code + data + metrics.</li>
+              <li><strong>Versioning:</strong> datasets and models (e.g., DVC, MLflow).</li>
+              <li><strong>Deployment:</strong> serve with REST/gRPC; batch vs real‑time; CPU vs GPU.</li>
+              <li><strong>Monitoring:</strong> data drift, concept drift, latency, cost, fairness.</li>
+              <li><strong>Feedback loop:</strong> collect labels, retrain, and validate safely.</li>
+            </ul>
           </section>
 
           {/* Practice */}
           <section id="practice" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h2 className="text-xl font-semibold flex items-center gap-2">
-              <ListChecks className="h-5 w-5" /> Practice mini-exercises (tiny, confidence-building)
+              <ListChecks className="h-5 w-5" /> Practice mini‑exercises (tiny, confidence‑building)
             </h2>
-
             <div className="grid md:grid-cols-3 gap-4">
               <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
                 <h3 className="font-medium mb-2">1) Split & baseline</h3>
-                <p className="text-sm text-gray-700 mb-2">
-                  Make numbers 0..29. Shuffle. Split 60/20/20. Predict train mean on val. Print MSE.
-                </p>
-                <pre className="text-sm whitespace-pre-wrap">{`# Steps:
+                <p className="text-sm text-gray-700 mb-2">Make numbers 0..29. Shuffle. Split 60/20/20. Predict train mean on val. Print MSE.</p>
+                <Code>{`# Steps:
 # 1) data=0..29
 # 2) shuffle
 # 3) split
 # 4) mean of train
 # 5) predict mean on val
-# 6) print MSE`}</pre>
+# 6) print MSE`}</Code>
               </div>
-
               <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
                 <h3 className="font-medium mb-2">2) Fit a tiny line</h3>
-                <p className="text-sm text-gray-700 mb-2">
-                  Use the gradient descent example. Change <code>ys</code> to <code>3*x + 2</code> (optionally add small noise). Do <code>a</code> and <code>b</code> get near 3 and 2?
-                </p>
+                <p className="text-sm text-gray-700 mb-2">Use the gradient descent example. Change <code>ys</code> to <code>3*x + 2</code> (optionally add small noise). Do <code>a</code> and <code>b</code> get near 3 and 2?</p>
               </div>
-
               <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
                 <h3 className="font-medium mb-2">3) Metric sense</h3>
-                <p className="text-sm text-gray-700 mb-2">
-                  Make true/pred with a rare class. Compute accuracy. Why is it misleading? How would precision/recall help?
-                </p>
+                <p className="text-sm text-gray-700 mb-2">Create an imbalanced dataset. Compute accuracy vs precision/recall/F1. Which speaks to your goal?</p>
               </div>
             </div>
-
             <Box tone="tip" title="Encouragement">
               Getting stuck is part of learning. Shrink the example, print values, try again. Every tiny win counts!
             </Box>
@@ -566,51 +694,43 @@ print('accuracy=', acc)  # 0.8 looks good, but we missed the only 0!`}</pre>
           {/* Runner */}
           <section id="try" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">🏃‍♂️ Try it now</h2>
-            <p className="text-gray-700">
-              Click “Initialize Python,” load an example, then “Run.” Read any error and try a tiny fix—this is where real learning happens.
-            </p>
+            <p className="text-gray-700">Click “Initialize Python,” load an example, then “Run.” Read the error if any and try a tiny fix—this is where real learning happens.</p>
             <PythonRunnerWorker />
             <div className="flex flex-wrap gap-2 text-xs text-gray-600">
               <QuickLoad
                 label="Split & mean baseline"
-                code={`import random, statistics as st
-data=list(range(30))
-random.shuffle(data)
-train=data[:18]; val=data[18:24]; test=data[24:]
-mean_pred=st.mean(train)
-val_pred=[mean_pred]*len(val)
-MSE=lambda a,b: sum((x-y)**2 for x,y in zip(a,b))/len(a)
-print('baseline MSE:', MSE(val, val_pred))`}
+                code={`import random, statistics as st\ndata=list(range(30))\nrandom.shuffle(data)\ntrain=data[:18]; val=data[18:24]; test=data[24:]\nmean_pred=st.mean(train)\nval_pred=[mean_pred]*len(val)\nMSE=lambda a,b: sum((x-y)**2 for x,y in zip(a,b))/len(a)\nprint('baseline MSE:', MSE(val, val_pred))`}
               />
               <QuickLoad
                 label="Tiny gradient descent"
-                code={`xs=[0,1,2,3,4]
-ys=[1,3,5,7,9]
-a=b=0.0
-lr=0.05
-for _ in range(200):
-    pred=[a*x+b for x in xs]
-    da=sum(2*(p-y)*x for p,y,x in zip(pred,ys,xs))/len(xs)
-    db=sum(2*(p-y)   for p,y   in zip(pred,ys))/len(xs)
-    a-=lr*da; b-=lr*db
-print(round(a,3), round(b,3))`}
+                code={`xs=[0,1,2,3,4]\nys=[1,3,5,7,9]\na=b=0.0\nlr=0.05\nfor _ in range(200):\n    pred=[a*x+b for x in xs]\n    da=sum(2*(p-y)*x for p,y,x in zip(pred,ys,xs))/len(xs)\n    db=sum(2*(p-y)   for p,y   in zip(pred,ys))/len(xs)\n    a-=lr*da; b-=lr*db\nprint(round(a,3), round(b,3))`}
+              />
+              <QuickLoad
+                label="Logistic probability"
+                code={`import math\nw,b=1.2,-2\nfor x in [0,1,2,3]:\n    z=w*x+b\n    p=1/(1+math.exp(-z))\n    print(x, round(p,3))`}
+              />
+              <QuickLoad
+                label="Confusion metrics"
+                code={`true=[1,0,1,0,1,0]\npred=[1,0,1,1,0,0]\nTP=sum(t==1 and p==1 for t,p in zip(true,pred))\nTN=sum(t==0 and p==0 for t,p in zip(true,pred))\nFP=sum(t==0 and p==1 for t,p in zip(true,pred))\nFN=sum(t==1 and p==0 for t,p in zip(true,pred))\nprecision=TP/(TP+FP)\nrecall=TP/(TP+FN)\nF1=2*precision*recall/(precision+recall)\nprint('TP, TN, FP, FN =', TP, TN, FP, FN)\nprint('precision =', round(precision,3))\nprint('recall    =', round(recall,3))\nprint('F1        =', round(F1,3))`}
+              />
+              <QuickLoad
+                label="1‑D k‑means"
+                code={`pts=[1,2,8,9]\ncenters=[2.0,8.0]\nfor _ in range(3):\n    L,R=[],[]\n    for p in pts:\n        (L if abs(p-centers[0])<=abs(p-centers[1]) else R).append(p)\n    centers=[sum(L)/len(L), sum(R)/len(R)]\nprint([round(c,1) for c in centers])`}
+              />
+              <QuickLoad
+                label="Scale features"
+                code={`xs=[2,4,6,10]\nmn, mx=min(xs), max(xs)\nprint([(x-mn)/(mx-mn) for x in xs])`}
               />
               <QuickLoad
                 label="Accuracy trap"
-                code={`true=[1,1,1,1,0]
-pred=[1,1,1,1,1]
-acc=sum(int(t==p) for t,p in zip(true,pred))/len(true)
-print('accuracy=',acc)
-print('Think: what about the 0s?')`}
+                code={`true=[1,1,1,1,0]\npred=[1,1,1,1,1]\nacc=sum(int(t==p) for t,p in zip(true,pred))/len(true)\nprint('accuracy=',acc)\nprint('Think: what about the 0s?')`}
               />
               <QuickLoad
                 label="Oops (fix me)"
-                code={`# Fix issues: missing colon, wrong operator, indentation
-acc=0.8
-if acc = 1
-print('perfect!')`}
+                code={`# Fix issues: missing colon, wrong operator, indentation\nacc=0.8\nif acc = 1\nprint('perfect!')`}
               />
             </div>
+            <div className="text-xs text-gray-600">Note: heavy libraries (NumPy, scikit‑learn, TensorFlow, PyTorch) are not available in this in‑browser runner.</div>
           </section>
 
           {/* Footer Nav */}
@@ -659,32 +779,7 @@ function PythonRunnerWorker() {
 
   const ensureWorker = () => {
     if (workerRef.current) return;
-    const workerCode = `self.language='python';
-let pyodideReadyPromise;
-async function init(){
-  if(!pyodideReadyPromise){
-    importScripts('https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js');
-    pyodideReadyPromise = loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/' });
-  }
-  self.pyodide = await pyodideReadyPromise;
-  self.pyodide.setStdout({ batched: (s) => postMessage({ type: 'stdout', data: s }) });
-  self.pyodide.setStderr({ batched: (s) => postMessage({ type: 'stderr', data: s }) });
-}
-self.onmessage = async (e) => {
-  const { type, code } = e.data || {};
-  try {
-    if (type === 'init'){
-      await init();
-      postMessage({ type: 'ready' });
-    } else if (type === 'run'){
-      await init();
-      let result = await self.pyodide.runPythonAsync(code);
-      postMessage({ type: 'result', data: String(result ?? '') });
-    }
-  } catch (err){
-    postMessage({ type: 'error', data: String(err) });
-  }
-};`;
+    const workerCode = `self.language='python';\nlet pyodideReadyPromise;\nasync function init(){\n  if(!pyodideReadyPromise){\n    importScripts('https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js');\n    pyodideReadyPromise = loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/' });\n  }\n  self.pyodide = await pyodideReadyPromise;\n  self.pyodide.setStdout({ batched: (s) => postMessage({ type: 'stdout', data: s }) });\n  self.pyodide.setStderr({ batched: (s) => postMessage({ type: 'stderr', data: s }) });\n}\nself.onmessage = async (e) => {\n  const { type, code } = e.data || {};\n  try {\n    if (type === 'init'){\n      await init();\n      postMessage({ type: 'ready' });\n    } else if (type === 'run'){\n      await init();\n      let result = await self.pyodide.runPythonAsync(code);\n      postMessage({ type: 'result', data: String(result ?? '') });\n    }\n  } catch (err){\n    postMessage({ type: 'error', data: String(err) });\n  }\n};`;
     const blob = new Blob([workerCode], { type: 'application/javascript' });
     const url = URL.createObjectURL(blob);
     urlRef.current = url;
@@ -740,9 +835,7 @@ self.onmessage = async (e) => {
   return (
     <div>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-2">
-        <div className="text-sm text-gray-600">
-          Interactive Python (loads when you click Initialize)
-        </div>
+        <div className="text-sm text-gray-600">Interactive Python (loads when you click Initialize)</div>
         <div className="flex gap-2">
           {!initialized ? (
             <button

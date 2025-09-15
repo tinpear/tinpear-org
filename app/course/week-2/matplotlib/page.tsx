@@ -16,7 +16,8 @@ import { supabase } from '@/lib/supabase'
 import {
   Menu, X, ChevronLeft, ChevronRight, Sparkles, Lightbulb, AlertTriangle,
   BarChart3, LineChart as LcIcon, ScatterChart as ScIcon, LayoutGrid, Ruler,
-  CheckCircle2
+  CheckCircle2,
+  Home
 } from 'lucide-react'
 
 // 🟢 Recharts (for on-page visuals)
@@ -149,6 +150,19 @@ export default function Week2MatplotlibPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeId, setActiveId] = useState(SECTIONS[0].id)
 
+  // Force light theme for readability
+  useEffect(() => {
+    try {
+      const el = document.documentElement
+      el.classList.remove('dark')
+      el.style.colorScheme = 'light'
+      ;['theme','color-theme','ui-theme','next-theme','chakra-ui-color-mode','mantine-color-scheme'].forEach(k => {
+        if (localStorage.getItem(k) !== 'light') localStorage.setItem(k, 'light')
+      })
+      if (localStorage.getItem('darkMode') === 'true') localStorage.setItem('darkMode','false')
+    } catch {}
+  }, [])
+
   // Transform sample rows for Recharts
   const data = useMemo(() => {
     return SAMPLE_ROWS.map(([city, month, temp_c, humidity, pm25]) => ({
@@ -268,22 +282,40 @@ export default function Week2MatplotlibPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-gray-100 backdrop-blur bg-white/70">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-gray-900">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-600 text-white">
-              <Sparkles className="h-4 w-4" />
-            </span>
-            <span className="font-bold">Week 2 • Matplotlib (visuals powered by Recharts)</span>
-          </div>
-          <div className="flex items-center gap-3 text-sm text-gray-600">
-            <button
-              className="lg:hidden inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200"
-              onClick={() => setSidebarOpen((v) => !v)}
+        <header className="sticky top-0 z-30 border-b border-gray-100 backdrop-blur bg-white/70">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="h-14 grid grid-cols-[auto_1fr_auto] items-center gap-3">
+            {/* Left: Home icon */}
+            <Link
+              href="/learn/beginner"
+              aria-label="Go to beginner home"
+              prefetch={false}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-green-600 text-white hover:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
             >
-              {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />} Contents
-            </button>
-            <span>{loading ? 'Loading…' : user ? 'Signed in' : <Link className="underline" href="/signin">Sign in</Link>}</span>
+              <Home className="h-5 w-5" />
+            </Link>
+
+            {/* Center: Title */}
+            <div className="flex items-center justify-center">
+              <span className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+                Week 2 · Matplotlib
+              </span>
+            </div>
+
+            {/* Right: Contents toggle (mobile only) + status */}
+            <div className="flex items-center gap-2 justify-self-end">
+              <button
+                className="lg:hidden inline-flex h-10 items-center gap-2 px-3 rounded-xl border border-gray-200 text-gray-800 hover:bg-gray-50"
+                onClick={() => setSidebarOpen((v) => !v)}
+                aria-label="Toggle contents"
+              >
+                {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                <span className="sr-only">Contents</span>
+              </button>
+              <div className="hidden sm:block text-sm text-gray-600">
+                {loading ? 'Loading…' : user ? 'Signed in' : <Link href="/signin" className="underline">Sign in</Link>}
+              </div>
+            </div>
           </div>
         </div>
       </header>
@@ -343,22 +375,7 @@ export default function Week2MatplotlibPage() {
             <p className="text-gray-700">We reuse the tiny CSV you know from Pandas so your brain can focus on plotting.</p>
             <TinyTable headers={['city', 'month', 'temp_c', 'humidity', 'pm25']} rows={SAMPLE_ROWS} />
             <CodeBlock
-              code={`import pandas as pd, io
-import matplotlib.pyplot as plt
-
-csv = "city,month,temp_c,humidity,pm25\\n" + "\\n".join([
-  "Lagos,Jan,33,78,32",
-  "Lagos,Feb,34,76,30",
-  "Lagos,Mar,33,80,41",
-  "Abuja,Jan,30,40,22",
-  "Abuja,Feb,31,45,24",
-  "Abuja,Mar,32,42,19",
-  "Kano,Jan,28,25,14",
-  "Kano,Feb,29,27,17",
-  "Kano,Mar,31,30,18",
-])
-df = pd.read_csv(io.StringIO(csv))
-print(df.head())`}
+              code={`import pandas as pd, io\nimport matplotlib.pyplot as plt\n\ncsv = "city,month,temp_c,humidity,pm25\\n" + "\\n".join([\n  "Lagos,Jan,33,78,32",\n  "Lagos,Feb,34,76,30",\n  "Lagos,Mar,33,80,41",\n  "Abuja,Jan,30,40,22",\n  "Abuja,Feb,31,45,24",\n  "Abuja,Mar,32,42,19",\n  "Kano,Jan,28,25,14",\n  "Kano,Feb,29,27,17",\n  "Kano,Mar,31,30,18",\n])\ndf = pd.read_csv(io.StringIO(csv))\nprint(df.head())`}
               expected={`First 5 rows printed. We'll use df for all Matplotlib examples below.`}
             />
           </section>
@@ -398,16 +415,7 @@ print(df.head())`}
 
             {/* Matplotlib teaching snippet */}
             <CodeBlock
-              code={`import matplotlib.pyplot as plt
-
-m = df.groupby('city')['pm25'].mean()
-plt.figure(figsize=(5,3))
-m.plot(kind='bar')  # same as: plt.bar(m.index, m.values)
-plt.title('Average PM2.5 by City')
-plt.xlabel('City')
-plt.ylabel('PM2.5 (µg/m³)')
-plt.tight_layout()
-plt.show()`}
+              code={`import matplotlib.pyplot as plt\n\nm = df.groupby('city')['pm25'].mean()\nplt.figure(figsize=(5,3))\nm.plot(kind='bar')  # same as: plt.bar(m.index, m.values)\nplt.title('Average PM2.5 by City')\nplt.xlabel('City')\nplt.ylabel('PM2.5 (µg/m³)')\nplt.tight_layout()\nplt.show()`}
               expected={`A simple bar chart with 3 bars: Lagos (highest), Abuja, Kano. Clear title and axis labels.`}
             />
           </section>
@@ -434,19 +442,7 @@ plt.show()`}
             </div>
 
             <CodeBlock
-              code={`import matplotlib.pyplot as plt
-order = ['Jan','Feb','Mar']
-s = (df[df['city']=='Lagos']
-      .set_index('month')
-      .loc[order]['pm25'])
-
-plt.figure(figsize=(5,3))
-plt.plot(order, s.values, marker='o')
-plt.title('Lagos PM2.5 over Months')
-plt.xlabel('Month')
-plt.ylabel('PM2.5 (µg/m³)')
-plt.tight_layout()
-plt.show()`}
+              code={`import matplotlib.pyplot as plt\norder = ['Jan','Feb','Mar']\ns = (df[df['city']=='Lagos']\n      .set_index('month')\n      .loc[order]['pm25'])\n\nplt.figure(figsize=(5,3))\nplt.plot(order, s.values, marker='o')\nplt.title('Lagos PM2.5 over Months')\nplt.xlabel('Month')\nplt.ylabel('PM2.5 (µg/m³)')\nplt.tight_layout()\nplt.show()`}
               expected={`A 3-point line (Jan→Feb→Mar) for Lagos PM2.5. Dots connected, clear labels.`}
             />
             <Box tone="pro" title="Multiple lines">
@@ -473,15 +469,7 @@ plt.show()`}
             </div>
 
             <CodeBlock
-              code={`import matplotlib.pyplot as plt
-
-plt.figure(figsize=(5,3))
-plt.hist(df['temp_c'], bins=5)  # try bins=4,10
-plt.title('Temperature Distribution (°C)')
-plt.xlabel('Temp (°C)')
-plt.ylabel('Count of rows')
-plt.tight_layout()
-plt.show()`}
+              code={`import matplotlib.pyplot as plt\n\nplt.figure(figsize=(5,3))\nplt.hist(df['temp_c'], bins=5)  # try bins=4,10\nplt.title('Temperature Distribution (°C)')\nplt.xlabel('Temp (°C)')\nplt.ylabel('Count of rows')\nplt.tight_layout()\nplt.show()`}
               expected={`A histogram showing how many rows fall into temperature ranges. Bins control the chunk size.`}
             />
           </section>
@@ -491,7 +479,7 @@ plt.show()`}
             <h2 className="text-xl font-semibold flex items-center gap-2"><ScIcon className="h-5 w-5" /> Scatter (relationship)</h2>
 
             {/* Live visual (Recharts) */}
-            <div className="h-64 rounded-xl border border-gray-200 bg-white p-3">
+            <div className="h-64 rounded-XL border border-gray-200 bg-white p-3">
               <ResponsiveContainer width="100%" height="100%">
                 <ScatterChart margin={{ top: 10, right: 20, bottom: 20, left: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -505,15 +493,7 @@ plt.show()`}
             </div>
 
             <CodeBlock
-              code={`import matplotlib.pyplot as plt
-
-plt.figure(figsize=(5,3))
-plt.scatter(df['temp_c'], df['pm25'])
-plt.title('PM2.5 vs Temperature')
-plt.xlabel('Temp (°C)')
-plt.ylabel('PM2.5 (µg/m³)')
-plt.tight_layout()
-plt.show()`}
+              code={`import matplotlib.pyplot as plt\n\nplt.figure(figsize=(5,3))\nplt.scatter(df['temp_c'], df['pm25'])\nplt.title('PM2.5 vs Temperature')\nplt.xlabel('Temp (°C)')\nplt.ylabel('PM2.5 (µg/m³)')\nplt.tight_layout()\nplt.show()`}
               expected={`Dots on a plane: each point is one row (x=temp_c, y=pm25). Look for an upward/downward cloud.`}
             />
           </section>
@@ -522,17 +502,7 @@ plt.show()`}
           <section id="layout" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h2 className="text-xl font-semibold flex items-center gap-2"><LayoutGrid className="h-5 w-5" /> Figure size, titles, labels</h2>
             <CodeBlock
-              code={`import matplotlib.pyplot as plt
-
-plt.figure(figsize=(6,3))        # width, height in inches
-m = df.groupby('city')['humidity'].mean()
-plt.bar(m.index, m.values)
-plt.title('Average Humidity by City')
-plt.xlabel('City')
-plt.ylabel('Humidity (%)')
-plt.grid(axis='y', alpha=0.3)     # light horizontal gridlines
-plt.tight_layout()
-plt.show()`}
+              code={`import matplotlib.pyplot as plt\n\nplt.figure(figsize=(6,3))        # width, height in inches\nm = df.groupby('city')['humidity'].mean()\nplt.bar(m.index, m.values)\nplt.title('Average Humidity by City')\nplt.xlabel('City')\nplt.ylabel('Humidity (%)')\nplt.grid(axis='y', alpha=0.3)     # light horizontal gridlines\nplt.tight_layout()\nplt.show()`}
               expected={`A slightly wider chart with light horizontal gridlines. Clear axis labels; no clutter.`}
             />
             <Box tone="tip" title="Tight layout">
@@ -543,23 +513,7 @@ plt.show()`}
           <section id="style" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h2 className="text-xl font-semibold flex items-center gap-2"><Ruler className="h-5 w-5" /> Styling (labels, ticks, grid)</h2>
             <CodeBlock
-              code={`import matplotlib.pyplot as plt
-
-m = df.groupby('city')['pm25'].mean()
-plt.figure(figsize=(5,3))
-plt.bar(m.index, m.values)
-plt.title('Average PM2.5 by City')
-plt.xlabel('City'); plt.ylabel('PM2.5 (µg/m³)')
-
-# Rotate x-labels if crowded
-plt.xticks(rotation=0)
-
-# Add value labels on bars
-for x, y in zip(m.index, m.values):
-    plt.text(x, y + 0.5, f"{y:.1f}", ha='center', va='bottom', fontsize=9)
-
-plt.tight_layout()
-plt.show()`}
+              code={`import matplotlib.pyplot as plt\n\nm = df.groupby('city')['pm25'].mean()\nplt.figure(figsize=(5,3))\nplt.bar(m.index, m.values)\nplt.title('Average PM2.5 by City')\nplt.xlabel('City'); plt.ylabel('PM2.5 (µg/m³)')\n\n# Rotate x-labels if crowded\nplt.xticks(rotation=0)\n\n# Add value labels on bars\nfor x, y in zip(m.index, m.values):\n    plt.text(x, y + 0.5, f"{y:.1f}", ha='center', va='bottom', fontsize=9)\n\nplt.tight_layout()\nplt.show()`}
               expected={`Same bar chart but each bar shows its value on top. Labels remain readable.`}
             />
           </section>
@@ -647,8 +601,7 @@ function PythonRunnerWorker() {
   const [initializing, setInitializing] = useState(false)
   const [running, setRunning] = useState(false)
   const [output, setOutput] = useState<string>('')
-  const [code, setCode] = useState<string>(`# Edit and run. pandas will auto-load if you import it.
-print("Sandbox ready")`)
+  const [code, setCode] = useState<string>(`# Edit and run. pandas will auto-load if you import it.\nprint("Sandbox ready")`)
   const workerRef = useRef<Worker | null>(null)
   const urlRef = useRef<string | null>(null)
 
@@ -657,45 +610,7 @@ print("Sandbox ready")`)
 
   const ensureWorker = () => {
     if (workerRef.current) return
-    const workerCode = `
-self.language='python';
-let pyodideReadyPromise;
-
-async function init(){
-  if(!pyodideReadyPromise){
-    importScripts('https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js');
-    pyodideReadyPromise = loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/' });
-  }
-  self.pyodide = await pyodideReadyPromise;
-  self.pyodide.setStdout({ batched: (s) => postMessage({ type: 'stdout', data: s }) });
-  self.pyodide.setStderr({ batched: (s) => postMessage({ type: 'stderr', data: s }) });
-}
-
-self.onmessage = async (e) => {
-  const { type, code } = e.data || {};
-  try {
-    if (type === 'init'){
-      await init();
-      postMessage({ type: 'ready' });
-    } else if (type === 'run'){
-      await init();
-      // Auto-load pandas if user imports it
-      if (typeof code === 'string' && /\\bimport\\s+pandas\\b/.test(code)) {
-        postMessage({ type: 'status', data: '[pyodide] loading pandas…' });
-        try {
-          await self.pyodide.loadPackage('pandas');
-          postMessage({ type: 'status', data: '[pyodide] pandas ready' });
-        } catch (e){
-          postMessage({ type: 'stderr', data: String(e) });
-        }
-      }
-      let result = await self.pyodide.runPythonAsync(code);
-      postMessage({ type: 'result', data: String(result ?? '') });
-    }
-  } catch (err){
-    postMessage({ type: 'error', data: String(err) });
-  }
-};`
+    const workerCode = `\nself.language='python';\nlet pyodideReadyPromise;\n\nasync function init(){\n  if(!pyodideReadyPromise){\n    importScripts('https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js');\n    pyodideReadyPromise = loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/' });\n  }\n  self.pyodide = await pyodideReadyPromise;\n  self.pyodide.setStdout({ batched: (s) => postMessage({ type: 'stdout', data: s }) });\n  self.pyodide.setStderr({ batched: (s) => postMessage({ type: 'stderr', data: s }) });\n}\n\nself.onmessage = async (e) => {\n  const { type, code } = e.data || {};\n  try {\n    if (type === 'init'){\n      await init();\n      postMessage({ type: 'ready' });\n    } else if (type === 'run'){\n      await init();\n      // Auto-load pandas if user imports it\n      if (typeof code === 'string' && /\\bimport\\s+pandas\\b/.test(code)) {\n        postMessage({ type: 'status', data: '[pyodide] loading pandas…' });\n        try {\n          await self.pyodide.loadPackage('pandas');\n          postMessage({ type: 'status', data: '[pyodide] pandas ready' });\n        } catch (e){\n          postMessage({ type: 'stderr', data: String(e) });\n        }\n      }\n      let result = await self.pyodide.runPythonAsync(code);\n      postMessage({ type: 'result', data: String(result ?? '') });\n    }\n  } catch (err){\n    postMessage({ type: 'error', data: String(err) });\n  }\n};\n`
     const blob = new Blob([workerCode], { type: 'application/javascript' })
     const url = URL.createObjectURL(blob)
     urlRef.current = url
@@ -788,21 +703,7 @@ self.onmessage = async (e) => {
         <button
           className="px-2.5 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50"
           onClick={() => setCode(
-`import pandas as pd, io
-csv = """city,month,temp_c,humidity,pm25
-Lagos,Jan,33,78,32
-Lagos,Feb,34,76,30
-Lagos,Mar,33,80,41
-Abuja,Jan,30,40,22
-Abuja,Feb,31,45,24
-Abuja,Mar,32,42,19
-Kano,Jan,28,25,14
-Kano,Feb,29,27,17
-Kano,Mar,31,30,18"""
-df = pd.read_csv(io.StringIO(csv))
-print('shape:', df.shape)
-print(df.head())
-print(df.dtypes)`)
+`import pandas as pd, io\ncsv = """city,month,temp_c,humidity,pm25\nLagos,Jan,33,78,32\nLagos,Feb,34,76,30\nLagos,Mar,33,80,41\nAbuja,Jan,30,40,22\nAbuja,Feb,31,45,24\nAbuja,Mar,32,42,19\nKano,Jan,28,25,14\nKano,Feb,29,27,17\nKano,Mar,31,30,18"""\ndf = pd.read_csv(io.StringIO(csv))\nprint('shape:', df.shape)\nprint(df.head())\nprint(df.dtypes)`)
           }
         >
           Peek DataFrame
@@ -810,20 +711,7 @@ print(df.dtypes)`)
         <button
           className="px-2.5 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50"
           onClick={() => setCode(
-`import pandas as pd, io
-csv = """city,month,temp_c,humidity,pm25
-Lagos,Jan,33,78,32
-Lagos,Feb,34,76,30
-Lagos,Mar,33,80,41
-Abuja,Jan,30,40,22
-Abuja,Feb,31,45,24
-Abuja,Mar,32,42,19
-Kano,Jan,28,25,14
-Kano,Feb,29,27,17
-Kano,Mar,31,30,18"""
-df = pd.read_csv(io.StringIO(csv))
-print('Avg PM2.5 by city (desc):')
-print(df.groupby('city')['pm25'].mean().sort_values(ascending=False))`)
+`import pandas as pd, io\ncsv = """city,month,temp_c,humidity,pm25\nLagos,Jan,33,78,32\nLagos,Feb,34,76,30\nLagos,Mar,33,80,41\nAbuja,Jan,30,40,22\nAbuja,Feb,31,45,24\nAbuja,Mar,32,42,19\nKano,Jan,28,25,14\nKano,Feb,29,27,17\nKano,Mar,31,30,18"""\ndf = pd.read_csv(io.StringIO(csv))\nprint('Avg PM2.5 by city (desc):')\nprint(df.groupby('city')['pm25'].mean().sort_values(ascending=False))`)
           }
         >
           Groupby mean

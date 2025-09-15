@@ -12,6 +12,7 @@ import {
   Sparkles,
   AlertTriangle,
   Lightbulb,
+  Home,
 } from 'lucide-react';
 
 /**
@@ -132,23 +133,41 @@ export default function Week1Start() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Header */}
+      {/* Header (home icon, centered title, tidy mobile toggle) */}
       <header className="sticky top-0 z-30 border-b border-gray-100 backdrop-blur bg-white/70">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-gray-900">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-600 text-white"><Sparkles className="h-4 w-4"/></span>
-            <span className="font-bold">Week 1 • Python & ML Fundamentals</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              className="lg:hidden inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200"
-              onClick={() => setSidebarOpen(v => !v)}
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="h-14 grid grid-cols-[auto_1fr_auto] items-center gap-3">
+            {/* Left: Home icon */}
+            <Link
+              href="/learn/beginner"
+              aria-label="Go to beginner home"
+              prefetch={false}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-green-600 text-white hover:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
             >
-              {sidebarOpen ? <X className="h-4 w-4"/> : <Menu className="h-4 w-4"/>}
-              Contents
-            </button>
-            <div className="text-sm text-gray-600">
-              {loading ? 'Loading…' : user ? `Signed in as ${username}` : <Link href="/signin" className="underline">Sign in</Link>}
+              <Home className="h-5 w-5" />
+            </Link>
+
+            {/* Center: Title */}
+            <div className="flex items-center justify-center">
+              <span className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+                Week 1 · Start
+              </span>
+            </div>
+
+            {/* Right: Contents toggle (mobile only) + status */}
+            <div className="flex items-center gap-2 justify-self-end">
+              <button
+                type="button"
+                aria-label="Toggle contents"
+                className="lg:hidden inline-flex h-10 items-center gap-2 px-3 rounded-xl border border-gray-200 text-gray-800 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
+                onClick={() => setSidebarOpen(v => !v)}
+              >
+                {sidebarOpen ? <X className="h-5 w-5"/> : <Menu className="h-5 w-5"/>}
+                <span className="sr-only">Contents</span>
+              </button>
+              <div className="hidden sm:block text-sm text-gray-600">
+                {loading ? 'Loading…' : user ? `Signed in as ${username}` : <Link href="/signin" className="underline">Sign in</Link>}
+              </div>
             </div>
           </div>
         </div>
@@ -172,6 +191,7 @@ export default function Week1Start() {
                      ? 'bg-green-50 text-green-800'
                      : 'hover:bg-gray-50 text-gray-700'
                  )}
+                 onClick={() => setSidebarOpen(false)}
               >{s.label}</a>
             ))}
           </nav>
@@ -184,34 +204,50 @@ export default function Week1Start() {
         <main className="space-y-8">
           {/* Welcome */}
           <section id="welcome" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Start here — calm, clear, hands-on</h1>
-            <p className="text-lg text-gray-700">This week sets your foundation: think in Python, write simple programs, and see how these skills feed into ML. We’ll keep it friendly and build confidence step by step.</p>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Start your Python journey</h1>
+            <p className="text-lg text-gray-700">
+              This week lays a gentle foundation. You’ll get comfortable thinking in Python,
+              writing small programs, and seeing how those skills feed naturally into the
+              machine‑learning mindset. We’ll keep things practical and confidence‑building:
+              short explanations, tiny experiments, and steady momentum from page to page.
+            </p>
             <Box tone="tip" title="Beginner roadmap">
-              Today → understand Python at a high level; then <strong>Python Syntax</strong> → <strong>Data Structures</strong> → <strong>ML Workflow</strong>. Each lesson ends with practice and a mini win.
+              Today you’ll form a big‑picture view of Python. From there we’ll move into
+              essentials like syntax and data structures, then connect the dots to a simple
+              ML workflow. Each lesson closes with a bite‑size practice so progress is visible
+              and immediate.
             </Box>
           </section>
 
           {/* What is Python */}
           <section id="what-is-python" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">What is Python (and why does it matter)?</h2>
-            <p className="text-gray-700"><strong>What:</strong> Python is a high-level language focused on readability. Think of it as speaking to the computer in clear, simple sentences.</p>
-            <p className="text-gray-700"><strong>Why:</strong> You’ll learn faster, write fewer bugs, and access a massive ecosystem (data, web, automation, ML).</p>
+            <p className="text-gray-700">
+              Python is a high‑level programming language designed to read like clear prose.
+              Instead of wrestling with punctuation, you speak to the computer in straightforward
+              sentences. That clarity helps you learn faster, make fewer mistakes, and focus on
+              solving the problem in front of you. The language ships with a generous standard
+              library and sits at the center of a vast ecosystem—from web servers and automations
+              to data analysis and machine learning—so almost any idea you have already has solid
+              building blocks waiting for you.
+            </p>
             <div className="grid md:grid-cols-2 gap-4">
               <div className="p-4 rounded-xl bg-gray-50">
                 <h3 className="font-medium mb-2">Key traits</h3>
-                <ul className="list-disc pl-5 text-gray-700 space-y-1">
-                  <li>Readable syntax → focus on ideas, not punctuation</li>
-                  <li>“Batteries included” standard library</li>
-                  <li>Huge package index (PyPI) for anything you need</li>
-                </ul>
+                <p className="text-gray-700 text-sm md:text-base leading-relaxed">
+                  The syntax is intentionally readable, which keeps your attention on concepts rather
+                  than ceremony. A rich “batteries‑included” toolkit comes with the language, so common
+                  tasks rarely require extra setup. And when you do need more, the Python Package Index
+                  offers mature libraries for virtually every domain.
+                </p>
               </div>
               <div className="p-4 rounded-xl bg-gray-50">
                 <h3 className="font-medium mb-2">Everyday uses</h3>
-                <ul className="list-disc pl-5 text-gray-700 space-y-1">
-                  <li>Automating tasks (rename files, parse text)</li>
-                  <li>Data analysis & visualization</li>
-                  <li>Web backends, APIs, and DevOps tooling</li>
-                </ul>
+                <p className="text-gray-700 text-sm md:text-base leading-relaxed">
+                  People use Python to automate repetitive chores, transform and visualize data, power web
+                  backends and APIs, and glue tools together in DevOps workflows. You’ll start with tiny,
+                  human‑sized scripts and quickly discover how the same skills scale to real projects.
+                </p>
               </div>
             </div>
           </section>
@@ -219,26 +255,92 @@ export default function Week1Start() {
           {/* History */}
           <section id="history" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">A tiny history</h2>
-            <p className="text-gray-700">Python began in 1991 (by Guido van Rossum) with a simple mission: make code easier to read and write. That design choice attracted scientists and engineers, then the data & ML community.</p>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li><strong>1990s:</strong> Foundations laid; clarity over cleverness.</li>
-              <li><strong>2000s:</strong> Scientific stack (NumPy/SciPy) takes off.</li>
-              <li><strong>2010s → now:</strong> Python dominates in data & ML.</li>
-            </ul>
+            <p className="text-gray-700">
+              Python began in 1991, created by Guido van Rossum with a simple goal: make code easier to
+              read and write. That choice drew in educators and scientists first, then engineers across
+              industry. As the scientific stack matured—packages like NumPy and SciPy for fast numerical
+              work, followed by pandas and scikit‑learn—Python became the default language for data and ML.
+              Today it’s a lingua franca connecting research, production systems, and the tools people use
+              every day.
+            </p>
           </section>
 
           {/* Philosophy */}
           <section id="philosophy" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">The Zen of Python: how Python thinks</h2>
-            <p className="text-gray-700">Type <code className="px-1 rounded bg-gray-100">import this</code> in Python to read its “Zen.” Here are a few lines we’ll live by:</p>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li>Simple is better than complex.</li>
-              <li>Readability counts.</li>
-              <li>There should be one—and preferably only one—obvious way to do it.</li>
-            </ul>
-            <Box tone="pro" title="How this helps you">
-              Following these ideas makes your code easier to revisit, debug, and share. It’s like writing clear notes for your future self.
+            <p className="text-gray-700">
+              If you type <code className="px-1 rounded bg-gray-100">import this</code> in a Python shell, you’ll see a playful poem by Tim Peters—
+              a compact set of values that guides how Python code is written and read. It isn’t law; it’s taste. But
+              when you let these lines shape your decisions, your code becomes easier to reason about, safer to change,
+              and friendlier to everyone who touches it (including future‑you).
+            </p>
+            <p className="text-gray-700">
+              <strong>Beauty & clarity.</strong> “Beautiful is better than ugly” and “Readability counts.” Python invites you to write
+              code that feels like clear prose. Choose names that say what things mean. Break long expressions into
+              smaller, well‑named steps. Favor straightforward control flow over clever one‑liners. When code reads
+              naturally, bugs have fewer places to hide and your intent shines through.
+            </p>
+            <p className="text-gray-700">
+              <strong>Be explicit.</strong> “Explicit is better than implicit.” Aim to make the important details visible: pass arguments by
+              name when it improves understanding, prefer simple data structures over magical side effects, and note
+              assumptions close to where they’re used. The next reader should not have to guess what your function does.
+            </p>
+            <p className="text-gray-700">
+              <strong>Keep it simple.</strong> “Simple is better than complex; complex is better than complicated.” Some problems are
+              inherently intricate, but your solution shouldn’t be. Build from small pieces that compose, avoid deep
+              nesting when a flat structure will do, and trim incidental complexity. When complexity is unavoidable,
+              contain it behind a clean interface so most of your code can stay simple.
+            </p>
+            <p className="text-gray-700">
+              <strong>Prefer flat, prefer sparse.</strong> “Flat is better than nested; sparse is better than dense.” Shallow hierarchies
+              and whitespace are features, not flaws. Spread code so that structure is visible at a glance. A little air
+              between ideas makes it easier to scan and maintain.
+            </p>
+            <p className="text-gray-700">
+              <strong>Consistency over special cases.</strong> “Special cases aren’t special enough to break the rules, although
+              practicality beats purity.” Design for the common path first and resist adding exceptions that make the
+              whole system harder to understand. When reality insists, choose the pragmatic option—but do it consciously,
+              and document the trade‑off.
+            </p>
+            <p className="text-gray-700">
+              <strong>Make errors loud.</strong> “Errors should never pass silently, unless explicitly silenced.” Fail fast with helpful
+              messages. Catch only the exceptions you intend to handle and explain why in code comments. Silent failure is
+              costly; explicit handling builds trustworthy software.
+            </p>
+            <p className="text-gray-700">
+              <strong>Clarity in uncertainty.</strong> “In the face of ambiguity, refuse the temptation to guess.” If the
+              requirements or input are unclear, stop and surface the question—validate, log, or raise an error. Clear
+              failure beats confident wrongness.
+            </p>
+            <p className="text-gray-700">
+              <strong>One obvious way.</strong> “There should be one—and preferably only one—obvious way to do it (even if that way
+              isn’t obvious at first unless you’re Dutch).” Prefer the approach that most Python programmers would expect.
+              That shared idiom is what people mean by <em>pythonic</em>: code that embraces common Python patterns rather than
+              importing habits from other languages. The reward is instant familiarity for your teammates and readers.
+            </p>
+            <p className="text-gray-700">
+              <strong>Now, but not reckless.</strong> “Now is better than never, although never is often better than right now.” Ship the
+              simplest slice that works, then iterate. But if a change is dangerous or poorly understood, waiting can be
+              wiser than rushing.
+            </p>
+            <p className="text-gray-700">
+              <strong>Explain it simply.</strong> “If the implementation is hard to explain, it’s a bad idea; if it’s easy to explain, it may
+              be a good idea.” A design you can describe in a few plain sentences is usually the one you can maintain.
+            </p>
+            <p className="text-gray-700">
+              <strong>Namespaces!</strong> “Namespaces are one honking great idea—let’s do more of those!” Keep things organized and avoid
+              name clashes with modules, packages, and well‑scoped variables. Namespaces let large codebases stay tidy as
+              they grow.
+            </p>
+            <Box tone="pro" title="Being Pythonic">
+              To be <em>Pythonic</em> is to choose the idioms the community recognizes: list comprehensions for simple
+              transformations, context managers (<code>with</code>) to manage resources, iterators and generators for streaming
+              data, and clear dunder methods (<code>__repr__</code>, <code>__iter__</code>) when building your own types. Pythonic code favors
+              readability, explicitness, and small, composable pieces over clever tricks.
             </Box>
+            <p className="text-xs text-gray-500">
+              Source: “<a className="underline" href="https://en.wikipedia.org/wiki/Zen_of_Python" target="_blank" rel="noopener noreferrer">The Zen of Python</a>” on Wikipedia (CC BY‑SA). The poem was authored by Tim Peters.
+            </p>
           </section>
 
           {/* Strengths */}
@@ -247,15 +349,15 @@ export default function Week1Start() {
             <div className="grid md:grid-cols-3 gap-4">
               <div className="p-4 rounded-xl bg-gray-50">
                 <h3 className="font-medium mb-1">Rapid prototyping</h3>
-                <p className="text-sm text-gray-700">Turn ideas into code quickly with minimal ceremony.</p>
+                <p className="text-sm text-gray-700">You can try ideas quickly with minimal setup, turning sketches into working code in minutes.</p>
               </div>
               <div className="p-4 rounded-xl bg-gray-50">
                 <h3 className="font-medium mb-1">Rich data tooling</h3>
-                <p className="text-sm text-gray-700">NumPy, pandas, Matplotlib, scikit-learn—and beyond.</p>
+                <p className="text-sm text-gray-700">From arrays to plots to classical ML, the ecosystem lets you explore data productively.</p>
               </div>
               <div className="p-4 rounded-xl bg-gray-50">
                 <h3 className="font-medium mb-1">Friendly community</h3>
-                <p className="text-sm text-gray-700">Abundant help, tutorials, and open-source libraries.</p>
+                <p className="text-sm text-gray-700">Documentation, tutorials, and open‑source packages make help easy to find when you need it.</p>
               </div>
             </div>
           </section>
@@ -263,18 +365,13 @@ export default function Week1Start() {
           {/* Objectives for the week */}
           <section id="this-week" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">What you’ll learn this week</h2>
-            <div className="grid md:grid-cols-2 gap-4">
-              <ul className="list-disc pl-5 text-gray-700 space-y-1">
-                <li>Read & write core Python syntax confidently</li>
-                <li>Use variables, types, and control flow</li>
-                <li>Choose the right data structure for a task</li>
-              </ul>
-              <ul className="list-disc pl-5 text-gray-700 space-y-1">
-                <li>Understand the ML workflow at a high level</li>
-                <li>Run and experiment with Python interactively</li>
-                <li>Adopt clean, readable coding habits</li>
-              </ul>
-            </div>
+            <p className="text-gray-700">
+              By the end of the week you’ll read and write core Python comfortably, use variables and control
+              flow to guide logic, and recognize when to reach for lists, dictionaries, or other structures.
+              You’ll also build a high‑level picture of the ML workflow and practice running small experiments
+              interactively. Throughout, we’ll emphasize clean, readable habits that make your work easier to
+              share and improve.
+            </p>
             <div className="mt-2 text-sm text-gray-600">We’ll keep the pace gentle and celebrate small wins.</div>
             <div className="mt-4 flex items-center gap-2 text-green-700">
               <CheckCircle2 className="h-5 w-5"/>
@@ -288,11 +385,18 @@ export default function Week1Start() {
             <div className="space-y-3 text-gray-700">
               <div>
                 <h3 className="font-medium">Local install (later)</h3>
-                <p>Install Python 3 from python.org, use a code editor (VS Code is great), and run scripts with <code className="px-1 rounded bg-gray-100">python your_file.py</code>.</p>
+                <p>
+                  When you’re ready to work offline, install Python 3 from python.org, choose a code editor like
+                  VS Code, and run files with <code className="px-1 rounded bg-gray-100">python your_file.py</code>.
+                  We’ll point you there after you’ve had some wins in the browser.
+                </p>
               </div>
               <div>
                 <h3 className="font-medium">Interactive in your browser (now)</h3>
-                <p>Use the embedded runner below to try tiny snippets instantly. It’s safe and fast.</p>
+                <p>
+                  Use the runner below to try tiny snippets instantly—no setup, no risk. It loads on demand and
+                  executes your code in an isolated environment so you can experiment freely.
+                </p>
               </div>
             </div>
           </section>
@@ -301,13 +405,16 @@ export default function Week1Start() {
           <section id="mistakes" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">🚨 Common Mistakes (and how to avoid them)</h2>
             <Box tone="warn" title="Confusing = with ==">
-              <code>=</code> assigns; <code>==</code> compares. If you write <code>if x = 3</code> the interpreter will error. Use <code>if x == 3</code>.
+              <code>=</code> assigns; <code>==</code> compares. If you write <code>if x = 3</code> the interpreter will error.
+              Use <code>if x == 3</code> when you want to check equality.
             </Box>
             <Box tone="warn" title="Forgetting indentation & colons">
-              Blocks are indented (4 spaces). Lines like <code>if</code>, <code>for</code>, <code>def</code> end with <code>:</code>.
+              Python uses indentation to mark code blocks (four spaces is the convention). Lines that introduce a block—
+              such as <code>if</code>, <code>for</code>, and <code>def</code>—end with a colon.
             </Box>
             <Box tone="tip" title="Debug like a pro">
-              Add small <code>print()</code> checks as you write. Read error messages top → bottom and change one thing at a time.
+              Add small <code>print()</code> checks while you build. Read error messages from top to bottom and change one
+              thing at a time so you can see the effect clearly.
             </Box>
           </section>
 
@@ -321,7 +428,7 @@ export default function Week1Start() {
               <QuickLoad label="If/Else" code={`x=5\nif x>3:\n    print('big')\nelse:\n    print('small')`} />
               <QuickLoad label="Loop" code={`total=0\nfor n in [1,2,3]:\n    total+=n\nprint(total)`} />
               <QuickLoad label="Zen" code={`import this`} />
-              <QuickLoad label="Oops (fix me)" code={`# Fix the 3 issues:\n# 1) Use == in the if\n# 2) Add a colon after if\n# 3) Indent the print\nx=3\nif x = 3\nprint('equal')`} />
+             
             </div>
           </section>
 

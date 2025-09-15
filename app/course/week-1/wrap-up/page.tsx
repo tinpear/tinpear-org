@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import {
   Menu,
@@ -13,34 +14,151 @@ import {
   AlertTriangle,
   ListChecks,
   CheckCircle2,
+  Trophy,
+  Home,
+  ShieldCheck,
+  FileText,
+  BookOpenCheck,
 } from 'lucide-react';
 
 /**
- * Week 1 • Wrap-Up & Next Steps (Ultra-beginner friendly)
- * - Reads from `public.profiles` for display only
- * - Tracks progress in `tracking` (user_id, key, completed, completed_at)
- * - Sticky, responsive sidebar with reliable scrollspy (mobile friendly)
- * - Web-Worker Pyodide runner + quick-loads + friendly error hints
- * - Tons of clear explanations, recap, pitfalls, practice, and “what’s next”
+ * Week 1 • Wrap-Up & Final Check (Quiz + Gating)
+ * - Reads from `public.profiles` (username/full_name) for friendly header
+ * - Tracks progress and gate in `tracking` (user_id, key, completed, completed_at)
+ * - Saves quiz attempts to `assessments` (user_id, key, score, passed, answers, submitted_at)
+ * - Unlocks "Next (Week 2)" when PASS_THRESHOLD met (or gate flag already present)
+ * - Sticky, mobile-friendly sidebar with scrollspy
+ * - Pyodide runner with quick-loads + beginner error hints
  */
 
 const PROGRESS_KEY = 'week-1:wrap-up';
+const QUIZ_KEY = 'week-1:final-quiz';
+const PASS_KEY = 'week-1:passed';
+const PASS_THRESHOLD = 70;
 
 const SECTIONS = [
   { id: 'congrats', label: '🎉 Congrats!' },
-  { id: 'big-picture', label: 'AI → ML → Python (big picture)' },
+  { id: 'big-picture', label: 'AI → ML → Python' },
   { id: 'you-learned', label: 'What you learned' },
-  { id: 'python-recap', label: 'Python recap (quick)' },
+  { id: 'python-recap', label: 'Python recap' },
   { id: 'structures-recap', label: 'Data structures recap' },
   { id: 'ml-recap', label: 'ML workflow recap' },
   { id: 'mistakes', label: '🚨 Common mistakes' },
   { id: 'practice-plan', label: 'Daily practice plan' },
-  { id: 'mini-quiz', label: 'Mini-quiz (check yourself)' },
+  { id: 'exam', label: 'Final Check (Quiz)' },
+  { id: 'result', label: 'Result & Unlock' },
   { id: 'try', label: '🏃‍♂️ Try it now' },
-  { id: 'reflection', label: 'Your reflection (saved locally)' },
-  { id: 'next', label: 'What’s next (Week 2)' },
+  { id: 'save', label: 'Save & Continue' },
 ];
 
+type QuizQuestion = {
+  id: string;
+  prompt: string;
+  options: string[];
+  answer: number; // index of correct option
+};
+
+type AnswersState = Record<string, number | undefined>;
+
+const QUIZ: QuizQuestion[] = [
+  {
+    id: 'q1',
+    prompt: 'In this course’s framing, what’s the relationship between AI, ML, and Python?',
+    options: [
+      'ML is a subset of Python, and AI is a subset of ML.',
+      'AI is the umbrella goal, ML is one way to achieve it, and Python is the tool we use to build it.',
+      'Python is smarter than AI for most tasks.',
+      'AI and ML are the same, Python is unrelated.',
+    ],
+    answer: 1,
+  },
+  {
+    id: 'q2',
+    prompt: 'Which Python operator checks equality?',
+    options: ['=', '==', '===', 'is equal to'],
+    answer: 1,
+  },
+  {
+    id: 'q3',
+    prompt: 'Which structure stores key → value pairs?',
+    options: ['List', 'Tuple', 'Dictionary', 'Set'],
+    answer: 2,
+  },
+  {
+    id: 'q4',
+    prompt: 'What is the purpose of a baseline in ML?',
+    options: [
+      'To tune hyperparameters only',
+      'A simple rule to beat (e.g., mean predictor) that grounds your expectations',
+      'To overfit training data',
+      'A final test metric',
+    ],
+    answer: 1,
+  },
+  {
+    id: 'q5',
+    prompt: 'Why do we keep a held-out test set hidden until the end?',
+    options: [
+      'To save storage space',
+      'To avoid leakage and keep the final score honest',
+      'Because models can’t read test files',
+      'It speeds up training batches',
+    ],
+    answer: 1,
+  },
+  {
+    id: 'q6',
+    prompt: 'When your classes are highly imbalanced, why can “accuracy” be misleading?',
+    options: [
+      'Because it ignores runtime',
+      'Because a model predicting the majority class can have high accuracy but be useless on the minority class',
+      'Because accuracy requires probabilities',
+      'Because accuracy is only for regression',
+    ],
+    answer: 1,
+  },
+  {
+    id: 'q7',
+    prompt: 'Pick the best description of sets in Python.',
+    options: [
+      'Ordered, allow duplicates, indexable',
+      'Unordered, unique elements, fast membership checks',
+      'Key → value mapping',
+      'Immutable sequence',
+    ],
+    answer: 1,
+  },
+  {
+    id: 'q8',
+    prompt: 'In the ML pipeline, which order is correct?',
+    options: [
+      'Train → Evaluate → Split → Frame → Iterate',
+      'Split → Frame → Prepare → Train → Baseline → Evaluate',
+      'Frame → Split → Prepare → Baseline → Train → Evaluate → Iterate',
+      'Prepare → Train → Frame → Split',
+    ],
+    answer: 2,
+  },
+  {
+    id: 'q9',
+    prompt: 'Which Python feature prints formatted text like “Hello Ada, score: 93.8”?',
+    options: ['docstrings', 'f-strings', 'triple quotes', 'format files'],
+    answer: 1,
+  },
+  {
+    id: 'q10',
+    prompt: 'What’s a safe everyday habit when learning to code?',
+    options: [
+      'Change many things at once to move fast',
+      'Print values often, change one small thing, run again',
+      'Never read error messages',
+      'Skip simple baselines',
+    ],
+    answer: 1,
+  },
+];
+
+// ---------- UI helpers ----------
 function cx(...xs: Array<string | false | null | undefined>) {
   return xs.filter(Boolean).join(' ');
 }
@@ -60,9 +178,14 @@ function Box({
     pro: 'border-sky-200 bg-sky-50 text-sky-900',
   }[tone];
   const icon =
-    tone === 'tip' ? <Lightbulb className="h-4 w-4" /> :
-    tone === 'warn' ? <AlertTriangle className="h-4 w-4" /> :
-    <Sparkles className="h-4 w-4" />;
+    tone === 'tip' ? (
+      <Lightbulb className="h-4 w-4" />
+    ) : tone === 'warn' ? (
+      <AlertTriangle className="h-4 w-4" />
+    ) : (
+      <Sparkles className="h-4 w-4" />
+    );
+
   return (
     <div className={cx('rounded-xl border p-3 md:p-4 flex gap-3 items-start', palette)}>
       <div className="mt-0.5">{icon}</div>
@@ -75,6 +198,7 @@ function Box({
 }
 
 export default function Week1WrapUpPage() {
+  const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [completed, setCompleted] = useState(false);
@@ -82,7 +206,27 @@ export default function Week1WrapUpPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeId, setActiveId] = useState(SECTIONS[0].id);
 
-  // Force light mode on mount (prevents hydration mismatches from persisted themes)
+  // gating / quiz state
+  const [gateFromDb, setGateFromDb] = useState(false);
+  const [answers, setAnswers] = useState<AnswersState>({});
+  const [scorePct, setScorePct] = useState<number | null>(null);
+  const [passed, setPassed] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [loadAttempting, setLoadAttempting] = useState(true);
+
+  const canProceed = passed || gateFromDb;
+
+  // Reflection (local only)
+  const [reflection, setReflection] = useState('');
+  useEffect(() => {
+    const saved = localStorage.getItem('week1_reflection') || '';
+    setReflection(saved);
+  }, []);
+  useEffect(() => {
+    localStorage.setItem('week1_reflection', reflection || '');
+  }, [reflection]);
+
+  // Force light mode
   useEffect(() => {
     try {
       const el = document.documentElement;
@@ -94,33 +238,71 @@ export default function Week1WrapUpPage() {
     } catch {}
   }, []);
 
-  // Load user + progress
+  // Load user, profile, progress, gate, and last attempt
   useEffect(() => {
+    let cancelled = false;
     const run = async () => {
-      setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user ?? null);
+      try {
+        setLoading(true);
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error) console.error(error);
+        if (cancelled) return;
 
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('username, full_name')
-          .eq('id', user.id)
-          .single();
-        setProfile(profile ?? null);
+        setUser(user ?? null);
 
-        const { data } = await supabase
-          .from('tracking')
-          .select('completed')
-          .eq('user_id', user.id)
-          .eq('key', PROGRESS_KEY)
-          .maybeSingle();
-        setCompleted(Boolean(data?.completed));
+        if (user) {
+          const { data: profile, error: pErr } = await supabase
+            .from('profiles')
+            .select('username, full_name')
+            .eq('id', user.id)
+            .maybeSingle();
+          if (pErr) console.error(pErr);
+          if (!cancelled) setProfile(profile ?? null);
+
+          // progress
+          const { data: wrap } = await supabase
+            .from('tracking')
+            .select('completed')
+            .eq('user_id', user.id)
+            .eq('key', PROGRESS_KEY)
+            .maybeSingle();
+          if (!cancelled) setCompleted(Boolean(wrap?.completed));
+
+          // gate
+          const { data: gate } = await supabase
+            .from('tracking')
+            .select('completed')
+            .eq('user_id', user.id)
+            .eq('key', PASS_KEY)
+            .maybeSingle();
+          if (!cancelled) setGateFromDb(Boolean(gate?.completed));
+
+          // last attempt
+          const { data: attempt } = await supabase
+            .from('assessments')
+            .select('score, passed, answers')
+            .eq('user_id', user.id)
+            .eq('key', QUIZ_KEY)
+            .maybeSingle();
+          if (!cancelled && attempt) {
+            setScorePct(attempt.score ?? null);
+            setPassed(Boolean(attempt.passed));
+            if (attempt.answers && typeof attempt.answers === 'object') {
+              setAnswers(attempt.answers as AnswersState);
+            }
+          }
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadAttempting(false);
+          setLoading(false);
+        }
       }
-
-      setLoading(false);
     };
     run();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const username = useMemo(
@@ -149,7 +331,7 @@ export default function Week1WrapUpPage() {
     }
   };
 
-  // Reliable scrollspy (largest visible section wins)
+  // Scrollspy (largest visible section)
   useEffect(() => {
     const sections = Array.from(document.querySelectorAll<HTMLElement>('main section[id]'));
     if (sections.length === 0) return;
@@ -161,45 +343,135 @@ export default function Week1WrapUpPage() {
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
         if (visible[0]) setActiveId((visible[0].target as HTMLElement).id);
       },
-      { root: null, rootMargin: '-112px 0px -55% 0px', threshold: [0.1, 0.25, 0.5, 0.75, 1] }
+      {
+        root: null,
+        rootMargin: '-112px 0px -55% 0px',
+        threshold: [0.1, 0.25, 0.5, 0.75, 1],
+      }
     );
 
     sections.forEach((s) => observer.observe(s));
     return () => observer.disconnect();
   }, []);
 
-  // Reflection (local only)
-  const [reflection, setReflection] = useState('');
-  useEffect(() => {
-    const saved = localStorage.getItem('week1_reflection') || '';
-    setReflection(saved);
-  }, []);
-  useEffect(() => {
-    localStorage.setItem('week1_reflection', reflection || '');
-  }, [reflection]);
+  // Quiz helpers
+  const letter = (i: number) => String.fromCharCode(65 + i);
+  function selectAnswer(qid: string, optIndex: number) {
+    setAnswers((prev) => ({ ...prev, [qid]: optIndex }));
+  }
+  function countCorrect(a: AnswersState): number {
+    return QUIZ.reduce((acc, q) => (a[q.id] === q.answer ? acc + 1 : acc), 0);
+  }
+  async function submitQuiz() {
+    if (!user) {
+      alert('Please sign in to submit your quiz.');
+      return;
+    }
+    const answered = Object.keys(answers).length;
+    if (answered < QUIZ.length) {
+      const missing = QUIZ.length - answered;
+      const ok = confirm(`You have ${missing} unanswered question${missing > 1 ? 's' : ''}. Submit anyway?`);
+      if (!ok) return;
+    }
+    const correct = countCorrect(answers);
+    const pct = Math.round((correct / QUIZ.length) * 100);
+    const didPass = pct >= PASS_THRESHOLD;
+
+    setScorePct(pct);
+    setPassed(didPass);
+    setSaving(true);
+    try {
+      const { error: aerr } = await supabase.from('assessments').upsert(
+        {
+          user_id: user.id,
+          key: QUIZ_KEY,
+          score: pct,
+          passed: didPass,
+          answers,
+          submitted_at: new Date().toISOString(),
+        },
+        { onConflict: 'user_id,key' }
+      );
+      if (aerr) throw aerr;
+
+      if (didPass) {
+        const { error: gateErr } = await supabase.from('tracking').upsert(
+          {
+            user_id: user.id,
+            key: PASS_KEY,
+            completed: true,
+            completed_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id,key' }
+        );
+        if (gateErr) throw gateErr;
+
+        const { error: wrapErr } = await supabase.from('tracking').upsert(
+          {
+            user_id: user.id,
+            key: PROGRESS_KEY,
+            completed: true,
+            completed_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id,key' }
+        );
+        if (wrapErr) throw wrapErr;
+
+        setGateFromDb(true);
+        setCompleted(true);
+      }
+    } catch (e: any) {
+      console.error(e);
+      alert(
+        'Your score was calculated, but saving to the database failed. Please try again.\n\n' +
+          (e?.message || '')
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+  function resetQuiz() {
+    setAnswers({});
+    setScorePct(null);
+    setPassed(false);
+  }
+  const goNext = () => {
+    if (canProceed) router.push('/course/week-2');
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-gray-100 backdrop-blur bg-white/70">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-gray-900">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-600 text-white">
-              <Sparkles className="h-4 w-4" />
-            </span>
-            <span className="font-bold">Week 1 • Wrap-Up & Next Steps</span>
-          </div>
-          <div className="flex items-center gap-3 text-sm text-gray-600">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="h-14 grid grid-cols-[auto_1fr_auto] items-center gap-3">
+            {/* Left: Home */}
+            <Link
+              href="/learn/beginner"
+              aria-label="Go to beginner home"
+              prefetch={false}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-green-600 text-white hover:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
+            >
+              <Home className="h-5 w-5" />
+            </Link>
+
+            {/* Center: Title */}
+            <div className="flex items-center justify-center">
+              <span className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+                Week 1 · Wrap-Up & Final Check
+              </span>
+            </div>
+
+            {/* Right: Contents toggle (mobile) */}
             <button
-              className="lg:hidden inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200"
+              type="button"
+              aria-label="Toggle contents"
+              className="lg:hidden inline-flex h-10 items-center gap-2 px-3 rounded-xl border border-gray-200 text-gray-800 hover:bg-gray-50 justify-self-end focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
               onClick={() => setSidebarOpen((v) => !v)}
             >
-              {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-              Contents
+              {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              <span className="sr-only">Contents</span>
             </button>
-            <span>
-              {loading ? 'Loading…' : user ? `Signed in as ${username}` : <Link href="/signin" className="underline">Sign in</Link>}
-            </span>
           </div>
         </div>
       </header>
@@ -215,78 +487,84 @@ export default function Week1WrapUpPage() {
           )}
         >
           <p className="text-xs uppercase tracking-wide text-gray-500 mb-3">On this page</p>
-          <nav className="space-y-1">
+          <nav className="space-y-1" aria-label="On this page">
             {SECTIONS.map((s) => (
               <a
                 key={s.id}
                 href={`#${s.id}`}
-                onClick={() => setSidebarOpen(false)}
-                aria-current={activeId === s.id ? 'page' : undefined}
                 className={cx(
-                  'block px-3 py-2 rounded-lg text-sm transition-colors',
+                  'block px-3 py-2 rounded-lg text-sm',
                   activeId === s.id ? 'bg-green-50 text-green-800' : 'hover:bg-gray-50 text-gray-700'
                 )}
+                onClick={() => setSidebarOpen(false)}
               >
                 {s.label}
               </a>
             ))}
           </nav>
+
           <div className="mt-6 p-3 rounded-xl bg-gray-50 text-xs text-gray-600">
-            Tip: Celebrate progress. Tiny wins add up! 🌱
+            Score <b>{PASS_THRESHOLD}%+</b> on the quiz to unlock Week 2.
           </div>
         </aside>
 
         {/* Main */}
-        <main className="space-y-10">
+        <main className="space-y-8">
           {/* Congrats */}
-          <section id="congrats" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">🎉 Great job finishing Week 1!</h1>
-            <p className="text-gray-700 mt-2">
-              You’ve learned enough Python to read and write basic programs, tried hands-on code in the browser, and explored the ML workflow.
-              That’s a huge step. Keep the momentum—curiosity beats perfection.
+          <section id="congrats" className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-green-700" />
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
+                Week 1 Wrap-Up{user ? ` — great job, ${username}!` : ''}
+              </h1>
+            </div>
+            <p className="text-gray-700">
+              You learned core Python, essential data structures, and a clean, honest ML workflow. Tiny reps → big progress.
+              Lock in your wins below and take the final check to unlock Week 2.
             </p>
-            <div className="mt-4 inline-flex items-center gap-2 text-green-700">
+            <div className="mt-2 inline-flex items-center gap-2 text-green-700">
               <CheckCircle2 className="h-5 w-5" />
-              <span>Mark this page complete to lock in your progress.</span>
+              <span>Tip: Mark this page complete to save progress.</span>
             </div>
           </section>
 
           {/* Big Picture */}
-          <section id="big-picture" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+          <section id="big-picture" className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">AI → ML → Python (how they connect)</h2>
             <p className="text-gray-700">
-              <strong>Artificial Intelligence (AI)</strong> is the big goal: getting computers to act “smart.” <strong>Machine Learning (ML)</strong> is one powerful way to do that:
-              we show the computer lots of examples so it <em>learns patterns</em> and makes better guesses over time.
-              <strong>Python</strong> is the friendly tool we use to do ML because it’s simple, readable, and has great libraries.
+              <strong>AI</strong> is the big goal (useful “smart” behavior). <strong>ML</strong> is one powerful way to get there (learn from examples).
+              <strong> Python</strong> is the friendly tool we use to clean data, train, and test ideas fast.
             </p>
-            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`AI (big goal)
+            <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`AI (goal)
  └─ ML (learn from data)
-     └─ Python (the tool you write in)`}</pre>
+     └─ Python (our tool)`}</pre>
             <Box tone="tip" title="Plain English">
-              You just learned the language (Python), the containers for data (data structures), and the recipe (ML workflow).
-              Next week we’ll cook with real ingredients (datasets) and tidy them (data wrangling & EDA).
+              You now have the language (Python), the containers (data structures), and the recipe (ML workflow).
             </Box>
           </section>
 
           {/* You learned */}
-          <section id="you-learned" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-semibold">What you learned this week</h2>
+          <section id="you-learned" className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-2">
+              <BookOpenCheck className="h-5 w-5 text-green-700" />
+              <h2 className="text-xl font-semibold">What you learned this week</h2>
+            </div>
             <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li>Python basics: variables, types, printing, comparisons, small programs.</li>
-              <li>Core data structures: <strong>str, bool, list, tuple, set, dict</strong> — when and why to use them.</li>
-              <li>ML workflow: frame the problem, split data, prepare features, baseline, train, evaluate, iterate.</li>
-              <li>Hands-on skills: run code in a safe sandbox, read error messages, fix step-by-step.</li>
+              <li>Python basics: variables, types, printing, decisions, loops, and functions.</li>
+              <li>Data structures: <strong>list, tuple, set, dict</strong> — when and why to use each.</li>
+              <li>ML workflow: frame → split → prepare → baseline → train → evaluate → iterate.</li>
+              <li>Debugging mindset: print often, change one small thing, learn from error messages.</li>
             </ul>
           </section>
 
           {/* Python recap */}
-          <section id="python-recap" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-2">
+          <section id="python-recap" className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-2">
             <h2 className="text-xl font-semibold">Python recap (quick)</h2>
             <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`# Variables and types
-age = 18              # int
-price = 19.99         # float
-name = "Ada"          # str
-is_student = True     # bool
+age = 18
+price = 19.99
+name = "Ada"
+is_student = True
 print(f"{name} - age {age}, student? {is_student}")`}</pre>
             <Box tone="warn" title="Avoid this">
               Don’t mix text and numbers without converting (<code>"7" + 2</code> → error). Use <code>int("7") + 2</code> or <code>str(7) + "2"</code>.
@@ -294,7 +572,7 @@ print(f"{name} - age {age}, student? {is_student}")`}</pre>
           </section>
 
           {/* Data structures recap */}
-          <section id="structures-recap" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <section id="structures-recap" className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-semibold">Data structures recap</h2>
             <div className="grid md:grid-cols-2 gap-4">
               <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
@@ -316,60 +594,156 @@ print(point, colors)`}</pre>
           </section>
 
           {/* ML workflow recap */}
-          <section id="ml-recap" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-2">
-            <h2 className="text-xl font-semibold">ML workflow recap (the reliable recipe)</h2>
+          <section id="ml-recap" className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-2">
+            <h2 className="text-xl font-semibold">ML workflow recap (your reliable recipe)</h2>
             <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded">{`Frame → Split → Prepare → Baseline → Train → Evaluate → Iterate`}</pre>
             <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li><strong>Frame:</strong> What are we predicting? How will we measure success?</li>
-              <li><strong>Split:</strong> Train (learn), Validation (tune), Test (final exam).</li>
-              <li><strong>Prepare:</strong> Clean data, explore patterns, create helpful features.</li>
-              <li><strong>Baseline:</strong> A simple rule to beat (e.g., predict the mean).</li>
-              <li><strong>Train:</strong> Teach a model from examples.</li>
-              <li><strong>Evaluate:</strong> Use the right metrics (MSE, Accuracy, Precision/Recall, etc.).</li>
-              <li><strong>Iterate:</strong> Try improvements step-by-step. Keep notes.</li>
+              <li><strong>Frame:</strong> define the question and metric.</li>
+              <li><strong>Split:</strong> train for learning, validation for tuning, test for final honesty.</li>
+              <li><strong>Prepare:</strong> clean + explore + create helpful features.</li>
+              <li><strong>Baseline:</strong> a simple rule to beat.</li>
+              <li><strong>Evaluate:</strong> choose metrics that match your goal (e.g., accuracy vs precision/recall).</li>
             </ul>
           </section>
 
           {/* Common mistakes */}
-          <section id="mistakes" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+          <section id="mistakes" className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">🚨 Common Mistake Prevention</h2>
             <Box tone="warn" title="Python">
               • Using <code>=</code> instead of <code>==</code> in comparisons. <br />
               • Forgetting the <code>f</code> in f-strings. <br />
-              • Mixing strings and numbers without converting.
+              • Shadowing built-ins (e.g., naming a variable <code>list</code>).
             </Box>
             <Box tone="warn" title="Data splits">
-              • Peeking at the test set too early (data leakage). Keep test data hidden until the very end.
+              • Peeking at the test set early → over-optimistic results (leakage). Keep test hidden until the end.
             </Box>
             <Box tone="warn" title="Metrics">
-              • Relying only on accuracy when classes are imbalanced—also check precision/recall/F1.
+              • Only accuracy on imbalanced data. Also check precision, recall, and F1.
             </Box>
             <Box tone="tip" title="Pro tips">
-              Print values often. Change one small thing at a time. If stuck, simplify your example.
+              Print values, change one thing, run again. Small steady steps win.
             </Box>
           </section>
 
           {/* Practice plan */}
-          <section id="practice-plan" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <section id="practice-plan" className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-semibold">Daily practice plan (20–30 mins)</h2>
             <ul className="list-disc pl-5 text-gray-700 space-y-1">
               <li>Warm-up (5 min): rewrite a tiny example from memory.</li>
-              <li>New reps (10–15 min): one list/dict exercise + one boolean or string task.</li>
-              <li>Mini-ML (5–10 min): split a small dataset (even numbers 0..29), compute a baseline.</li>
+              <li>New reps (10–15 min): one list/dict exercise + one boolean/string task.</li>
+              <li>Mini-ML (5–10 min): split a tiny dataset and compute a mean baseline.</li>
             </ul>
             <Box tone="pro" title="Mindset">
-              Consistency beats intensity. A little every day grows your skills fast.
+              Consistency beats intensity. A little every day compounds fast.
             </Box>
           </section>
 
-          {/* Mini-quiz */}
-          <section id="mini-quiz" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
-            <h2 className="text-xl font-semibold flex items-center gap-2"><ListChecks className="h-5 w-5" /> Mini-quiz (no pressure)</h2>
-            <Quiz />
+          {/* Final Check (Quiz) */}
+          <section id="exam" className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Trophy className="h-5 w-5 text-green-700" />
+                <h2 className="text-xl font-semibold">Final Check (10 questions)</h2>
+              </div>
+              {scorePct !== null && (
+                <div
+                  className={cx(
+                    'px-2.5 py-1 rounded-md text-sm',
+                    (scorePct ?? 0) >= PASS_THRESHOLD
+                      ? 'bg-green-50 text-green-800 border border-green-200'
+                      : 'bg-amber-50 text-amber-800 border border-amber-200'
+                  )}
+                >
+                  Score: {scorePct}%
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-5">
+              {QUIZ.map((q, qi) => (
+                <div key={q.id} className="rounded-xl border border-gray-200 p-3 sm:p-4">
+                  <div className="font-medium mb-2">
+                    {qi + 1}. {q.prompt}
+                  </div>
+                  <div className="grid gap-2">
+                    {q.options.map((opt, oi) => {
+                      const checked = answers[q.id] === oi;
+                      return (
+                        <label
+                          key={oi}
+                          className={cx(
+                            'flex items-start gap-2 rounded-lg border p-2 cursor-pointer',
+                            checked ? 'border-green-300 bg-green-50' : 'border-gray-200 hover:bg-gray-50'
+                          )}
+                        >
+                          <input
+                            type="radio"
+                            name={q.id}
+                            className="mt-1"
+                            checked={checked || false}
+                            onChange={() => selectAnswer(q.id, oi)}
+                          />
+                          <span className="text-sm">
+                            <span className="font-medium mr-1">{letter(oi)}.</span>
+                            {opt}
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <button
+                onClick={submitQuiz}
+                className="px-4 py-2 rounded-lg bg-green-600 text-white hover:shadow disabled:opacity-60"
+                disabled={saving || loadAttempting}
+                title={!user ? 'Sign in to submit your score' : undefined}
+              >
+                {saving ? 'Saving…' : 'Submit answers'}
+              </button>
+              <button
+                onClick={resetQuiz}
+                className="px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50"
+                disabled={saving}
+              >
+                Reset
+              </button>
+              <span className="text-xs text-gray-600">Your best score is saved to your account.</span>
+            </div>
+          </section>
+
+          {/* Result & Unlock */}
+          <section id="result" className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <h2 className="text-xl font-semibold mb-2">Result & Unlock</h2>
+            {scorePct === null && !gateFromDb ? (
+              <p className="text-gray-700">
+                Take the final check to unlock Week 2. You need <b>{PASS_THRESHOLD}%+</b>.
+              </p>
+            ) : (
+              <div className="text-gray-700">
+                {canProceed ? (
+                  <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-green-800">
+                    <div className="font-medium mb-1">Nice work!</div>
+                    <p>Requirement met. Week 2 is unlocked for your account.</p>
+                  </div>
+                ) : (
+                  <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-amber-800">
+                    <div className="font-medium mb-1">Almost there</div>
+                    <p>
+                      Your current score is <b>{scorePct}%</b>. Aim for <b>{PASS_THRESHOLD}%+</b>, review the recap,
+                      and try again.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
           </section>
 
           {/* Runner */}
-          <section id="try" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+          <section id="try" className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">🏃‍♂️ Try it now</h2>
             <p className="text-gray-700">
               Load a snippet, click <strong>Initialize Python</strong>, then <strong>Run</strong>. Tweak one line and run again.
@@ -395,152 +769,47 @@ print(point, colors)`}</pre>
             </div>
           </section>
 
-          {/* Reflection */}
-          <section id="reflection" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-semibold">Your reflection</h2>
-            <p className="text-gray-700 mb-2">
-              Write one thing you learned, one thing that was hard, and one thing you’re proud of. This is saved in your browser only.
-            </p>
-            <textarea
-              value={reflection}
-              onChange={(e) => setReflection(e.target.value)}
-              placeholder="I learned..., I found ... challenging, I’m proud that..."
-              className="w-full min-h-[140px] rounded-xl border border-gray-200 p-3 font-sans text-sm bg-white"
-            />
-            <p className="text-xs text-gray-500 mt-2">Saved locally as you type.</p>
-          </section>
 
-          {/* Next steps */}
-          <section id="next" className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
-            <h2 className="text-xl font-semibold">What’s next (Week 2 preview)</h2>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li><strong>Data Wrangling & EDA:</strong> load CSVs, clean messy data, explore patterns, visualize.</li>
-              <li><strong>Skills you’ll use:</strong> lists/dicts for organizing, booleans for filters, loops for checks, and the ML recipe again.</li>
-            </ul>
-            <Box tone="tip" title="Optional prep (local tools)">
-              Install Python 3 and a code editor (e.g., VS Code). You already practiced in the browser; local setup helps for bigger projects.
-            </Box>
-          </section>
-
-          {/* Footer Nav */}
-          <section className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          {/* Save & Continue */}
+          <section id="save" className="scroll-mt-[72px] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-3">
             <Link
               href="/course/week-1/ml-workflow"
-              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 w-full sm:w-auto"
             >
-              <ChevronLeft className="h-4 w-4" /> Previous
+              <ChevronLeft className="h-4 w-4" /> Back
             </Link>
-            <div className="flex items-center gap-3">
+
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
               <button
                 onClick={markComplete}
                 className={cx(
-                  'px-4 py-2 rounded-lg border',
+                  'px-4 py-2 rounded-lg border w-full sm:w-auto',
                   completed ? 'border-green-200 bg-green-50 text-green-800' : 'border-gray-200 hover:bg-gray-50'
                 )}
+                title={user ? 'Save progress for this page' : 'Sign in to save progress'}
               >
-                {completed ? 'Completed ✓' : 'Mark Complete'}
+                {completed ? 'Progress saved ✓' : 'Save progress'}
               </button>
-              <Link
-                href="/course/week-2"
-                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:shadow"
-                onClick={async () => { if (!completed) await markComplete(); }}
-              >
-                Next (Week 2) <ChevronRight className="h-4 w-4" />
-              </Link>
+
+              {canProceed ? (
+                <button
+                  onClick={goNext}
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:shadow w-full sm:w-auto"
+                >
+                  Continue to Week 2 <ChevronRight className="h-4 w-4" />
+                </button>
+              ) : (
+                <button
+                  disabled
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gray-200 text-gray-500 w-full sm:w-auto cursor-not-allowed"
+                  title={`Score ${PASS_THRESHOLD}%+ on the final check to unlock Week 2`}
+                >
+                  Locked • Score {PASS_THRESHOLD}%+ to continue
+                </button>
+              )}
             </div>
           </section>
         </main>
-      </div>
-    </div>
-  );
-}
-
-/* ---------------------- Mini-Quiz (client-side) ----------------------- */
-function Quiz() {
-  type Q = { q: string; choices: string[]; a: number; why: string };
-  const qs: Q[] = [
-    {
-      q: 'Which structure maps a label to a value (e.g., "email" → "ada@example.com")?',
-      choices: ['List', 'Tuple', 'Dictionary', 'Set'],
-      a: 2,
-      why: 'Dictionaries store key → value pairs, perfect for labeled information.',
-    },
-    {
-      q: 'Why do we keep a test set hidden until the end?',
-      choices: ['To save storage', 'To avoid data leakage and keep the final score honest', 'Because models can’t read it', 'For faster training'],
-      a: 1,
-      why: 'If you tune on test data, your final score will be overly optimistic.',
-    },
-    {
-      q: 'In Python, which operator checks equality?',
-      choices: ['=', '==', '===', 'is'],
-      a: 1,
-      why: '`==` checks equality. `=` assigns. `is` checks object identity.',
-    },
-    {
-      q: 'Sets are best when you need…',
-      choices: ['Order', 'Duplicates', 'Uniqueness & fast membership checks', 'Key → value pairs'],
-      a: 2,
-      why: 'Sets remove duplicates and make “is this here?” very fast.',
-    },
-    {
-      q: 'A baseline in ML is…',
-      choices: ['A fancy deep model', 'Random predictions', 'A simple rule to beat (e.g., mean)', 'The test score'],
-      a: 2,
-      why: 'A baseline is a simple starting point to compare against.',
-    },
-  ];
-
-  const [selected, setSelected] = useState<number[]>(Array(qs.length).fill(-1));
-  const [show, setShow] = useState(false);
-
-  const correct = selected.reduce((acc, v, i) => acc + (v === qs[i].a ? 1 : 0), 0);
-
-  return (
-    <div className="space-y-4">
-      {qs.map((item, i) => (
-        <div key={i} className="rounded-xl border border-gray-200 p-4">
-          <div className="font-medium mb-2">{i + 1}. {item.q}</div>
-          <div className="grid sm:grid-cols-2 gap-2">
-            {item.choices.map((c, j) => {
-              const active = selected[i] === j;
-              return (
-                <button
-                  key={j}
-                  onClick={() => setSelected((s) => s.map((v, k) => (k === i ? j : v)))}
-                  className={cx(
-                    'text-left px-3 py-2 rounded-lg border transition-colors',
-                    active ? 'border-green-300 bg-green-50' : 'border-gray-200 hover:bg-gray-50'
-                  )}
-                >
-                  {c}
-                </button>
-              );
-            })}
-          </div>
-          {show && (
-            <div className="mt-2 text-sm">
-              {selected[i] === qs[i].a ? (
-                <span className="text-green-700">Correct! {item.why}</span>
-              ) : (
-                <span className="text-amber-700">Not quite. {item.why}</span>
-              )}
-            </div>
-          )}
-        </div>
-      ))}
-      <div className="flex items-center justify-between">
-        <button
-          onClick={() => setShow((v) => !v)}
-          className="px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50"
-        >
-          {show ? 'Hide Answers' : 'Check Answers'}
-        </button>
-        {show && (
-          <div className="text-sm text-gray-700">
-            Score: <span className="font-semibold">{correct}/{qs.length}</span> — nice work!
-          </div>
-        )}
       </div>
     </div>
   );
@@ -560,32 +829,37 @@ function PythonRunnerWorker() {
 
   const ensureWorker = () => {
     if (workerRef.current) return;
-    const workerCode = `self.language='python';
-let pyodideReadyPromise;
-async function init(){
-  if(!pyodideReadyPromise){
-    importScripts('https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js');
-    pyodideReadyPromise = loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/' });
-  }
-  self.pyodide = await pyodideReadyPromise;
-  self.pyodide.setStdout({ batched: (s) => postMessage({ type: 'stdout', data: s }) });
-  self.pyodide.setStderr({ batched: (s) => postMessage({ type: 'stderr', data: s }) });
-}
-self.onmessage = async (e) => {
-  const { type, code } = e.data || {};
-  try {
-    if (type === 'init'){
-      await init();
-      postMessage({ type: 'ready' });
-    } else if (type === 'run'){
-      await init();
-      let result = await self.pyodide.runPythonAsync(code);
-      postMessage({ type: 'result', data: String(result ?? '') });
-    }
-  } catch (err){
-    postMessage({ type: 'error', data: String(err) });
-  }
-};`;
+    // safer: build code line-by-line to avoid template literal escaping issues
+    const workerLines = [
+      "self.language='python';",
+      "let pyodideReadyPromise;",
+      "async function init(){",
+      "  if(!pyodideReadyPromise){",
+      "    importScripts('https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js');",
+      "    pyodideReadyPromise = loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/' });",
+      "  }",
+      "  self.pyodide = await pyodideReadyPromise;",
+      "  self.pyodide.setStdout({ batched: (s) => postMessage({ type: 'stdout', data: s }) });",
+      "  self.pyodide.setStderr({ batched: (s) => postMessage({ type: 'stderr', data: s }) });",
+      "}",
+      "self.onmessage = async (e) => {",
+      "  const { type, code } = e.data || {};",
+      "  try {",
+      "    if (type === 'init'){",
+      "      await init();",
+      "      postMessage({ type: 'ready' });",
+      "    } else if (type === 'run'){",
+      "      await init();",
+      "      let result = await self.pyodide.runPythonAsync(code);",
+      "      postMessage({ type: 'result', data: String(result ?? '') });",
+      "    }",
+      "  } catch (err){",
+      "    postMessage({ type: 'error', data: String(err) });",
+      "  }",
+      "};",
+    ];
+    const workerCode = workerLines.join('\n');
+
     const blob = new Blob([workerCode], { type: 'application/javascript' });
     const url = URL.createObjectURL(blob);
     urlRef.current = url;

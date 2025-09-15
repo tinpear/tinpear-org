@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import {
@@ -8,13 +8,10 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  CheckCircle2,
   Sparkles,
   Lightbulb,
   AlertTriangle,
-  Boxes,
-  Braces,
-  Layers,
+  Home,
 } from 'lucide-react';
 
 // --- Config ------------------------------------------------------------------
@@ -78,6 +75,17 @@ function Box({
   );
 }
 
+function Code({ children }: { children: string }) {
+  return (
+    <pre className="text-sm bg-gray-50 p-3 rounded whitespace-pre-wrap">{children}</pre>
+  );
+}
+function Output({ children }: { children: string }) {
+  return (
+    <pre className="text-sm bg-gray-900 text-gray-50 p-3 rounded whitespace-pre-wrap">{children}</pre>
+  );
+}
+
 // --- Page --------------------------------------------------------------------
 export default function DataStructuresPage() {
   const [user, setUser] = useState<any>(null);
@@ -92,9 +100,11 @@ export default function DataStructuresPage() {
       const el = document.documentElement;
       el.classList.remove('dark');
       el.style.colorScheme = 'light';
-      ['theme', 'color-theme', 'ui-theme'].forEach((k) => {
-        if (localStorage.getItem(k) === 'dark') localStorage.setItem(k, 'light');
-      });
+      ['theme', 'color-theme', 'ui-theme', 'chakra-ui-color-mode', 'mantine-color-scheme', 'next-theme']
+        .forEach((k) => {
+          if (localStorage.getItem(k) !== 'light') localStorage.setItem(k, 'light');
+        });
+      if (localStorage.getItem('darkMode') === 'true') localStorage.setItem('darkMode', 'false');
     } catch {}
   }, []);
 
@@ -158,25 +168,40 @@ export default function DataStructuresPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Header */}
+      {/* Header (home icon, centered title, tidy mobile toggle) */}
       <header className="sticky top-0 z-30 border-b border-gray-100 backdrop-blur bg-white/70">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-gray-900">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-600 text-white">
-              <Boxes className="h-4 w-4" />
-            </span>
-            <span className="font-bold">Week 2 • Data Structures</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              className="lg:hidden inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200"
-              onClick={() => setSidebarOpen((v) => !v)}
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="h-14 grid grid-cols-[auto_1fr_auto] items-center gap-3">
+            {/* Left: Home icon */}
+            <Link
+              href="/learn/beginner"
+              aria-label="Go to beginner home"
+              prefetch={false}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-green-600 text-white hover:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
             >
-              {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-              Contents
-            </button>
-            <div className="text-sm text-gray-600">
-              {loading ? 'Loading…' : user ? 'Signed in' : <Link href="/signin" className="underline">Sign in</Link>}
+              <Home className="h-5 w-5" />
+            </Link>
+
+            {/* Center: Title */}
+            <div className="flex items-center justify-center">
+              <span className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+                Week 1 · Data Structures
+              </span>
+            </div>
+
+            {/* Right: Contents toggle (mobile only) + status */}
+            <div className="flex items-center gap-2 justify-self-end">
+              <button
+                className="lg:hidden inline-flex h-10 items-center gap-2 px-3 rounded-xl border border-gray-200 text-gray-800 hover:bg-gray-50"
+                onClick={() => setSidebarOpen((v) => !v)}
+                aria-label="Toggle contents"
+              >
+                {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                <span className="sr-only">Contents</span>
+              </button>
+              <div className="hidden sm:block text-sm text-gray-600">
+                {loading ? 'Loading…' : user ? 'Signed in' : <Link href="/signin" className="underline">Sign in</Link>}
+              </div>
             </div>
           </div>
         </div>
@@ -202,6 +227,7 @@ export default function DataStructuresPage() {
                   'block px-3 py-2 rounded-lg text-sm',
                   activeId === s.id ? 'bg-green-50 text-green-800' : 'hover:bg-gray-50 text-gray-700'
                 )}
+                onClick={() => setSidebarOpen(false)}
               >
                 {s.label}
               </a>
@@ -218,32 +244,44 @@ export default function DataStructuresPage() {
           <section id="intro" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Data Structures, clearly explained</h1>
             <p className="text-gray-700">
-              Data structures are containers with superpowers. Pick the right one, and your code becomes cleaner, faster, and easier to reason about.
+              Data structures are <em>containers with superpowers</em>. Pick the right one, and your code becomes cleaner,
+              faster, and easier to reason about. In this lesson you’ll learn how each structure <em>feels in your hands</em>:
+              how to create it, update it, loop through it, and choose it with confidence.
             </p>
             <Box tone="tip" title="Mindset">
-              Learn how each structure behaves and when to reach for it. Practice reading, updating, and iterating.
+              Learn how each structure behaves and when to reach for it. Practice reading, updating, and iterating. Tiny
+              reps → big confidence.
             </Box>
           </section>
 
           {/* Lists */}
-          <section id="lists" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+          <section id="lists" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h2 className="text-xl font-semibold">Lists — growable, ordered collections</h2>
             <p className="text-gray-700">Use lists when order matters and you’ll add/remove or index by position.</p>
             <div className="grid md:grid-cols-2 gap-4">
-              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
+              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50 space-y-2">
                 <h3 className="font-medium mb-1">Essentials</h3>
-                <pre className="text-sm whitespace-pre-wrap">{`nums = [3, 1, 4]
+                <Code>{`nums = [3, 1, 4]
 nums.append(1)     # [3,1,4,1]
 nums.extend([5,9]) # [3,1,4,1,5,9]
 nums[0] = 10       # [10,1,4,1,5,9]
-print(nums[:3])    # slicing -> [10,1,4]`}</pre>
-                <p className="text-sm text-gray-600 mt-2">Indexing is O(1). Inserting/removing in the middle is O(n).</p>
+print(nums[:3])    # slicing -> [10,1,4]
+print(nums)`}</Code>
+                <div className="text-xs font-medium text-gray-600">Output</div>
+                <Output>{`[10, 1, 4]
+[10, 1, 4, 1, 5, 9]`}</Output>
+                <p className="text-sm text-gray-600">Indexing is ~O(1). Inserting/removing in the middle is O(n).</p>
               </div>
-              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
+              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50 space-y-2">
                 <h3 className="font-medium mb-1">Comprehensions</h3>
-                <pre className="text-sm whitespace-pre-wrap">{`squares = [n*n for n in range(6)]  # [0,1,4,9,16,25]
-evens   = [n for n in squares if n % 2 == 0]`}</pre>
-                <p className="text-sm text-gray-600 mt-2">Readable, compact, and fast for mapping/filtering.</p>
+                <Code>{`squares = [n*n for n in range(6)]
+evens   = [n for n in squares if n % 2 == 0]
+print(squares)
+print(evens)`}</Code>
+                <div className="text-xs font-medium text-gray-600">Output</div>
+                <Output>{`[0, 1, 4, 9, 16, 25]
+[0, 4, 16]`}</Output>
+                <p className="text-sm text-gray-600">Readable, compact, and fast for mapping/filtering.</p>
               </div>
             </div>
             <Box tone="warn" title="Mutable traps">
@@ -252,38 +290,50 @@ evens   = [n for n in squares if n % 2 == 0]`}</pre>
           </section>
 
           {/* Tuples */}
-          <section id="tuples" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+          <section id="tuples" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h2 className="text-xl font-semibold">Tuples — fixed-size, ordered, hashable</h2>
             <p className="text-gray-700">Use tuples for fixed records and as dict/set keys.</p>
-            <pre className="text-sm bg-gray-50 p-3 rounded whitespace-pre-wrap">{`pt = (10, 20)
+            <Code>{`pt = (10, 20)
 x, y = pt
 colors = ('red', 'green', 'blue')
-# tuples are immutable -> safer to pass around`}</pre>
+print(x, y)
+print(colors[0])
+# tuples are immutable -> safer to pass around`}</Code>
+            <div className="text-xs font-medium text-gray-600">Output</div>
+            <Output>{`10 20
+red`}</Output>
             <Box tone="pro" title="Common pattern">
               Return multiple results as a tuple: <code>return x, y</code>. Unpack at the call site.
             </Box>
           </section>
 
           {/* Dicts */}
-          <section id="dicts" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+          <section id="dicts" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h2 className="text-xl font-semibold">Dictionaries — fast lookups by key</h2>
             <p className="text-gray-700">Great for counting, grouping, and configuration. Average O(1) get/set.</p>
             <div className="grid md:grid-cols-2 gap-4">
-              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
+              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50 space-y-2">
                 <h3 className="font-medium mb-1">Basics</h3>
-                <pre className="text-sm whitespace-pre-wrap">{`user = {'name':'Ada','age':36}
+                <Code>{`user = {'name':'Ada','age':36}
 user['role'] = 'engineer'
 print(user.get('city','N/A'))
 for k, v in user.items():
-    print(k, '->', v)`}</pre>
+    print(k, '->', v)`}</Code>
+                <div className="text-xs font-medium text-gray-600">Output</div>
+                <Output>{`N/A
+name -> Ada
+age -> 36
+role -> engineer`}</Output>
               </div>
-              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
+              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50 space-y-2">
                 <h3 className="font-medium mb-1">Counting words</h3>
-                <pre className="text-sm whitespace-pre-wrap">{`counts = {}
+                <Code>{`counts = {}
 for w in ['a','b','a','c','b','a']:
     counts[w] = counts.get(w, 0) + 1
-print(counts)  # {'a':3,'b':2,'c':1}`}</pre>
-                <p className="text-sm text-gray-600 mt-2">Tip: <code>collections.Counter</code> does this too.</p>
+print(counts)`}</Code>
+                <div className="text-xs font-medium text-gray-600">Output</div>
+                <Output>{`{'a': 3, 'b': 2, 'c': 1}`}</Output>
+                <p className="text-sm text-gray-600">Tip: <code>collections.Counter</code> does this too.</p>
               </div>
             </div>
             <Box tone="warn" title="Hashable keys only">
@@ -292,50 +342,75 @@ print(counts)  # {'a':3,'b':2,'c':1}`}</pre>
           </section>
 
           {/* Sets */}
-          <section id="sets" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+          <section id="sets" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h2 className="text-xl font-semibold">Sets — unique membership, fast tests</h2>
             <p className="text-gray-700">Use sets to remove duplicates and for fast <em>in</em> checks (~O(1)).</p>
             <div className="grid md:grid-cols-2 gap-4">
-              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
+              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50 space-y-2">
                 <h3 className="font-medium mb-1">Basics</h3>
-                <pre className="text-sm whitespace-pre-wrap">{`s = set([1,2,2,3])
+                <Code>{`s = set([1,2,2,3])
 s.add(4)
 print(2 in s)     # True
 s.remove(3)       # KeyError if missing -> use discard
-s.discard(99)`}</pre>
+s.discard(99)
+print(s)`}</Code>
+                <div className="text-xs font-medium text-gray-600">Output</div>
+                <Output>{`True
+{1, 2, 4}`}</Output>
               </div>
-              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
+              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50 space-y-2">
                 <h3 className="font-medium mb-1">Algebra</h3>
-                <pre className="text-sm whitespace-pre-wrap">{`a, b = {1,2,3}, {3,4}
-print(a | b)  # union -> {1,2,3,4}
-print(a & b)  # intersection -> {3}
-print(a - b)  # difference -> {1,2}`}</pre>
+                <Code>{`a, b = {1,2,3}, {3,4}
+print(a | b)  # union
+print(a & b)  # intersection
+print(a - b)  # difference`}</Code>
+                <div className="text-xs font-medium text-gray-600">Output</div>
+                <Output>{`{1, 2, 3, 4}
+{3}
+{1, 2}`}</Output>
               </div>
             </div>
             <Box tone="pro" title="Deduplicate while preserving order">
-              Use a loop with a seen-set: add if unseen; append to a new list.
+              <p className="mb-2">Use a small <em>seen</em> set and build a new list as you walk the old one.</p>
+              <Code>{`seen = set()
+unique = []
+for x in [3,1,3,2,1,4,2]:
+    if x not in seen:
+        seen.add(x)
+        unique.append(x)
+print(unique)`}</Code>
+              <div className="text-xs font-medium text-gray-600">Output</div>
+              <Output>{`[3, 1, 2, 4]`}</Output>
             </Box>
           </section>
 
           {/* Stacks & Queues */}
-          <section id="stackqueue" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+          <section id="stackqueue" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h2 className="text-xl font-semibold">Stacks & Queues</h2>
             <div className="grid md:grid-cols-2 gap-4">
-              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
+              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50 space-y-2">
                 <h3 className="font-medium mb-1">Stack (LIFO)</h3>
-                <pre className="text-sm whitespace-pre-wrap">{`stack = []
+                <Code>{`stack = []
 stack.append('A')
 stack.append('B')
-print(stack.pop())  # 'B'`}</pre>
+print(stack.pop())  # last in -> first out
+print(stack)`}</Code>
+                <div className="text-xs font-medium text-gray-600">Output</div>
+                <Output>{`B
+['A']`}</Output>
                 <p className="text-sm text-gray-600 mt-2">Use list <code>append/pop</code> at the end (O(1)).</p>
               </div>
-              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
+              <div className="rounded-xl border border-gray-200 p-4 bg-gray-50 space-y-2">
                 <h3 className="font-medium mb-1">Queue (FIFO)</h3>
-                <pre className="text-sm whitespace-pre-wrap">{`from collections import deque
+                <Code>{`from collections import deque
 q = deque()
 q.append('A'); q.append('B')
-print(q.popleft())   # 'A'`}</pre>
-                <p className="text-sm text-gray-600 mt-2"><code>deque</code> gives O(1) appends/pops from both ends.</p>
+print(q.popleft())   # first in -> first out
+print(list(q))`}</Code>
+                <div className="text-xs font-medium text-gray-600">Output</div>
+                <Output>{`A
+['B']`}</Output>
+                <p className="text-sm text-gray-600"><code>deque</code> gives O(1) appends/pops from both ends.</p>
               </div>
             </div>
             <Box tone="warn" title="List as queue? Not quite">
@@ -344,7 +419,7 @@ print(q.popleft())   # 'A'`}</pre>
           </section>
 
           {/* Complexity */}
-          <section id="complexity" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+          <section id="complexity" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h2 className="text-xl font-semibold">Big-O intuition</h2>
             <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
               <div className="grid md:grid-cols-2 gap-4 text-sm">
@@ -396,22 +471,22 @@ print(q.popleft())   # 'A'`}</pre>
             <div className="grid md:grid-cols-3 gap-4">
               <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
                 <h3 className="font-medium mb-2">Level 1 · Foundations</h3>
-                <pre className="text-sm whitespace-pre-wrap">{`# 1) Make a list of names; print the first & last.
+                <Code>{`# 1) Make a list of names; print the first & last.
 # 2) Make a tuple (x,y); unpack and print.
-# 3) Make a set from a list with duplicates.`}</pre>
+# 3) Make a set from a list with duplicates.`}</Code>
               </div>
               <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
                 <h3 className="font-medium mb-2">Level 2 · Dictionaries</h3>
-                <pre className="text-sm whitespace-pre-wrap">{`# word_count(s) -> dict of word -> frequency
+                <Code>{`# word_count(s) -> dict of word -> frequency
 def word_count(s):
     counts = {}
     for w in s.lower().split():
         counts[w] = counts.get(w, 0) + 1
-    return counts`}</pre>
+    return counts`}</Code>
               </div>
               <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
                 <h3 className="font-medium mb-2">Level 3 · Queue/Stack</h3>
-                <pre className="text-sm whitespace-pre-wrap">{`# is_balanced(s): returns True if (), [], {} are balanced
+                <Code>{`# is_balanced(s): returns True if (), [], {} are balanced
 def is_balanced(s):
     pairs = {')':'(', ']':'[', '}':'{'}
     stack = []
@@ -419,7 +494,7 @@ def is_balanced(s):
         if ch in '([{': stack.append(ch)
         elif ch in ')]}':
             if not stack or stack.pop() != pairs[ch]: return False
-    return not stack`}</pre>
+    return not stack`}</Code>
               </div>
             </div>
             <Box tone="tip" title="Confidence boost">
