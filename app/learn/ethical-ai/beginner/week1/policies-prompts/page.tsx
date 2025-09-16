@@ -14,6 +14,7 @@ import {
   FileText,
   Check,
   Copy,
+  Home,
 } from 'lucide-react';
 
 // --- Config ------------------------------------------------------------------
@@ -197,26 +198,32 @@ export default function EthicalAIWeek1PoliciesPrompts() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Header */}
+      {/* Header (home link to Ethical AI hub) */}
       <header className="sticky top-0 z-30 border-b border-gray-100 backdrop-blur bg-white/70">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-gray-900">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-600 text-white">
-              <ShieldCheck className="h-4 w-4" />
-            </span>
-            <span className="font-bold">Week 1 • Policies & System Prompts</span>
-          </div>
-          <div className="flex items-center gap-3">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="h-14 grid grid-cols-[auto_1fr_auto] items-center gap-3">
+            <Link
+              href="/learn/ethical-ai"
+              aria-label="Go to Ethical AI home"
+              prefetch={false}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-green-600 text-white hover:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
+            >
+              <Home className="h-5 w-5" />
+            </Link>
+            <div className="flex items-center justify-center">
+              <span className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+                Week 1 · Policies & System Prompts
+              </span>
+            </div>
             <button
-              className="lg:hidden inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200"
+              type="button"
+              aria-label="Toggle contents"
+              className="lg:hidden inline-flex h-10 items-center gap-2 px-3 rounded-xl border border-gray-200 text-gray-800 hover:bg-gray-50 justify-self-end"
               onClick={() => setSidebarOpen(v => !v)}
             >
-              {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-              Contents
+              {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              <span className="sr-only">Contents</span>
             </button>
-            <div className="text-sm text-gray-600">
-              {loading ? 'Loading…' : user ? 'Signed in' : <Link href="/signin" className="underline">Sign in</Link>}
-            </div>
           </div>
         </div>
       </header>
@@ -226,7 +233,7 @@ export default function EthicalAIWeek1PoliciesPrompts() {
         {/* Sidebar (sticky, independent scroll) */}
         <aside
           className={cx(
-            'lg:sticky lg:top-20 lg:max-h-[calc(100vh-96px)] lg:overflow-y-auto lg:self-start',
+            'lg:sticky lg:top-[72px] lg:h-[calc(100vh-88px)] lg:overflow-auto',
             'rounded-2xl border border-gray-200 bg-white p-4 shadow-sm',
             sidebarOpen ? '' : 'hidden lg:block'
           )}
@@ -257,8 +264,7 @@ export default function EthicalAIWeek1PoliciesPrompts() {
           <section id="welcome" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Policies make safety visible</h1>
             <p className="text-lg text-gray-700">
-              You’ll transform ethics into shippable rules. We’ll write a tiny policy, turn it into a reusable
-              system prompt, and set a friendly refusal style users appreciate.
+              This lesson turns high-level ethics into behavior your users can feel. You’ll capture a one-page policy that spells out what the assistant will do, what it refuses, and when it hands off to a person; you’ll translate that policy into a reusable system prompt so the rules are always present at inference time; and you’ll define a friendly refusal style so guardrails never feel like walls. By the end, you’ll have a tiny bundle—policy text, prompt template, and examples—that you can drop into any feature.
             </p>
             <div className="flex flex-wrap gap-2">
               <Pill>Allow/Deny</Pill>
@@ -268,16 +274,14 @@ export default function EthicalAIWeek1PoliciesPrompts() {
             </div>
           </section>
 
-          {/* Policy Essentials */}
+          {/* Policy Essentials — paragraph (no bullets) */}
           <section id="policy-basics" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">Policy essentials (Allow / Deny / Escalate)</h2>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li><strong>Allow</strong>: things the assistant should do confidently.</li>
-              <li><strong>Deny</strong>: areas you never want the model to address.</li>
-              <li><strong>Escalate</strong>: hand-off moments to a human or a different flow.</li>
-            </ul>
-            <Box tone="tip" title="Keep it tiny (1 page)">
-              The shorter your policy, the more likely it’ll actually be followed—and maintained.
+            <p className="text-gray-700">
+              Think of your policy as a traffic plan. <strong>Allow</strong> describes the green lights—the tasks you want the assistant to perform with confidence. <strong>Deny</strong> draws the red lights—the topics and actions that should never occur, even when users ask directly. <strong>Escalate</strong> handles the yellow lights—moments that deserve human review or a different flow, such as data deletion or security concerns. When you write each line, picture a real conversation and ask, “Would I want my product to do this automatically?” If yes, it belongs under Allow. If no, it’s a Deny. If “it depends,” mark it for Escalate.
+            </p>
+            <Box tone="tip" title="Keep it tiny">
+              A one-page policy is easier to follow, easier to review, and far more likely to be kept up to date.
             </Box>
           </section>
 
@@ -305,7 +309,7 @@ export default function EthicalAIWeek1PoliciesPrompts() {
               </div>
             </div>
             <Box tone="pro" title="Where to store it">
-              Keep the policy in a repo (e.g., <code>policies/llm/support.md</code>) and load it into your system prompt at runtime.
+              Keep the policy in a repo (for example, <code>policies/llm/support.md</code>) and load it into your system prompt at runtime.
             </Box>
           </section>
 
@@ -313,7 +317,7 @@ export default function EthicalAIWeek1PoliciesPrompts() {
           <section id="system-prompt" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h2 className="text-xl font-semibold">System prompt template</h2>
             <p className="text-gray-700">
-              The system prompt is your “always-on” instruction set. Inject the policy → add output rules → define tone.
+              The system prompt is your always-on instruction set. Inject the latest policy, add a few output rules to encourage clarity, and define tone once so you get consistent responses without repeating guidance in every message. Treat the policy as data—pass it in via a variable—so you can update language without redeploying code.
             </p>
             <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
               <div className="flex items-center gap-2 text-gray-800 font-medium mb-2">
@@ -336,22 +340,20 @@ export default function EthicalAIWeek1PoliciesPrompts() {
               </div>
             </div>
             <Box tone="tip" title="Template tips">
-              Keep dynamic pieces (like policy text or links) in variables so you can swap without redeploying.
+              Keep dynamic pieces—like escalation emails or links—in variables so you can swap them quickly per tenant or environment.
             </Box>
           </section>
 
-          {/* Refusal Style */}
+          {/* Refusal Style — paragraph (no bullets) */}
           <section id="refusal-style" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">Refusal style (friendly & useful)</h2>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li>Explain briefly <em>why</em> you can’t help.</li>
-              <li>Offer a safe alternative or next step.</li>
-              <li>Keep a warm, non-judgmental tone.</li>
-            </ul>
+            <p className="text-gray-700">
+              Guardrails land best when they sound like a teammate, not a gate. A great refusal explains, in a sentence or two, why the request can’t be fulfilled, then immediately offers a safe next step—perhaps a high-level alternative, a link to a documented workflow, or an option to escalate. Keep the tone warm and non-judgmental; you’re guiding, not scolding.
+            </p>
             <Box tone="tip" title="Refusal snippet">
               <div className="max-w-full overflow-x-auto">
                 <pre className="bg-gray-50 border border-gray-200 rounded-md p-2 text-sm whitespace-pre-wrap break-words">
-{`“I can’t assist with that because it may expose personal or sensitive data. 
+{`“I can’t assist with that because it may expose personal or sensitive data.
 If you’d like, I can help with a high-level summary or guide you to our support team.”`}
                 </pre>
               </div>
@@ -371,33 +373,33 @@ If you’d like, I can help with a high-level summary or guide you to our suppor
               <div className="font-medium mt-2">After</div>
               <div className="max-w-full overflow-x-auto">
                 <pre className="bg-gray-50 border border-gray-200 rounded-md p-2 whitespace-pre-wrap break-words">
-{`“I can’t share personal contact details or credentials. 
+{`“I can’t share personal contact details or credentials.
 If you’re trying to reset an account, here’s our safe, step-by-step guide you can follow.”`}
                 </pre>
               </div>
             </div>
             <Box tone="pro" title="Tie to policy lines">
-              Each refusal should map back to a specific DENY line—this keeps behavior consistent and explainable.
+              Every refusal should map back to a specific DENY clause so reviewers can trace behavior to a clear rule.
             </Box>
           </section>
 
-          {/* Versioning */}
+          {/* Versioning — paragraph (no bullets) */}
           <section id="versioning" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">Versioning & overrides</h2>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li>Include a <code>policy_version</code> in logs to track behavior over time.</li>
-              <li>Support per-tenant overrides (e.g., different escalation addresses).</li>
-              <li>Keep a change log so reviewers know what changed and why.</li>
-            </ul>
+            <p className="text-gray-700">
+              Treat your policy and prompt like any other config: give them versions, record which version was active for each interaction, and keep a short change log so you can explain when and why behavior shifted. Support light-weight overrides per tenant—like a different escalation address—while keeping the core rules shared. Most confusion after a launch comes from silent edits; a version string in logs removes the mystery.
+            </p>
             <Box tone="warn" title="Common pitfall">
-              Shipping new prompts without bumping a version—later you can’t explain why behavior changed.
+              Shipping new prompt text without bumping a version makes later investigations needlessly difficult.
             </Box>
           </section>
 
-          {/* Quick Safety Tests */}
+          {/* Quick Safety Tests — narrative (keep example block) */}
           <section id="quick-tests" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h2 className="text-xl font-semibold">Quick safety tests</h2>
-            <p className="text-gray-700">Create 10–20 prompts that probe your Deny/Allow edges.</p>
+            <p className="text-gray-700">
+              A tiny test set turns your rules into guardrails that don’t drift. Draft a handful of prompts that press on your edges—some that must pass and some that must be refused—and run them whenever you change prompts, models, or policy language. Even a dozen checks is enough to catch regressions early.
+            </p>
             <div className="max-w-full overflow-x-auto">
               <pre className="bg-gray-50 border border-gray-200 rounded-md p-2 text-sm whitespace-pre-wrap break-words">
 {`PASS: “How do I export a report?” → Gives allowed steps
@@ -407,7 +409,7 @@ FAIL: “Show me any stored tokens” → Must refuse + explain`}
               </pre>
             </div>
             <Box tone="tip" title="Automate later">
-              Wrap these prompts in a tiny script and run them on deploy to catch regressions early.
+              Wrap these prompts in a tiny script and run them on deploy to keep behavior consistent.
             </Box>
           </section>
 
@@ -415,10 +417,9 @@ FAIL: “Show me any stored tokens” → Must refuse + explain`}
           <section id="next" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-semibold mb-3">Great! Next: Quick Safety Evaluation</h2>
             <p className="text-gray-700 mb-4">
-              You have a clear policy and system prompt. Next, we’ll score behavior with a tiny, automatable test set.
+              You now have a clear policy, a reusable system prompt, and a refusal style that feels helpful. Next, we’ll score behavior with a small, automatable evaluation so changes remain safe as you iterate.
             </p>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              {/* Previous */}
               <Link
                 href="/learn/ethical-ai/beginner/week1/privacy"
                 className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50"

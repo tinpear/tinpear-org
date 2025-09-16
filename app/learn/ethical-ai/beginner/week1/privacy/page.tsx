@@ -15,6 +15,7 @@ import {
   FileText,
   Check,
   Copy,
+  Home,
 } from 'lucide-react';
 
 // --- Config ------------------------------------------------------------------
@@ -78,13 +79,9 @@ function Pill({ children }: { children: any }) {
 
 // Simple, beginner-friendly redactor (client-side demo)
 function redactPII(input: string): string {
-  // email
   const email = /\b([a-zA-Z0-9._%+-]{1,3})[a-zA-Z0-9._%+-]*@([a-zA-Z0-9.-]+\.[A-Za-z]{2,})\b/g;
-  // phone (very rough)
   const phone = /\b(?:\+?\d{1,3}[-.\s]?)?(?:\(?\d{3}\)?|\d{3})[-.\s]?\d{3}[-.\s]?\d{4}\b/g;
-  // credit card (very rough, 13–19 digits with separators)
   const card = /\b(?:\d[ -]*?){13,19}\b/g;
-  // simple id patterns (e.g., AB-12345)
   const simpleId = /\b([A-Z]{2,3}-?\d{3,6})\b/g;
 
   return input
@@ -134,7 +131,6 @@ Please schedule with me next week.`
         setCompleted(Boolean(data?.completed));
       }
 
-      // Load draft (if any)
       try {
         const saved = localStorage.getItem(DRAFT_KEY);
         if (saved) {
@@ -205,26 +201,32 @@ Please schedule with me next week.`
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Header */}
+      {/* Header (link to /learn/ethical-ai) */}
       <header className="sticky top-0 z-30 border-b border-gray-100 backdrop-blur bg-white/70">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-gray-900">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-600 text-white">
-              <EyeOff className="h-4 w-4" />
-            </span>
-            <span className="font-bold">Week 1 • Privacy & PII</span>
-          </div>
-          <div className="flex items-center gap-3">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="h-14 grid grid-cols-[auto_1fr_auto] items-center gap-3">
+            <Link
+              href="/learn/ethical-ai"
+              aria-label="Go to Ethical AI home"
+              prefetch={false}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-green-600 text-white hover:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
+            >
+              <Home className="h-5 w-5" />
+            </Link>
+            <div className="flex items-center justify-center">
+              <span className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+                Week 1 · Privacy & PII
+              </span>
+            </div>
             <button
-              className="lg:hidden inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200"
+              type="button"
+              aria-label="Toggle contents"
+              className="lg:hidden inline-flex h-10 items-center gap-2 px-3 rounded-xl border border-gray-200 text-gray-800 hover:bg-gray-50 justify-self-end"
               onClick={() => setSidebarOpen(v => !v)}
             >
-              {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-              Contents
+              {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              <span className="sr-only">Contents</span>
             </button>
-            <div className="text-sm text-gray-600">
-              {loading ? 'Loading…' : user ? `Signed in as ${username}` : <Link href="/signin" className="underline">Sign in</Link>}
-            </div>
           </div>
         </div>
       </header>
@@ -267,8 +269,11 @@ Please schedule with me next week.`
               Privacy first, confidence always{user ? `, ${username}` : ''}
             </h1>
             <p className="text-lg text-gray-700">
-              A prompt is a chat window to your company. Today you’ll add simple seatbelts—so helpful features don’t
-              leak emails, phone numbers, or card info.
+              A prompt is a chat window into your company. Treat it with the same care you would a public API: assume
+              anything that goes in might come back out somewhere else. In this lesson you’ll add simple seatbelts so
+              helpful features don’t accidentally surface emails, phone numbers, card details, or internal identifiers.
+              Our approach is practical and layered—first reduce what you collect, then mask what must be sent, and
+              finally make sure your logs don’t quietly undo all that good work.
             </p>
             <div className="flex flex-wrap gap-2">
               <Pill>Minimize</Pill>
@@ -281,41 +286,46 @@ Please schedule with me next week.`
           <section id="what-is-pii" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">What counts as PII?</h2>
             <p className="text-gray-700">
-              Personally Identifiable Information can single out a person—or make it easy to. Examples:
+              Personally Identifiable Information is any data that identifies someone directly—like a name, email,
+              phone number, physical address, or government ID—or indirectly when combined with other details, such as
+              device fingerprints, precise locations, or unique account attributes. Financial data like card numbers and
+              bank details sit firmly in this category, and so do sensitive records around health or biometrics. When
+              you’re unsure, assume it’s PII and handle it as such; the small cost of masking is almost always cheaper
+              than the impact of an accidental disclosure.
             </p>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li>Direct: name, email, phone, address, ID numbers</li>
-              <li>Financial: card numbers, bank details</li>
-              <li>Sensitive: health, biometrics, GPS traces</li>
-            </ul>
             <Box tone="warn" title="When in doubt, treat it as PII">
-              If it could embarrass, harm, or expose a user—mask it.
+              If a piece of information could embarrass, harm, or expose a user, mask it before it leaves your system.
             </Box>
           </section>
 
           {/* How it leaks */}
           <section id="how-it-leaks" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">How PII leaks (the usual ways)</h2>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li>Raw prompts include emails or numbers you don’t actually need.</li>
-              <li>Server logs capture full prompt/response by default.</li>
-              <li>RAG pulls documents with PII; the model repeats them back.</li>
-            </ul>
-            <Box tone="tip" title="The rule of thumb">
-              Don’t send, store, or show what you don’t need.
+            <p className="text-gray-700">
+              Most privacy incidents trace back to three ordinary places. First, prompts often include far more detail
+              than the model actually needs, so identifiers ride along by accident. Second, server and platform logs
+              quietly capture request and response bodies “for debugging,” preserving raw PII long after it’s useful.
+              Third, retrieval pipelines surface documents that were never meant for generation, and the model simply
+              repeats what it sees. Understanding these paths makes the fix straightforward: send less, redact what you
+              must send, and make sure your observability setup respects those choices.
+            </p>
+            <Box tone="tip" title="A simple rule of thumb">
+              Don’t send, store, or show information that doesn’t materially change the quality of the output.
             </Box>
           </section>
 
           {/* Minimize */}
           <section id="minimize" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">Minimize collection</h2>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li>Only collect fields that change output quality.</li>
-              <li>Prefer aggregates (“customer since 2019”) over raw (“card ends with 4242”).</li>
-              <li>Expire or drop fields after use.</li>
-            </ul>
+            <p className="text-gray-700">
+              Minimization means collecting only the fields that improve the answer and dropping the rest. If a model
+              can produce a great reply knowing a user’s tenure—“customer since 2019”—you don’t need their full address
+              or the final four digits of a card. Prefer aggregated or derived attributes, expire transient fields as
+              soon as they’ve served their purpose, and keep a short, explicit allow-list for your prompt builder so
+              anything outside that list never makes it into a request.
+            </p>
             <Box tone="pro" title="Quick win">
-              Add an allowlist of fields your prompt builder can include, everything else is dropped.
+              Add an allow-list of fields your prompt builder may include; everything else is ignored by default.
             </Box>
           </section>
 
@@ -323,14 +333,17 @@ Please schedule with me next week.`
           <section id="redact" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h2 className="text-xl font-semibold">Redact before model calls</h2>
             <p className="text-gray-700">
-              Scrub emails, phone numbers, card numbers, and simple IDs before sending to the model. Replace with
-              placeholders.
+              Even with careful minimization some identifiers will slip through, so introduce a redaction step that
+              masks emails, phone numbers, card numbers, and simple IDs before calling the model. Replace sensitive
+              tokens with placeholders (for example, <em>***@domain.com</em> or <em>***-***-****</em>) and keep the
+              original values server-side so your application can still personalize the final UI without exposing raw
+              data to the model.
             </p>
 
             <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
               <div className="flex items-center gap-2 text-gray-800 font-medium mb-2">
                 <FileText className="h-4 w-4" />
-                Copy‑paste redaction utility (TypeScript)
+                Copy-paste redaction utility (TypeScript)
               </div>
               <pre className="text-xs md:text-sm whitespace-pre-wrap leading-relaxed">
 {`export function redactPII(input: string): string {
@@ -355,7 +368,11 @@ Please schedule with me next week.`
           {/* Live Demo */}
           <section id="demo" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h2 className="text-xl font-semibold">Live redaction demo</h2>
-            <p className="text-gray-700">Paste any text below. We’ll mask common PII right in the browser.</p>
+            <p className="text-gray-700">
+              Paste any text on the left and watch common identifiers get masked instantly in your browser. This is the
+              exact behavior you’ll want as a pre-flight step in your server pipeline, just implemented here client-side
+              for clarity.
+            </p>
 
             <div className="grid md:grid-cols-2 gap-4">
               <div className="flex flex-col">
@@ -387,50 +404,51 @@ Please schedule with me next week.`
             </div>
 
             <Box tone="tip" title="Before → After">
-  <div className="text-sm">
-    <div className="font-medium">Before</div>
-    {/* Wrapper ensures it never spills on mobile */}
-    <div className="max-w-full overflow-x-auto">
-      <pre className="bg-gray-50 border border-gray-200 rounded-md p-2 whitespace-pre-wrap break-words">
+              <div className="text-sm">
+                <div className="font-medium">Before</div>
+                <div className="max-w-full overflow-x-auto">
+                  <pre className="bg-gray-50 border border-gray-200 rounded-md p-2 whitespace-pre-wrap break-words">
 {`“Email Jane at jane.doe@example.com and call (415) 555-2671. Card: 4242 4242 4242 4242.”`}
-      </pre>
-    </div>
+                  </pre>
+                </div>
 
-    <div className="font-medium mt-2">After</div>
-    {/* Same wrapper + wrapping to keep inside container */}
-    <div className="max-w-full overflow-x-auto">
-      <pre className="bg-gray-50 border border-gray-200 rounded-md p-2 whitespace-pre-wrap break-words">
+                <div className="font-medium mt-2">After</div>
+                <div className="max-w-full overflow-x-auto">
+                  <pre className="bg-gray-50 border border-gray-200 rounded-md p-2 whitespace-pre-wrap break-words">
 {`“Email Jane at ***@example.com and call ***-***-****. Card: **** **** **** ****.”`}
-      </pre>
-    </div>
-  </div>
-</Box>
-
+                  </pre>
+                </div>
+              </div>
+            </Box>
           </section>
 
           {/* Safe Logging */}
           <section id="logging" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">Safe logging</h2>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li>Don’t log full prompts or responses by default.</li>
-              <li>Log event shape (timestamp, action, status), not raw content.</li>
-              <li>If you must log, log <em>after</em> redaction; set short retention windows.</li>
-            </ul>
+            <p className="text-gray-700">
+              Observability is vital, but full prompt and response bodies are rarely necessary outside of targeted
+              debugging. Prefer recording the shape of events—time, action, status, latency—and only capture content
+              after redaction, under explicit sampling, and with short retention windows. Make sure your cloud consoles
+              and vendors aren’t silently storing raw payloads; most platforms let you mask or disable these fields once
+              you look for the settings.
+            </p>
             <Box tone="warn" title="Watch your cloud console">
-              Managed platforms often capture request/response bodies for “debugging.” Turn that off or mask first.
+              Many providers default to storing complete request/response bodies. Turn that off, or enforce masking in a gateway.
             </Box>
           </section>
 
           {/* Pitfalls */}
           <section id="pitfalls" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold">Common pitfalls</h2>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li>Storing raw chat history in analytics or product logs.</li>
-              <li>Sending entire user records to the model when you only need two fields.</li>
-              <li>Letting RAG index documents with PII without filters or tags.</li>
-            </ul>
+            <p className="text-gray-700">
+              Teams often ship quickly and later discover that analytics kept raw chat history, that their prompt
+              builder forwarded entire user profiles when only two fields affected quality, or that their retrieval
+              index quietly ingested PDFs full of addresses and phone numbers. A small guardrail prevents all three:
+              add a pre-flight PII scrubber to your pipeline, write a couple of tests to prove it works, and wire those
+              tests into CI so regressions never slip past code review.
+            </p>
             <Box tone="pro" title="A quick guardrail">
-              Add a pre‑flight “PII scrubber” step to your prompt pipeline and require tests for it in CI.
+              Treat redaction like input validation—automatic, testable, and enforced in CI.
             </Box>
           </section>
 
@@ -438,11 +456,11 @@ Please schedule with me next week.`
           <section id="next" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-semibold mb-3">Nice work! Next: Policies & System Prompts</h2>
             <p className="text-gray-700 mb-4">
-              You now prevent the most common leaks. Next we’ll encode safety boundaries into your system prompt and
-              refusal style—making safety visible and consistent.
+              You’ve reduced what you send, masked what remains, and ensured your logs won’t leak it back out. Next we
+              will encode clear boundaries and refusal style into your system prompts so safety becomes consistent and
+              visible across your product.
             </p>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              {/* Previous */}
               <Link
                 href="/learn/ethical-ai/beginner/week1/threat-modeling"
                 className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50"

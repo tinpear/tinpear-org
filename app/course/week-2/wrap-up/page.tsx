@@ -1,37 +1,37 @@
-'use client'
+'use client';
 
-import { useEffect, useMemo, useState } from 'react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import { supabase } from '@/lib/supabase';
 import {
   Menu,
   X,
   ChevronLeft,
-  ChevronRight,
   Sparkles,
   Lightbulb,
   AlertTriangle,
   Trophy,
   Home,
   CheckCircle2,
-} from 'lucide-react'
+  GraduationCap,
+} from 'lucide-react';
+import CertificatePDFActions from '@/components/CertificatePDF';
 
 /**
- * Week 2 • Wrap-Up & Final Check (Quiz + Gating)
+ * Week 2 • Wrap-Up & Final Check (Quiz + Certificate)
  * - Friendly header with name from `public.profiles`
  * - Tracks progress/gate in `tracking` (PROGRESS_KEY, PASS_KEY)
  * - Saves quiz attempts to `assessments` (QUIZ_KEY)
- * - Unlocks Week 3 when PASS_THRESHOLD met or gate flag present
+ * - There is NO Week 3. Passing Week 1 + Week 2 unlocks the certificate.
  * - Sticky, mobile-friendly sidebar with scrollspy
- * - No in-page Python runner (kept lean on purpose)
  */
 
-// ---- Config -----------------------------------------------------------------
-const PROGRESS_KEY = 'week-2:wrap-up'
-const QUIZ_KEY = 'week-2:final-quiz'
-const PASS_KEY = 'week-2:passed'
-const PASS_THRESHOLD = 70
+ // ---- Config -----------------------------------------------------------------
+const PROGRESS_KEY = 'week-2:wrap-up';
+const QUIZ_KEY = 'week-2:final-quiz';
+const PASS_KEY = 'week-2:passed';           // Week 2 pass flag
+const WEEK1_PASS_KEY = 'week-1:passed';      // Week 1 pass flag (for certificate)
+const PASS_THRESHOLD = 70;
 
 const SECTIONS = [
   { id: 'congrats', label: '🎉 Congrats!' },
@@ -42,18 +42,19 @@ const SECTIONS = [
   { id: 'mistakes', label: '🚨 Common mistakes' },
   { id: 'practice', label: 'Daily practice' },
   { id: 'exam', label: 'Final Check (Quiz)' },
-  { id: 'result', label: 'Result & Unlock' },
-  { id: 'save', label: 'Save & Continue' },
-]
+  { id: 'result', label: 'Result' },
+  { id: 'certificate', label: 'Certificate' },
+  { id: 'save', label: 'Save & Finish' },
+];
 
 type QuizQuestion = {
-  id: string
-  prompt: string
-  options: string[]
-  answer: number // index of correct option
-}
+  id: string;
+  prompt: string;
+  options: string[];
+  answer: number; // index of correct option
+};
 
-type AnswersState = Record<string, number | undefined>
+type AnswersState = Record<string, number | undefined>;
 
 const QUIZ: QuizQuestion[] = [
   {
@@ -156,11 +157,11 @@ const QUIZ: QuizQuestion[] = [
     ],
     answer: 1,
   },
-]
+];
 
 // ---- UI helpers -------------------------------------------------------------
 function cx(...xs: Array<string | false | null | undefined>) {
-  return xs.filter(Boolean).join(' ')
+  return xs.filter(Boolean).join(' ');
 }
 
 function Box({
@@ -168,19 +169,19 @@ function Box({
   title,
   children,
 }: {
-  tone: 'tip' | 'warn' | 'pro'
-  title: string
-  children: any
+  tone: 'tip' | 'warn' | 'pro';
+  title: string;
+  children: any;
 }) {
   const palette = {
     tip: 'border-emerald-200 bg-emerald-50 text-emerald-900',
     warn: 'border-amber-200 bg-amber-50 text-amber-900',
     pro: 'border-sky-200 bg-sky-50 text-sky-900',
-  }[tone]
+  }[tone];
   const icon =
     tone === 'tip' ? <Lightbulb className="h-4 w-4" /> :
     tone === 'warn' ? <AlertTriangle className="h-4 w-4" /> :
-    <Sparkles className="h-4 w-4" />
+    <Sparkles className="h-4 w-4" />;
   return (
     <div className={cx('rounded-xl border p-3 md:p-4 flex gap-3 items-start', palette)}>
       <div className="mt-0.5">{icon}</div>
@@ -189,172 +190,189 @@ function Box({
         <div className="text-sm md:text-[0.95rem] leading-relaxed">{children}</div>
       </div>
     </div>
-  )
+  );
 }
 
 export default function Week2WrapUpPage() {
-  const router = useRouter()
-  const [user, setUser] = useState<any>(null)
-  const [profile, setProfile] = useState<any>(null)
-  const [completed, setCompleted] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [activeId, setActiveId] = useState(SECTIONS[0].id)
+  const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
+  const [completed, setCompleted] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeId, setActiveId] = useState(SECTIONS[0].id);
 
   // gating / quiz state
-  const [gateFromDb, setGateFromDb] = useState(false)
-  const [answers, setAnswers] = useState<AnswersState>({})
-  const [scorePct, setScorePct] = useState<number | null>(null)
-  const [passed, setPassed] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const [loadAttempting, setLoadAttempting] = useState(true)
+  const [gateFromDb, setGateFromDb] = useState(false);
+  const [answers, setAnswers] = useState<AnswersState>({});
+  const [scorePct, setScorePct] = useState<number | null>(null);
+  const [passed, setPassed] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [loadAttempting, setLoadAttempting] = useState(true);
 
-  const canProceed = passed || gateFromDb
+  // certificate gates
+  const [week1Passed, setWeek1Passed] = useState(false);
+  const [week2Passed, setWeek2Passed] = useState(false);
+  const certEligible = week1Passed && week2Passed;
 
-  // Load user, profile, progress, gate, last attempt
+  // Load user, profile, progress, gate, last attempt, and pass flags
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
     const run = async () => {
       try {
-        setLoading(true)
-        const { data: { user }, error } = await supabase.auth.getUser()
-        if (error) console.error(error)
-        if (cancelled) return
-        setUser(user ?? null)
+        setLoading(true);
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error) console.error(error);
+        if (cancelled) return;
+        setUser(user ?? null);
 
         if (user) {
           const { data: prof, error: pErr } = await supabase
             .from('profiles')
             .select('username, full_name')
             .eq('id', user.id)
-            .maybeSingle()
-          if (pErr) console.error(pErr)
-          if (!cancelled) setProfile(prof ?? null)
+            .maybeSingle();
+          if (pErr) console.error(pErr);
+          if (!cancelled) setProfile(prof ?? null);
 
           const { data: wrap } = await supabase
             .from('tracking')
             .select('completed')
             .eq('user_id', user.id)
             .eq('key', PROGRESS_KEY)
-            .maybeSingle()
-          if (!cancelled) setCompleted(Boolean(wrap?.completed))
+            .maybeSingle();
+          if (!cancelled) setCompleted(Boolean(wrap?.completed));
 
+          // Week 2 pass flag (this page)
           const { data: gate } = await supabase
             .from('tracking')
             .select('completed')
             .eq('user_id', user.id)
             .eq('key', PASS_KEY)
-            .maybeSingle()
-          if (!cancelled) setGateFromDb(Boolean(gate?.completed))
+            .maybeSingle();
+          if (!cancelled) {
+            const w2 = Boolean(gate?.completed);
+            setGateFromDb(w2);
+            setWeek2Passed(w2);
+          }
 
+          // Week 1 pass flag (for certificate)
+          const { data: w1 } = await supabase
+            .from('tracking')
+            .select('completed')
+            .eq('user_id', user.id)
+            .eq('key', WEEK1_PASS_KEY)
+            .maybeSingle();
+          if (!cancelled) setWeek1Passed(Boolean(w1?.completed));
+
+          // Last attempt
           const { data: attempt } = await supabase
             .from('assessments')
             .select('score, passed, answers')
             .eq('user_id', user.id)
             .eq('key', QUIZ_KEY)
-            .maybeSingle()
+            .maybeSingle();
           if (!cancelled && attempt) {
-            setScorePct(attempt.score ?? null)
-            setPassed(Boolean(attempt.passed))
+            setScorePct(attempt.score ?? null);
+            setPassed(Boolean(attempt.passed));
             if (attempt.answers && typeof attempt.answers === 'object') {
-              setAnswers(attempt.answers as AnswersState)
+              setAnswers(attempt.answers as AnswersState);
             }
           }
         }
       } finally {
-        if (!cancelled) { setLoadAttempting(false); setLoading(false) }
+        if (!cancelled) { setLoadAttempting(false); setLoading(false); }
       }
-    }
-    run()
-    return () => { cancelled = true }
-  }, [])
+    };
+    run();
+    return () => { cancelled = true; };
+  }, []);
 
   const username = useMemo(
     () => profile?.full_name || profile?.username || user?.email?.split('@')[0] || 'Learner',
     [profile, user]
-  )
+  );
 
   const markComplete = async () => {
-    if (!user) return alert('Please sign in to save progress.')
+    if (!user) return alert('Please sign in to save progress.');
     const { error } = await supabase
       .from('tracking')
       .upsert(
         { user_id: user.id, key: PROGRESS_KEY, completed: true, completed_at: new Date().toISOString() },
         { onConflict: 'user_id,key' }
-      )
-    if (error) { console.error(error); alert('Could not save progress.') } else { setCompleted(true) }
-  }
+      );
+    if (error) { console.error(error); alert('Could not save progress.'); } else { setCompleted(true); }
+  };
 
   // Scrollspy
   useEffect(() => {
-    const sections = Array.from(document.querySelectorAll<HTMLElement>('main section[id]'))
-    if (sections.length === 0) return
+    const sections = Array.from(document.querySelectorAll<HTMLElement>('main section[id]'));
+    if (sections.length === 0) return;
     const obs = new IntersectionObserver(
       (entries) => {
-        const visible = entries.filter(e => e.isIntersecting).sort((a,b) => b.intersectionRatio - a.intersectionRatio)
-        if (visible[0]) setActiveId((visible[0].target as HTMLElement).id)
+        const visible = entries.filter(e => e.isIntersecting).sort((a,b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible[0]) setActiveId((visible[0].target as HTMLElement).id);
       },
       { root: null, rootMargin: '-112px 0px -55% 0px', threshold: [0.1,0.25,0.5,0.75,1] }
-    )
-    sections.forEach(s => obs.observe(s))
-    return () => obs.disconnect()
-  }, [])
+    );
+    sections.forEach(s => obs.observe(s));
+    return () => obs.disconnect();
+  }, []);
 
   // Quiz helpers
-  const letter = (i: number) => String.fromCharCode(65 + i)
+  const letter = (i: number) => String.fromCharCode(65 + i);
   function selectAnswer(qid: string, optIndex: number) {
-    setAnswers(prev => ({ ...prev, [qid]: optIndex }))
+    setAnswers(prev => ({ ...prev, [qid]: optIndex }));
   }
   function countCorrect(a: AnswersState): number {
-    return QUIZ.reduce((acc, q) => (a[q.id] === q.answer ? acc + 1 : acc), 0)
+    return QUIZ.reduce((acc, q) => (a[q.id] === q.answer ? acc + 1 : acc), 0);
   }
   async function submitQuiz() {
-    if (!user) { alert('Please sign in to submit your quiz.'); return }
-    const answered = Object.keys(answers).length
+    if (!user) { alert('Please sign in to submit your quiz.'); return; }
+    const answered = Object.keys(answers).length;
     if (answered < QUIZ.length) {
-      const missing = QUIZ.length - answered
-      const ok = confirm(`You have ${missing} unanswered question${missing>1?'s':''}. Submit anyway?`)
-      if (!ok) return
+      const missing = QUIZ.length - answered;
+      const ok = confirm(`You have ${missing} unanswered question${missing>1?'s':''}. Submit anyway?`);
+      if (!ok) return;
     }
-    const correct = countCorrect(answers)
-    const pct = Math.round((correct / QUIZ.length) * 100)
-    const didPass = pct >= PASS_THRESHOLD
+    const correct = countCorrect(answers);
+    const pct = Math.round((correct / QUIZ.length) * 100);
+    const didPass = pct >= PASS_THRESHOLD;
 
-    setScorePct(pct)
-    setPassed(didPass)
-    setSaving(true)
+    setScorePct(pct);
+    setPassed(didPass);
+    setSaving(true);
     try {
       const { error: aerr } = await supabase.from('assessments').upsert(
         { user_id: user.id, key: QUIZ_KEY, score: pct, passed: didPass, answers, submitted_at: new Date().toISOString() },
         { onConflict: 'user_id,key' }
-      )
-      if (aerr) throw aerr
+      );
+      if (aerr) throw aerr;
 
       if (didPass) {
         const { error: gateErr } = await supabase.from('tracking').upsert(
           { user_id: user.id, key: PASS_KEY, completed: true, completed_at: new Date().toISOString() },
           { onConflict: 'user_id,key' }
-        )
-        if (gateErr) throw gateErr
+        );
+        if (gateErr) throw gateErr;
 
         const { error: wrapErr } = await supabase.from('tracking').upsert(
           { user_id: user.id, key: PROGRESS_KEY, completed: true, completed_at: new Date().toISOString() },
           { onConflict: 'user_id,key' }
-        )
-        if (wrapErr) throw wrapErr
+        );
+        if (wrapErr) throw wrapErr;
 
-        setGateFromDb(true)
-        setCompleted(true)
+        setGateFromDb(true);
+        setCompleted(true);
+        setWeek2Passed(true);
       }
     } catch (e: any) {
-      console.error(e)
-      alert('Score computed, but saving failed. Please try again.\n\n' + (e?.message || ''))
+      console.error(e);
+      alert('Score computed, but saving failed. Please try again.\n\n' + (e?.message || ''));
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
   }
-  function resetQuiz(){ setAnswers({}); setScorePct(null); setPassed(false) }
-  const goNext = () => { if (canProceed) router.push('/course/week-3/intro') }
+  function resetQuiz(){ setAnswers({}); setScorePct(null); setPassed(false); }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -408,7 +426,7 @@ export default function Week2WrapUpPage() {
             ))}
           </nav>
           <div className="mt-6 p-3 rounded-xl bg-gray-50 text-xs text-gray-600">
-            Score <b>{PASS_THRESHOLD}%+</b> on the quiz to unlock Week 3.
+            Score <b>{PASS_THRESHOLD}%+</b> on this quiz. Certificate requires passing <b>Week 1</b> and <b>Week 2</b>.
           </div>
         </aside>
 
@@ -424,7 +442,7 @@ export default function Week2WrapUpPage() {
             </div>
             <p className="text-gray-700">
               From raw CSVs to trustworthy tables and clear visuals — solid work. Lock in your wins below and pass the
-              final check to unlock Week 3.
+              final check to unlock your <b>certificate</b>.
             </p>
             <div className="mt-2 inline-flex items-center gap-2 text-green-700">
               <CheckCircle2 className="h-5 w-5" />
@@ -539,13 +557,13 @@ plt.tight_layout(); plt.show()`}</pre>
                   <div className="font-medium mb-2">{qi + 1}. {q.prompt}</div>
                   <div className="grid gap-2">
                     {q.options.map((opt, oi) => {
-                      const checked = answers[q.id] === oi
+                      const checked = answers[q.id] === oi;
                       return (
                         <label key={oi} className={cx('flex items-start gap-2 rounded-lg border p-2 cursor-pointer', checked ? 'border-green-300 bg-green-50' : 'border-gray-200 hover:bg-gray-50')}>
                           <input type="radio" name={q.id} className="mt-1" checked={checked || false} onChange={() => selectAnswer(q.id, oi)} />
                           <span className="text-sm"><span className="font-medium mr-1">{letter(oi)}.</span>{opt}</span>
                         </label>
-                      )
+                      );
                     })}
                   </div>
                 </div>
@@ -557,21 +575,21 @@ plt.tight_layout(); plt.show()`}</pre>
                 {saving ? 'Saving…' : 'Submit answers'}
               </button>
               <button onClick={resetQuiz} className="px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50" disabled={saving}>Reset</button>
-              <span className="text-xs text-gray-600">Need <b>{PASS_THRESHOLD}%+</b> to unlock Week 3.</span>
+              <span className="text-xs text-gray-600">Need <b>{PASS_THRESHOLD}%+</b> here and in Week 1 to download your certificate.</span>
             </div>
           </section>
 
-          {/* Result & Unlock */}
+          {/* Result */}
           <section id="result" className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-semibold mb-2">Result & Unlock</h2>
+            <h2 className="text-xl font-semibold mb-2">Result</h2>
             {scorePct === null && !gateFromDb ? (
-              <p className="text-gray-700">Take the final check to unlock Week 3. You need <b>{PASS_THRESHOLD}%+</b>.</p>
+              <p className="text-gray-700">Take the final check above. You need <b>{PASS_THRESHOLD}%+</b>.</p>
             ) : (
               <div className="text-gray-700">
-                {canProceed ? (
+                {passed || gateFromDb ? (
                   <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-green-800">
                     <div className="font-medium mb-1">Nice work!</div>
-                    <p>Requirement met. Week 3 is unlocked for your account.</p>
+                    <p>Week 2 requirement met. {week1Passed ? 'Since Week 1 is also passed, download your certificate below.' : 'Pass Week 1 as well to unlock your certificate.'}</p>
                   </div>
                 ) : (
                   <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-amber-800">
@@ -583,7 +601,54 @@ plt.tight_layout(); plt.show()`}</pre>
             )}
           </section>
 
-          {/* Save & Continue */}
+          {/* Certificate */}
+          <section id="certificate" className="scroll-mt-[72px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
+            <div className="flex items-center gap-2">
+              <GraduationCap className="h-5 w-5 text-green-700" />
+              <h2 className="text-xl font-semibold">Certificate</h2>
+            </div>
+
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-800">
+              <div className="font-medium mb-1">Eligibility</div>
+              <p>
+                Earn a downloadable certificate for <b>Beginner Machine learning</b> by scoring <b>{PASS_THRESHOLD}%+</b> in the Week‑1 and Week‑2 final checks. Your best scores are saved to your account.
+              </p>
+              <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div className={cx('rounded-md px-3 py-2 border text-sm', week1Passed ? 'bg-green-50 border-green-200 text-green-800' : 'bg-amber-50 border-amber-200 text-amber-800')}>
+                  Week‑1 final check: {week1Passed ? 'Passed' : 'Not yet'}
+                </div>
+                <div className={cx('rounded-md px-3 py-2 border text-sm', week2Passed ? 'bg-green-50 border-green-200 text-green-800' : 'bg-amber-50 border-amber-200 text-amber-800')}>
+                  Week‑2 final check: {week2Passed ? 'Passed' : 'Not yet'}
+                </div>
+                <div className={cx('rounded-md px-3 py-2 border text-sm', certEligible ? 'bg-green-50 border-green-200 text-green-800' : 'bg-gray-50 border-gray-200 text-gray-700')}>
+                  Certificate eligibility: {certEligible ? 'Eligible' : 'Locked'}
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-gray-200 p-3 sm:p-4">
+              <div className="font-medium mb-1">Download your certificate</div>
+              <p className="text-sm text-gray-700 mb-3">Celebrate your progress and save a copy for your records.</p>
+              <div className={certEligible ? '' : 'opacity-60 pointer-events-none'}>
+                <CertificatePDFActions
+                  fullName={useMemo(() => profile?.full_name || profile?.username || user?.email?.split('@')[0] || 'Learner', [profile, user])}
+                  logoUrl="/logo.png"
+                  courseKey="beginner-ml"
+                  certPrefix="beginner-ml"
+                  recordOnDownload={true}
+                  showSaveToSupabase={true}
+                  courseTitle="Beginner Machine learning"
+                />
+              </div>
+              {!certEligible ? (
+                <p className="text-xs text-amber-700 mt-2">
+                  Pass both final checks (70%+) to enable certificate download.
+                </p>
+              ) : null}
+            </div>
+          </section>
+
+          {/* Save & Finish */}
           <section id="save" className="scroll-mt-[72px] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-3">
             <Link href="/course/week-2/cleaning" className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 w-full sm:w-auto">
               <ChevronLeft className="h-4 w-4" /> Back
@@ -594,19 +659,23 @@ plt.tight_layout(); plt.show()`}</pre>
                 {completed ? 'Progress saved ✓' : 'Save progress'}
               </button>
 
-              {canProceed ? (
-                <button onClick={goNext} className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:shadow w-full sm:w-auto">
-                  Continue to Week 3 <ChevronRight className="h-4 w-4" />
-                </button>
-              ) : (
-                <button disabled className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gray-200 text-gray-500 w-full sm:w-auto cursor-not-allowed" title={`Score ${PASS_THRESHOLD}%+ on the final check to unlock Week 3`}>
-                  Locked • Score {PASS_THRESHOLD}%+ to continue
-                </button>
-              )}
+              {/* No Week 3 — finish links instead */}
+              <Link
+                href="/learn/beginner"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:shadow w-full sm:w-auto"
+              >
+                Course Home
+              </Link>
+              <Link
+                href="/learn"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 w-full sm:w-auto"
+              >
+                Explore More Courses
+              </Link>
             </div>
           </section>
         </main>
       </div>
     </div>
-  )
+  );
 }

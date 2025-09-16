@@ -220,13 +220,13 @@ export default function LearnPage() {
     {
       level: 'Introduction to Machine Learning',
       description: 'Build foundational skills: Python, data wrangling, and your first ML models',
-      duration: '3 weeks · 5–6 hrs/week',
+      duration: '2 weeks · 3–5 hrs/week',
       topics: [
         'Python Bootcamp & ML Fundamentals',
         'Data Visualization & EDA',
-        'Regression & Classification Basics',
-        'Math for ML Concepts',
-        'Model Evaluation Fundamentals',
+        'Data Cleaning',
+        'ML Workflow',
+        'Intro to Matplotlib & Pandas',
       ],
       action: { text: 'Begin Course', href: '/learn/beginner' },
     },

@@ -10,12 +10,12 @@ import {
   ChevronRight,
   Lock,
   AlertTriangle,
-  ShieldCheck,
   Lightbulb,
   CheckCircle2,
   FileText,
   Search,
   Database,
+  Home,
 } from 'lucide-react';
 
 // --- Config ------------------------------------------------------------------
@@ -26,7 +26,7 @@ const SECTIONS = [
   { id: 'identify', label: 'What Counts as PII?' },
   { id: 'redact', label: 'Redact Before Model Call' },
   { id: 'log', label: 'Safe Logging Hygiene' },
-  { id: 'hands-on', label: 'Hands‑on Practice' },
+  { id: 'hands-on', label: 'Hands-on Practice' },
   { id: 'next', label: 'Next Topic' },
 ];
 
@@ -103,7 +103,7 @@ export default function PiiRedactionPage() {
       if (user) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('username')
+          .select('username, full_name')
           .eq('id', user.id)
           .single();
         setProfile(profile ?? null);
@@ -120,6 +120,11 @@ export default function PiiRedactionPage() {
     };
     run();
   }, []);
+
+  const username = useMemo(
+    () => profile?.full_name || profile?.username || user?.email?.split('@')[0] || 'Learner',
+    [profile, user]
+  );
 
   const markComplete = async () => {
     if (!user) return alert('Please sign in to save your progress.');
@@ -157,22 +162,35 @@ export default function PiiRedactionPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Header */}
+      {/* Header (match course pattern) */}
       <header className="sticky top-0 z-30 border-b border-gray-100 backdrop-blur bg-white/70">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-gray-900">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-600 text-white">
-              <Lock className="h-4 w-4" />
-            </span>
-            <span className="font-bold">Week 2 • PII & Logging Hygiene</span>
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="h-14 grid grid-cols-[auto_1fr_auto] items-center gap-3">
+            <Link
+              href="/learn/ethical-ai"
+              aria-label="Go to course home"
+              prefetch={false}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-green-600 text-white hover:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
+            >
+              <Home className="h-5 w-5" />
+            </Link>
+
+            <div className="flex items-center justify-center">
+              <span className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+                Week 2 · PII & Logging Hygiene
+              </span>
+            </div>
+
+            <button
+              type="button"
+              aria-label="Toggle contents"
+              className="lg:hidden inline-flex h-10 items-center gap-2 px-3 rounded-xl border border-gray-200 text-gray-800 hover:bg-gray-50 justify-self-end focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
+              onClick={() => setSidebarOpen((v) => !v)}
+            >
+              {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              <span className="sr-only">Contents</span>
+            </button>
           </div>
-          <button
-            className="lg:hidden inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200"
-            onClick={() => setSidebarOpen(v => !v)}
-          >
-            {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-            Contents
-          </button>
         </div>
       </header>
 
@@ -208,42 +226,52 @@ export default function PiiRedactionPage() {
 
         {/* Main */}
         <main className="space-y-8">
+          {/* Overview */}
           <section id="overview" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h1 className="text-3xl font-bold text-gray-900">Redact before you send. Log safely after you do.</h1>
             <p className="text-lg text-gray-700">
-              LLMs don’t forget. And logs don’t either. You’ll learn how to:
+              Week&nbsp;1 gave you guardrails—policy, refusal style, and tiny evals—so today we focus on the quiet
+              places leaks happen: raw prompts and server logs. Think of this lesson as a short pipeline you can reuse
+              everywhere: first recognize what counts as personal data, then strip or mask it <em>before</em> any model call,
+              and finally record only the minimal, sanitized trace you need for debugging. By keeping that flow tight,
+              you protect users, avoid costly surprises in analytics or observability tools, and set yourself up to
+              scale without rewriting everything later.
             </p>
-            <ul className="list-disc pl-5 space-y-1 text-gray-700">
-              <li>Recognize what counts as sensitive info</li>
-              <li>Redact common patterns before model calls</li>
-              <li>Structure logs to avoid accidental PII leaks</li>
-            </ul>
           </section>
 
+          {/* Identify PII */}
           <section id="identify" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold flex items-center gap-2">
               <Search className="h-5 w-5 text-green-600" />
               What Counts as PII?
             </h2>
-            <ul className="list-disc pl-5 space-y-1 text-gray-700">
-              <li>Email addresses, phone numbers</li>
-              <li>Full names tied to other data</li>
-              <li>Government IDs (SSNs, NINs)</li>
-              <li>Credit card or account numbers</li>
-            </ul>
-            <Box tone="warn" title="Less obvious PII">
-              Internal ticket IDs, file paths, document names, or usernames that could identify someone count too—
-              especially if logged with other fields.
+            <p className="text-gray-700">
+              Treat anything that can single out a person—or make them easy to link—as PII. That obviously includes
+              emails, phone numbers, card or account numbers, SSNs and national IDs, and full names tied to other data,
+              but the less obvious bits matter too: internal ticket or employee IDs, file paths and document names,
+              support usernames, and location breadcrumbs. On their own they may look harmless; combined in logs or
+              prompts they can point directly to a person. When in doubt, mask it.
+            </p>
+            <Box tone="warn" title="Hidden identifiers show up in odd places">
+              A filename like <code>/users/jane.doe/payments.csv</code> or a ticket like <code>HR-92833</code> can be
+              enough to identify someone once it lands in analytics. If it helps the model, keep a neutral placeholder;
+              if it doesn’t, drop it.
             </Box>
           </section>
 
+          {/* Redaction */}
           <section id="redact" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-green-600" />
+              <Lock className="h-5 w-5 text-green-600" />
               Redact Before Model Call
             </h2>
             <p className="text-gray-700">
-              Run a lightweight pre-processor on input text before calling the model. Strip or replace known PII types.
+              Run a tiny server-side pre-processor that swaps obvious patterns for placeholders before any model call.
+              This isn’t about perfect detection; it’s about catching 80% of common cases cheaply and consistently.
+              Keep the mapping lightweight—emails to <code>[REDACTED_EMAIL]</code>, SSNs to <code>[REDACTED_SSN]</code>,
+              and card-like sequences to <code>[REDACTED_CARD]</code>—and expand tests as you see real traffic. If you
+              detect sensitive fields in high-risk flows, consider refusing the request or asking the user to confirm a
+              masked summary instead of sending the raw text.
             </p>
             <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
               <div className="flex items-center gap-2 text-gray-800 font-medium mb-2">
@@ -254,18 +282,24 @@ export default function PiiRedactionPage() {
 {redactorSnippet}
               </pre>
             </div>
-            <Box tone="tip" title="Redact, then warn (if needed)">
-              If the redactor finds PII, you can notify the user or refuse model use for extra-sensitive flows.
+            <Box tone="tip" title="Small and dependable beats perfect">
+              Start simple, add unit tests, and iterate. You can layer smarter detectors later without changing the
+              calling code.
             </Box>
           </section>
 
+          {/* Logging hygiene */}
           <section id="log" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold flex items-center gap-2">
               <Database className="h-5 w-5 text-green-600" />
               Safe Logging Hygiene
             </h2>
             <p className="text-gray-700">
-              Avoid logging raw input/output that includes PII. Truncate long fields. Mask known secrets.
+              Treat logs as a liability unless proven otherwise. Log <em>events</em> and outcomes—timestamps, action
+              names, status, latency, and coarse counts—rather than raw prompts or completions. If you must include
+              snippets, log them only <em>after</em> redaction, truncate aggressively, mask known secrets, and apply a
+              short retention policy. Prefer stable internal IDs or tokenized user references over emails or names, and
+              restrict who can read verbose logs; most teammates only need the summary stream.
             </p>
             <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
               <div className="flex items-center gap-2 text-gray-800 font-medium mb-2">
@@ -276,34 +310,36 @@ export default function PiiRedactionPage() {
 {loggingSnippet}
               </pre>
             </div>
-            <Box tone="warn" title="Checklist for logs">
-              <ul className="list-disc pl-5 space-y-1">
-                <li>✅ Don’t log full prompts or completions unless redacted</li>
-                <li>✅ Add TTL (time-to-live) for logs with sensitive data</li>
-                <li>✅ Tokenize user IDs or use internal session IDs</li>
-              </ul>
+            <Box tone="warn" title="Quick gut-check for every log line">
+              Ask, “Would I be comfortable pasting this to a public channel?” If not, mask or drop it—and set a TTL so
+              sensitive traces don’t linger.
             </Box>
           </section>
 
+          {/* Hands-on */}
           <section id="hands-on" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
-            <h2 className="text-xl font-semibold">Hands‑on Practice</h2>
-            <ol className="list-decimal pl-5 space-y-2 text-gray-700">
-              <li>Add <code>redactPII()</code> before any model call that touches user input.</li>
-              <li>Update your logger to use <code>safeLog()</code> and test with fake data.</li>
-              <li>Check your logs: no email, card, or identifiers should leak in plaintext.</li>
-            </ol>
-            <Box tone="pro" title="Bonus: add tests">
-              Write a test that fails if PII is found in logs. Redact first → test later → sleep better.
+            <h2 className="text-xl font-semibold">Hands-on Practice</h2>
+            <p className="text-gray-700">
+              Wire <code>redactPII()</code> into your server’s prompt pipeline, then route all logging through
+              <code> safeLog()</code> so anything long or suspicious is truncated before it ever hits your console or
+              observability tools. Run a quick end-to-end test with fake data—drop in an email, a card-like number, and
+              a ticket ID—and confirm the request that reaches the model is masked and the logs show only sanitized,
+              minimal context. When that’s working, add a small unit test that fails if your logs contain an
+              <code> @</code> sign next to a domain or a 16-digit sequence, so regressions get caught automatically.
+            </p>
+            <Box tone="pro" title="Make it the default path">
+              Redaction and safe logs shouldn’t be optional; build them into the shared utilities every feature uses so
+              new code is safe by default.
             </Box>
           </section>
 
+          {/* Next */}
           <section id="next" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-semibold mb-3">Next Topic: Red‑teaming & Quick Safety Evals</h2>
+            <h2 className="text-xl font-semibold mb-3">Next Topic: Red-teaming & Quick Safety Evals</h2>
             <p className="text-gray-700 mb-4">
-              Now that your system is safer by design, let’s see how to test and stress it.
-              Red‑teaming and tiny eval suites will help you catch regressions early.
+              With PII minimized and logs under control, you’re ready to pressure-test behavior. We’ll build a small
+              red-team set and a fast evaluation loop so safety stays green as you ship changes.
             </p>
-
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <Link
                 href="/learn/ethical-ai/beginner/week2/prompt-injection"

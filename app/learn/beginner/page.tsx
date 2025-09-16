@@ -159,7 +159,7 @@ export default function BeginnerMLCourse() {
         {/* Course Modules Preview */}
         <div className="mb-12">
           <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Course Breakdown</h3>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 gap-6">
             {[
               {
                 title: "Week 1: Python & ML Fundamentals",
@@ -173,12 +173,7 @@ export default function BeginnerMLCourse() {
                 description: "Clean, analyze and visualize data",
                 topics: ["Pandas", "Matplotlib", "Data cleaning"]
               },
-              {
-                title: "Week 3: Your First ML Models",
-                icon: <BrainCircuit className="h-8 w-8 text-green-600" />,
-                description: "Build and evaluate real models",
-                topics: ["Linear regression", "Classification", "Model evaluation"]
-              }
+             
             ].map((module, index) => (
               <div key={index} className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 hover:shadow-md transition-shadow">
                 <div className="flex items-center mb-4">

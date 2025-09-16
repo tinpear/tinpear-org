@@ -18,6 +18,7 @@ import {
   CheckCircle2,
   Wrench,
   Quote,
+  Home,
 } from 'lucide-react';
 
 // --- Config ------------------------------------------------------------------
@@ -30,7 +31,7 @@ const SECTIONS = [
   { id: 'filters', label: 'Input/Output Filters' },
   { id: 'tool-guardrails', label: 'Tool Guardrails' },
   { id: 'rag-safety', label: 'RAG & Untrusted Content' },
-  { id: 'practice', label: 'Hands‑on Practice' },
+  { id: 'practice', label: 'Hands-on Practice' },
   { id: 'next', label: 'Next Topic' },
 ];
 
@@ -69,7 +70,7 @@ function Box({
   );
 }
 
-// --- Snippets (copy‑paste friendly) ------------------------------------------
+// --- Snippets (copy-paste friendly) ------------------------------------------
 const policySkeleton = `# injection-policy.md (skeleton)
 ## Goal
 Protect system rules and prevent data/tool misuse.
@@ -210,22 +211,33 @@ export default function PromptInjectionPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Header */}
+      {/* Header (match course pattern) */}
       <header className="sticky top-0 z-30 border-b border-gray-100 backdrop-blur bg-white/70">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-gray-900">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-600 text-white">
-              <ShieldCheck className="h-4 w-4" />
-            </span>
-            <span className="font-bold">Week 2 • Prompt Injection & Data Exfiltration</span>
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="h-14 grid grid-cols-[auto_1fr_auto] items-center gap-3">
+            <Link
+              href="/learn/ethical-ai"
+              aria-label="Go to course home"
+              prefetch={false}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-green-600 text-white hover:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
+            >
+              <Home className="h-5 w-5" />
+            </Link>
+            <div className="flex items-center justify-center">
+              <span className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+                Week 2 · Prompt Injection & Data Exfiltration
+              </span>
+            </div>
+            <button
+              type="button"
+              aria-label="Toggle contents"
+              className="lg:hidden inline-flex h-10 items-center gap-2 px-3 rounded-xl border border-gray-200 text-gray-800 hover:bg-gray-50 justify-self-end focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
+              onClick={() => setSidebarOpen((v) => !v)}
+            >
+              {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              <span className="sr-only">Contents</span>
+            </button>
           </div>
-          <button
-            className="lg:hidden inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200"
-            onClick={() => setSidebarOpen(v => !v)}
-          >
-            {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-            Contents
-          </button>
         </div>
       </header>
 
@@ -268,16 +280,10 @@ export default function PromptInjectionPage() {
               {user ? <span className="text-gray-800"> Let’s go, {username}.</span> : null}
             </h1>
             <p className="text-lg text-gray-700">
-              Prompt injection tries to rewrite your rules. Data exfiltration tries to make the model leak secrets.
-              Your goal: keep policy separate, validate tool use on the server, and treat retrieved text as untrusted.
+              Prompt injection tries to rewrite your rules and data exfiltration tries to coax secrets out of your system. Your job is to keep policy separate from user text, validate every tool call on the server, and handle retrieved content as untrusted reference material. Building on Week&nbsp;1’s policy, refusal style, privacy seatbelts, and tiny evals, this lesson turns those ideas into a practical flow you can ship: a stable system prompt the user can’t override, quick checks that catch obvious jailbreaks, server-side gates that only permit justified actions by the right role, and a wrapper that labels RAG snippets so they’re cited—not obeyed.
             </p>
-            <Box tone="tip" title="Your outcomes">
-              <ul className="list-disc pl-5 space-y-1">
-                <li>A safe system prompt pattern that user input can’t override.</li>
-                <li>Input/output filters that catch obvious jailbreaks.</li>
-                <li>Server‑side tool gates with role + justification checks.</li>
-                <li>RAG wrapper that marks retrieved text as untrusted reference.</li>
-              </ul>
+            <Box tone="tip" title="What you’ll leave with">
+              By the end, you’ll have a clean, teachable pattern: policy injected safely, lightweight input/output scans that surface red flags, tool authorization that lives on the backend, and a simple way to keep untrusted text from steering the model.
             </Box>
           </section>
 
@@ -286,18 +292,14 @@ export default function PromptInjectionPage() {
             <h2 className="text-xl font-semibold flex items-center gap-2">
               <Bug className="h-5 w-5 text-green-600" /> Attacks: Injection & Exfiltration
             </h2>
-            <div className="grid md:grid-cols-2 gap-4">
-              <Box tone="warn" title="Instruction Injection">
-                A user crafts text like “Ignore previous instructions” to overwrite rules.
-                If your system prompt and user content live in the same block, you’re exposed.
-              </Box>
-              <Box tone="warn" title="Data Exfiltration">
-                The model is nudged to reveal secrets (tokens, PII, internal notes) or pull them via tools.
-                Guard access and never rely on the model’s self‑policing.
-              </Box>
-            </div>
+            <Box tone="warn" title="Instruction injection">
+              A user or document plants language like “ignore previous instructions” to overwrite your rules. If policy and user content share the same space, the model may treat the malicious text as the new authority.
+            </Box>
+            <Box tone="warn" title="Data exfiltration">
+              The model is nudged to reveal PII, tokens, or internal notes—or to obtain them via tools. Don’t rely on self-policing; design your system so risky requests are refused and privileged actions require server approval.
+            </Box>
             <Box tone="pro" title="Recognize the tells">
-              Phrases like “disregard the rules,” “hidden policy,” or instructions embedded inside quoted sources are red flags.
+              Watch for phrases that undermine policy, for instructions hidden inside quotes or retrieved passages, and for requests that leap straight to secrets or irreversible actions.
             </Box>
           </section>
 
@@ -307,8 +309,7 @@ export default function PromptInjectionPage() {
               <Lock className="h-5 w-5 text-green-600" /> Safe System Design
             </h2>
             <p className="text-gray-700">
-              Keep policy in a dedicated system prompt field and never concatenate it with user content. Add a refusal
-              style and tool policy up front.
+              Keep your policy in the system prompt field, never concatenated with user input. State the refusal style and tool rules up front so the assistant knows exactly when to decline and how to proceed. This separation makes your boundaries durable and easier to audit.
             </p>
             <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
               <div className="flex items-center gap-2 text-gray-800 font-medium mb-2">
@@ -334,8 +335,7 @@ export default function PromptInjectionPage() {
               <Search className="h-5 w-5 text-green-600" /> Input & Output Filters
             </h2>
             <p className="text-gray-700">
-              Begin with simple regex checks to block the obvious. Keep it server‑side and fast.
-              Add logging so you can tune patterns over time.
+              Start with a tiny server-side filter that flags obvious jailbreak phrases before you call the model, and a quick output scan to spot telltale patterns in responses. Keep it fast and log verdicts so you can refine patterns from real traffic.
             </p>
             <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
               <div className="flex items-center gap-2 text-gray-800 font-medium mb-2">
@@ -346,18 +346,17 @@ export default function PromptInjectionPage() {
               </pre>
             </div>
             <Box tone="tip" title="Lightweight beats perfect">
-              Catch the easy wins first. You can always expand detectors later.
+              Catch the easy wins first; expand detectors only when the logs tell you it’s worth it.
             </Box>
           </section>
 
           {/* Tool Guardrails */}
           <section id="tool-guardrails" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold flex items-center gap-2">
-              <Wrench className="h-5 w-5 text-green-600" /> Tool Guardrails (Server‑side)
+              <Wrench className="h-5 w-5 text-green-600" /> Tool Guardrails (Server-side)
             </h2>
             <p className="text-gray-700">
-              Treat every tool as a capability you control. Require a model‑provided justification, verify it serverside,
-              and allow by role.
+              Treat tools as capabilities under your control. Require the model to provide a justification, check the user’s role, and only then allow execution. The final decision stays on the backend, not in the model’s text.
             </p>
             <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
               <div className="flex items-center gap-2 text-gray-800 font-medium mb-2">
@@ -368,7 +367,7 @@ export default function PromptInjectionPage() {
               </pre>
             </div>
             <Box tone="warn" title="Common pitfall">
-              Don’t put the final decision in the model’s hands. The server enforces the rules.
+              Letting the assistant “decide” to run powerful tools invites abuse; always enforce gates server-side.
             </Box>
           </section>
 
@@ -378,8 +377,7 @@ export default function PromptInjectionPage() {
               <Quote className="h-5 w-5 text-green-600" /> RAG & Untrusted Content
             </h2>
             <p className="text-gray-700">
-              Retrieved text can contain hidden instructions. Wrap it, label it as untrusted, and encourage citation,
-              not execution.
+              Retrieved passages may contain hidden instructions. Wrap them with a clear “untrusted” header so the model treats the text as evidence to cite, not commands to follow. For action-oriented tasks, ask the assistant to propose a plan based on the sources, then let your server validate and execute the approved steps.
             </p>
             <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
               <div className="flex items-center gap-2 text-gray-800 font-medium mb-2">
@@ -390,23 +388,18 @@ export default function PromptInjectionPage() {
               </pre>
             </div>
             <Box tone="pro" title="Safer pattern">
-              For tasks that require actions, summarize retrieved text and ask the model to propose a plan.
-              The server then validates and executes only approved steps.
+              Summarize what the sources say, decide on steps separately, and keep execution behind server checks.
             </Box>
           </section>
 
           {/* Practice */}
           <section id="practice" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
-            <h2 className="text-xl font-semibold">Hands‑on Practice (15 minutes)</h2>
-            <ol className="list-decimal pl-5 text-gray-700 space-y-2">
-              <li>Add the <code>system.txt</code> structure to your app’s system prompt area.</li>
-              <li>Place <code>inputFilter()</code> before model calls and <code>outputJailbreakScan()</code> after.</li>
-              <li>Wrap one tool with <code>authorizeTool()</code> (role + justification required).</li>
-              <li>If you use RAG, wrap retrieved text with <code>wrapRetrievedContent()</code>.</li>
-            </ol>
+            <h2 className="text-xl font-semibold">Hands-on Practice (15 minutes)</h2>
+            <p className="text-gray-700">
+              Add the <code>system.txt</code> structure to your system prompt slot so policy never mixes with user text, place <code>inputFilter()</code> before model calls and <code>outputJailbreakScan()</code> after to catch obvious issues, wrap one sensitive tool with <code>authorizeTool()</code> so role and justification are checked on the server, and—if you use RAG—pass retrieved passages through <code>wrapRetrievedContent()</code> so they’re labeled as untrusted references. As you wire this in, keep the changes small and testable so you can measure the effect quickly.
+            </p>
             <Box tone="tip" title="Track what changes">
-              Log a short audit line: <code>[safety]</code> filter verdicts, tool auth decisions, and any refusals.
-              This helps tune patterns later.
+              Log a short audit line for each request that notes filter verdicts, tool authorization decisions, and any refusals; those traces make it easy to tighten rules without guessing.
             </Box>
           </section>
 
@@ -414,11 +407,9 @@ export default function PromptInjectionPage() {
           <section id="next" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-semibold mb-3">Next Topic: PII, Redaction & Logging Hygiene</h2>
             <p className="text-gray-700 mb-4">
-              With injection risks reduced, we’ll tighten how personal data flows through your system.
-              You’ll add server‑side redaction and safer logging that scales with you.
+              With injection risks reduced, we’ll tighten how personal data flows through your system by moving redaction and logging hygiene fully onto the server and keeping only what you truly need.
             </p>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              {/* Back */}
               <Link
                 href="/learn/ethical-ai/beginner/week2"
                 className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50"
@@ -427,7 +418,6 @@ export default function PromptInjectionPage() {
                 Back
               </Link>
 
-              {/* Mark complete */}
               <button
                 onClick={markComplete}
                 className={cx(
@@ -438,7 +428,6 @@ export default function PromptInjectionPage() {
                 {completed ? 'Progress saved ✓' : 'Mark page complete'}
               </button>
 
-              {/* Next */}
               <Link
                 href="/learn/ethical-ai/beginner/week2/pii-redaction"
                 className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:shadow"

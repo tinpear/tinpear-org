@@ -15,6 +15,7 @@ import {
   Lightbulb,
   AlertTriangle,
   CheckCircle2,
+  Home,
 } from 'lucide-react';
 
 // --- Config ------------------------------------------------------------------
@@ -24,7 +25,7 @@ const SECTIONS = [
   { id: 'welcome', label: 'Welcome & Orientation' },
   { id: 'prompt-injection', label: 'Prompt Injection & Exfiltration' },
   { id: 'pii', label: 'PII, Redaction & Logging' },
-  { id: 'evals', label: 'Red‑teaming & Quick Evals' },
+  { id: 'evals', label: 'Red-teaming & Quick Evals' },
   { id: 'next', label: 'Next Steps' },
 ];
 
@@ -51,6 +52,7 @@ function Box({
     tone === 'tip' ? <Lightbulb className="h-4 w-4" /> :
     tone === 'warn' ? <AlertTriangle className="h-4 w-4" /> :
     <CheckCircle2 className="h-4 w-4" />;
+
   return (
     <div className={cx('rounded-xl border p-3 md:p-4 flex gap-3 items-start', palette)}>
       <div className="mt-0.5">{icon}</div>
@@ -140,26 +142,35 @@ export default function EthicalAIWeek2Page() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Header */}
+      {/* Header (match AI-for-Everyone pattern) */}
       <header className="sticky top-0 z-30 border-b border-gray-100 backdrop-blur bg-white/70">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-gray-900">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-600 text-white">
-              <ShieldCheck className="h-4 w-4" />
-            </span>
-            <span className="font-bold">Week 2 • Ethical AI in Practice</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              className="lg:hidden inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200"
-              onClick={() => setSidebarOpen(v => !v)}
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="h-14 grid grid-cols-[auto_1fr_auto] items-center gap-3">
+            {/* Home */}
+            <Link
+              href="/learn/ethical-ai"
+              aria-label="Go to course home"
+              prefetch={false}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-green-600 text-white hover:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
             >
-              {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-              Contents
-            </button>
-            <div className="text-sm text-gray-600">
-              {loading ? 'Loading…' : user ? `Signed in as ${username}` : <Link href="/signin" className="underline">Sign in</Link>}
+              <Home className="h-5 w-5" />
+            </Link>
+            {/* Title */}
+            <div className="flex items-center justify-center">
+              <span className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+                Week 2 · Ethical AI in Practice
+              </span>
             </div>
+            {/* Contents toggle */}
+            <button
+              type="button"
+              aria-label="Toggle contents"
+              className="lg:hidden inline-flex h-10 items-center gap-2 px-3 rounded-xl border border-gray-200 text-gray-800 hover:bg-gray-50 justify-self-end focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
+              onClick={() => setSidebarOpen((v) => !v)}
+            >
+              {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              <span className="sr-only">Contents</span>
+            </button>
           </div>
         </div>
       </header>
@@ -200,16 +211,10 @@ export default function EthicalAIWeek2Page() {
           <section id="welcome" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Welcome{user ? `, ${username}` : ''}</h1>
             <p className="text-lg text-gray-700">
-              You’ve set the foundation. Now we’ll turn principles into protections. This week focuses on the
-              most common failure points—prompt‑level attacks, mishandled personal data, and unnoticed regressions—
-              and shows how to address them in small, shippable steps.
+              Week 1 gave you the core loop: a concise safety policy with clear allow and deny lines, a system prompt that encodes tone and refusal style, privacy seatbelts that minimize and redact data before anything reaches the model or your logs, and a small evaluation set to keep behavior honest as prompts and models change. This week we put those foundations to work against the failure modes you’ll meet in the wild. You’ll learn to recognize and resist prompt-level attacks, carry privacy protections across your stack, and keep a lightweight evaluation habit so regressions are caught long before users feel them.
             </p>
-            <Box tone="tip" title="Your outcomes">
-              <ul className="list-disc pl-5 space-y-1">
-                <li>A clear pattern for handling prompt injection and data‑exfil attempts.</li>
-                <li>Server‑side PII redaction and logging hygiene you can keep using as you scale.</li>
-                <li>A lightweight red‑team set and a quick evaluation loop to spot regressions early.</li>
-              </ul>
+            <Box tone="tip" title="What you’ll take away">
+              By the end of Week 2 you’ll have a repeatable pattern for defusing injection and exfiltration attempts, a server-side redaction and logging approach you can keep as you scale, and a tiny red-team routine that turns safety from a one-off task into an ongoing practice.
             </Box>
           </section>
 
@@ -219,17 +224,10 @@ export default function EthicalAIWeek2Page() {
               <Bug className="h-5 w-5 text-green-600" /> Prompt Injection & Data Exfiltration
             </h2>
             <p className="text-gray-700">
-              Prompt injection tries to override your rules. Exfiltration aims to leak secrets or private data.
-              Your best defense is separation of concerns and strict server checks—keep policy and capabilities out of
-              reach from user‑supplied content.
+              Prompt injection is any attempt to make the model ignore your rules; exfiltration is about coaxing out secrets or private data. The practical defense is separation and verification: keep the policy and capabilities outside the reach of user-supplied text, treat retrieved content as untrusted, and require the server to validate every tool call. Concretely, store and inject your system policy separately from user prompts so content cannot rewrite your boundaries; require arguments for tools to pass basic checks like type, range, and authorization before execution; and mark RAG snippets as data, not instructions, so the assistant can quote them without following hidden commands embedded inside. These small patterns make refusals predictable and give you auditable reasons when a risky action was blocked.
             </p>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li><span className="font-medium">Isolate policy</span>: system rules live outside user text; don’t let content rewrite them.</li>
-              <li><span className="font-medium">Gate tools</span>: verify arguments (types, ranges), enforce roles, require justification.</li>
-              <li><span className="font-medium">Treat RAG as untrusted</span>: annotate retrieved text and ignore any “instructions” inside it.</li>
-            </ul>
-            <Box tone="pro" title="What this unlocks">
-              A predictable refusal style for unsafe requests and auditable records of why a tool call was allowed or blocked.
+            <Box tone="pro" title="Outcome">
+              You’ll ship a refusal path that feels consistent and humane while keeping a clear record of why actions were allowed or denied, which simplifies review and improves user trust.
             </Box>
           </section>
 
@@ -239,35 +237,23 @@ export default function EthicalAIWeek2Page() {
               <Lock className="h-5 w-5 text-green-600" /> PII Handling, Redaction & Logging Hygiene
             </h2>
             <p className="text-gray-700">
-              Handle the smallest amount of personal data possible. Redact before calling the model and before anything
-              touches your logs. Keep what you store brief, structured, and time‑limited.
+              Privacy holds up when you handle the smallest possible amount of personal data and remove identifiers before they can spread. Keep inputs lean by collecting only what changes model quality, then apply redaction on the server boundary so emails, phone numbers, card-like digits, and simple IDs are masked before calls and before any analytics or logs capture them. Prefer compact, structured logs—timestamps, event type, and success status—over raw conversations, and rotate access with short retention windows. Client-side masking is helpful for UX but never sufficient on its own; the server must enforce these rules so a misconfigured browser or console setting doesn’t quietly capture sensitive content.
             </p>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li><span className="font-medium">Minimize</span>: collect only what’s needed for the task at hand.</li>
-              <li><span className="font-medium">Redact server‑side</span>: mask emails, phones, card‑like numbers, and IDs.</li>
-              <li><span className="font-medium">Log safely</span>: avoid raw prompts; hash IDs; define retention and rotate access.</li>
-            </ul>
             <Box tone="warn" title="Easy mistake to avoid">
-              Client‑side redaction isn’t enough. Always enforce redaction and logging hygiene on the server boundary.
+              Relying on client-only redaction or default cloud logging often leads to silent leaks. Move redaction into your backend middleware and verify it with a test.
             </Box>
           </section>
 
-          {/* Red‑teaming & Quick Evals */}
+          {/* Red-teaming & Quick Evals */}
           <section id="evals" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
             <h2 className="text-xl font-semibold flex items-center gap-2">
-              <Target className="h-5 w-5 text-green-600" /> Red‑teaming & Quick Safety Evals
+              <Target className="h-5 w-5 text-green-600" /> Red-teaming & Quick Safety Evals
             </h2>
             <p className="text-gray-700">
-              A tiny, focused test set gives you an early alarm when behavior drifts. Mix risky, benign, and edge‑case
-              prompts, define expected outcomes, and surface the score where your team will see it.
+              Safety improves when testing is small and frequent. Start with a dozen prompts that mirror your policy edges—some that must be refused and some that should be answered—and define simple pass rules that flag PII exposure, missing refusals, or needless denials. Track a single score so trends are obvious, run the checks locally and in CI whenever prompts, models, or tools change, and post the result where your team already looks for build health. Because the suite is tiny, it’s cheap to run and hard to ignore, which keeps behavior aligned over time.
             </p>
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              <li>Start with 10–20 prompts mapped to your policy’s allow/refuse boundaries.</li>
-              <li>Track a single number (e.g., alignment %) so trends are easy to spot.</li>
-              <li>Run locally and in CI; post results in the same channel as feature checks.</li>
-            </ul>
             <Box tone="tip" title="Keep it lightweight">
-              Short, repeatable checks beat heavyweight frameworks. If it runs fast, you’ll run it often.
+              Short, repeatable evaluations encourage iteration. If it runs fast, you’ll run it often—and that’s what prevents drift.
             </Box>
           </section>
 
@@ -275,12 +261,10 @@ export default function EthicalAIWeek2Page() {
           <section id="next" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-semibold mb-3">Next Steps</h2>
             <p className="text-gray-700 mb-4">
-              Move through the topics in order: start with prompt injection and exfiltration, add PII redaction and
-              logging hygiene, then set up quick evals to make safety visible. Keep each change small and testable.
+              Work through the topics in order and keep each change small and testable. Start by hardening against prompt injection and exfiltration, extend your privacy seatbelts with server-side redaction and safer logs, and wire your quick evals into the same places you already check build status. The habits from Week 1 continue here: write it down, version it, and measure it.
             </p>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              {/* Previous */}
               <Link
                 href="/learn/ethical-ai/beginner/week1/next-steps"
                 className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50"
@@ -289,7 +273,6 @@ export default function EthicalAIWeek2Page() {
                 Previous
               </Link>
 
-              {/* Mark Complete */}
               <button
                 onClick={markComplete}
                 className={cx(
@@ -300,7 +283,6 @@ export default function EthicalAIWeek2Page() {
                 {completed ? 'Progress saved ✓' : 'Mark page complete'}
               </button>
 
-              {/* Next (route to the first Week 2 topic) */}
               <Link
                 href="/learn/ethical-ai/beginner/week2/prompt-injection"
                 className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:shadow"
