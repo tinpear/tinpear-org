@@ -44,9 +44,7 @@ export default function Header() {
   const navItems = [
     { label: "Learn", href: "/learn" },
     { label: "News", href: "/news" },
-    { label: "Labs", href: "/labs" },
-    { label: "Apps", href: "/apps" },
-    { label: "About", href: "/about" }
+    { label: "About ", href: "/about" }
   ];
 
   return (

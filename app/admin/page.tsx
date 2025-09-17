@@ -1,7 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import {
   PencilIcon,
   TrashIcon,
@@ -21,6 +23,7 @@ type Blog = {
   date: string; // ISO yyyy-mm-dd, or any string you want
   slug: string;
   content: string;
+    image_url?: string | null; 
   created_at?: string;
 };
 
@@ -35,14 +38,55 @@ type Contact = {
   created_at: string;
 };
 
+/* -------------------- SPACING NORMALIZER -------------------- */
+function normalizeMarkdownForSpacing(md: string) {
+  if (!md) return '';
+  
+  // Normalize line endings
+  md = md.replace(/\r\n/g, '\n').trim();
+  
+  // Split into blocks and process each one
+  const blocks = md.split(/\n\s*\n/); // Split on any whitespace-only lines
+  
+  const processedBlocks = blocks
+    .map((block: string) => block.trim()) // Trim each block
+    .filter((block: string | any[]) => block.length > 0) // Remove empty blocks
+    .map((block: string) => {
+      // For regular paragraphs (not headings, lists, etc.), ensure they're clean
+      if (!block.match(/^(#{1,6}\s|[-*+]\s|\d+\.\s|>\s|```)/)) {
+        // This is a regular paragraph - clean up internal spacing
+        return block.replace(/\n+/g, ' ').trim();
+      }
+      return block;
+    });
+  
+  // Join blocks with double newlines
+  const result = processedBlocks.join('\n\n');
+  
+  // Final cleanup: ensure proper spacing around block elements
+  return result
+    // Ensure blank line before headings
+    .replace(/([^\n])\n(#{1,6}\s)/g, '$1\n\n$2')
+    // Ensure blank line before lists
+    .replace(/([^\n])\n([-*+]\s|\d+\.\s)/g, '$1\n\n$2')
+    // Ensure blank line before blockquotes
+    .replace(/([^\n])\n(>\s)/g, '$1\n\n$2')
+    // Ensure blank line before code blocks
+    .replace(/([^\n])\n(```)/g, '$1\n\n$2')
+    // Clean up any triple+ newlines
+    .replace(/\n{3,}/g, '\n\n')
+    + '\n';
+}
+
+/* -------------------- MAIN -------------------- */
 export default function BlogCMS() {
   const [activeTab, setActiveTab] = useState<'blogs' | 'contacts'>('blogs');
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-10">
-      <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+    <div className="mx-auto max-w-7xl px-4 py-10">
+      <header className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Admin Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900 md:text-4xl">Admin Dashboard</h1>
           <p className="text-gray-500">Manage blog posts and view contact submissions.</p>
         </div>
 
@@ -54,7 +98,7 @@ export default function BlogCMS() {
             <button
               key={t.key}
               onClick={() => setActiveTab(t.key as 'blogs' | 'contacts')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
                 activeTab === t.key
                   ? 'bg-gray-900 text-white'
                   : 'text-gray-700 hover:bg-gray-50'
@@ -78,6 +122,7 @@ function BlogsPanel() {
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
+  const [showPreview, setShowPreview] = useState(true);
 
   const emptyForm: Blog = {
     title: '',
@@ -86,12 +131,13 @@ function BlogsPanel() {
     date: new Date().toISOString().slice(0, 10), // yyyy-mm-dd
     slug: '',
     content: '',
+    image_url: '', // 
   };
   const [form, setForm] = useState<Blog>(emptyForm);
 
   useEffect(() => {
     fetchBlogs();
-    // Optional: realtime could be added for blogs as well
+    // Optional: add realtime for blogs if you want
   }, []);
 
   const fetchBlogs = async () => {
@@ -116,6 +162,9 @@ function BlogsPanel() {
       next.slug = slugify(next.title);
     }
 
+    // ⭐ normalize spacing so the public page renders with proper gaps
+    next.content = normalizeMarkdownForSpacing(next.content);
+
     const blogToSave: any = { ...next };
     delete blogToSave.id;
 
@@ -130,6 +179,7 @@ function BlogsPanel() {
     await fetchBlogs();
     setForm(emptyForm);
     setEditing(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleEdit = (blog: Blog) => {
@@ -156,8 +206,8 @@ function BlogsPanel() {
   return (
     <div className="space-y-10">
       {/* Form Card */}
-      <div className="bg-white border rounded-2xl shadow-sm overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b">
+      <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
+        <div className="flex items-center justify-between border-b px-6 py-4">
           <h2 className="text-xl font-semibold text-gray-900">
             {editing ? '✏️ Edit Blog' : '➕ Create New Blog'}
           </h2>
@@ -176,17 +226,17 @@ function BlogsPanel() {
             className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
             title="Reset form"
           >
-            <PlusIcon className="w-4 h-4 rotate-45" />
+            <PlusIcon className="h-4 w-4 rotate-45" />
             Reset
           </button>
         </div>
 
         {error && <p className="px-6 pt-4 text-red-600">{error}</p>}
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-6 p-6 md:grid-cols-2">
           {(['title', 'summary', 'author', 'date', 'slug'] as const).map((key) => (
             <div key={key} className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1 capitalize">
+              <label className="mb-1 block text-sm font-medium capitalize text-gray-700">
                 {key}
               </label>
               <input
@@ -194,31 +244,67 @@ function BlogsPanel() {
                 id={key}
                 value={(form as any)[key]}
                 onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                className="w-full border rounded-lg px-3 py-2 text-sm shadow-sm focus:ring-2 focus:ring-gray-900/10"
+                className="w-full rounded-lg border px-3 py-2 text-sm shadow-sm focus:ring-2 focus:ring-gray-900/10"
                 required={key !== 'slug'} // slug can be auto
               />
               {key === 'slug' && (
-                <p className="text-xs text-gray-500 mt-1">Leave empty to auto-generate.</p>
+                <p className="mt-1 text-xs text-gray-500">Leave empty to auto-generate.</p>
               )}
             </div>
           ))}
 
           <div className="col-span-full">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
-            <textarea
-              id="content"
-              value={form.content}
-              onChange={(e) => setForm({ ...form, content: e.target.value })}
-              rows={8}
-              className="w-full border rounded-lg px-3 py-2 text-sm shadow-sm focus:ring-2 focus:ring-gray-900/10"
-              required
-            />
+            <div className="mb-1 flex items-center justify-between">
+              <label htmlFor="content" className="block text-sm font-medium text-gray-700">
+                Content (Markdown)
+              </label>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setForm((f) => ({ ...f, content: normalizeMarkdownForSpacing(f.content) }))
+                  }
+                  className="rounded border bg-white px-2 py-1 text-xs hover:bg-gray-50"
+                  title="Auto-insert blank lines for spacing"
+                >
+                  Fix spacing
+                </button>
+                <label className="inline-flex items-center gap-1 text-xs text-gray-600">
+                  <input
+                    type="checkbox"
+                    checked={showPreview}
+                    onChange={(e) => setShowPreview(e.target.checked)}
+                    className="rounded"
+                  />
+                  Preview
+                </label>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <textarea
+                id="content"
+                value={form.content}
+                onChange={(e) => setForm({ ...form, content: e.target.value })}
+                rows={14}
+                className="w-full rounded-lg border px-3 py-2 text-sm shadow-sm focus:ring-2 focus:ring-gray-900/10 font-mono leading-6"
+                placeholder="# Title\n\nWrite in Markdown. Leave a blank line between blocks."
+                required
+              />
+              {showPreview && (
+                <div className="overflow-auto rounded-lg border bg-white p-3">
+                  <div className="prose prose-slate max-w-none">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{form.content}</ReactMarkdown>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
-          <div className="col-span-full flex items-center gap-4 mt-2">
+          <div className="col-span-full mt-2 flex items-center gap-4">
             <button
               type="submit"
-              className="bg-gray-900 text-white px-5 py-2 rounded-lg hover:bg-black transition"
+              className="rounded-lg bg-gray-900 px-5 py-2 text-white transition hover:bg-black"
             >
               {editing ? 'Update Blog' : 'Create Blog'}
             </button>
@@ -236,24 +322,103 @@ function BlogsPanel() {
                     content: '',
                   });
                 }}
-                className="text-gray-600 underline text-sm"
+                className="text-sm text-gray-600 underline"
               >
                 Cancel
               </button>
             )}
           </div>
+<div className="col-span-1 md:col-span-2">
+  <label className="block text-sm font-medium text-gray-700 mb-1">Cover image</label>
+
+  <div className="flex flex-col gap-2 md:flex-row md:items-center">
+    <input
+      type="text"
+      id="image_url"
+      value={form.image_url ?? ''}
+      onChange={(e) => setForm({ ...form, image_url: e.target.value })}
+      className="w-full border rounded-lg px-3 py-2 text-sm shadow-sm focus:ring-2 focus:ring-gray-900/10"
+      placeholder="https://.../your-image.jpg"
+    />
+
+    <label className="inline-flex items-center gap-2 text-sm">
+      <span className="px-3 py-2 border rounded-lg bg-white hover:bg-gray-50 cursor-pointer">
+        Upload
+      </span>
+      <input
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+
+          // Build a clean path: blog-images/{slug or timestamp}/{file}
+          const safeSlug = (form.slug || form.title || 'post')
+            .toLowerCase()
+            .trim()
+            .replace(/['"]/g, '')
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)+/g, '');
+
+          const ext = file.name.split('.').pop() || 'jpg';
+          const path = `${safeSlug || Date.now()}/${Date.now()}.${ext}`;
+
+          // Upload to Storage
+          const { error: uploadError } = await supabase.storage
+            .from('blog-images')
+            .upload(path, file, {
+              cacheControl: '3600',
+              upsert: false,
+            });
+
+          if (uploadError) {
+            alert(uploadError.message);
+            return;
+          }
+
+          // If bucket is PUBLIC:
+          const { data: pub } = supabase.storage.from('blog-images').getPublicUrl(path);
+          if (pub?.publicUrl) {
+            setForm((f) => ({ ...f, image_url: pub.publicUrl }));
+          }
+
+          // If bucket is PRIVATE (use this instead of getPublicUrl):
+          // const { data: signed } = await supabase.storage
+          //   .from('blog-images')
+          //   .createSignedUrl(path, 60 * 60 * 24 * 7); // 7 days
+          // setForm((f) => ({ ...f, image_url: signed?.signedUrl ?? '' }));
+        }}
+      />
+    </label>
+  </div>
+
+  <p className="text-xs text-gray-500 mt-1">
+    Paste a public URL or upload to Supabase Storage. For best results: 1600×900+.
+  </p>
+
+  {/* Preview */}
+  {form.image_url ? (
+    <div className="mt-3 overflow-hidden rounded-lg border bg-gray-50">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={form.image_url} alt="Cover preview" className="h-48 w-full object-cover" />
+    </div>
+  ) : null}
+</div>
+
+
         </form>
       </div>
 
       {/* Toolbar */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="inline-flex items-center gap-2 text-sm text-gray-500">
           <span className="font-medium text-gray-900">{filteredBlogs.length}</span> posts
         </div>
         <div className="relative w-full md:w-80">
-          <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+          <MagnifyingGlassIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
           <input
-            className="w-full border rounded-lg pl-10 pr-3 py-2 text-sm focus:ring-2 focus:ring-gray-900/10"
+            className="w-full rounded-lg border py-2 pl-10 pr-3 text-sm focus:ring-2 focus:ring-gray-900/10"
             placeholder="Search by title, author, slug..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -266,7 +431,7 @@ function BlogsPanel() {
         {loading ? (
           <div className="grid gap-3">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-20 animate-pulse bg-gray-100 rounded-xl" />
+              <div key={i} className="h-20 animate-pulse rounded-xl bg-gray-100" />
             ))}
           </div>
         ) : filteredBlogs.length === 0 ? (
@@ -275,29 +440,29 @@ function BlogsPanel() {
           filteredBlogs.map((b) => (
             <div
               key={b.id}
-              className="bg-white border border-gray-200 rounded-xl p-5 flex flex-col md:flex-row md:items-center md:justify-between shadow-sm"
+              className="flex flex-col items-start justify-between gap-3 rounded-xl border border-gray-200 bg-white p-5 shadow-sm md:flex-row md:items-center"
             >
-              <div className="space-y-1">
-                <h3 className="text-lg font-semibold text-gray-900">{b.title}</h3>
+              <div className="min-w-0 space-y-1">
+                <h3 className="truncate text-lg font-semibold text-gray-900">{b.title}</h3>
                 <p className="text-sm text-gray-500">
                   {b.author} • {b.date} • <span className="text-gray-400">/{b.slug}</span>
                 </p>
               </div>
-              <div className="flex gap-4 mt-3 md:mt-0">
+              <div className="flex gap-4">
                 <button
                   onClick={() => handleEdit(b)}
-                  className="text-blue-600 hover:text-blue-800 inline-flex items-center gap-1"
+                  className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800"
                   title="Edit"
                 >
-                  <PencilIcon className="w-4 h-4" />
+                  <PencilIcon className="h-4 w-4" />
                   Edit
                 </button>
                 <button
                   onClick={() => handleDelete(b.id)}
-                  className="text-red-600 hover:text-red-800 inline-flex items-center gap-1"
+                  className="inline-flex items-center gap-1 text-red-600 hover:text-red-800"
                   title="Delete"
                 >
-                  <TrashIcon className="w-4 h-4" />
+                  <TrashIcon className="h-4 w-4" />
                   Delete
                 </button>
               </div>
@@ -395,15 +560,15 @@ function ContactsPanel() {
   return (
     <div className="space-y-6">
       {/* Toolbar */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="inline-flex items-center gap-2 text-sm text-gray-500">
           <span className="font-medium text-gray-900">{filtered.length}</span> messages
         </div>
-        <div className="flex items-center gap-2 w-full md:w-auto">
+        <div className="flex w-full items-center gap-2 md:w-auto">
           <div className="relative flex-1 md:w-80">
-            <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+            <MagnifyingGlassIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             <input
-              className="w-full border rounded-lg pl-10 pr-3 py-2 text-sm focus:ring-2 focus:ring-gray-900/10"
+              className="w-full rounded-lg border py-2 pl-10 pr-3 text-sm focus:ring-2 focus:ring-gray-900/10"
               placeholder="Search name, email, company, message..."
               value={q}
               onChange={(e) => setQ(e.target.value)}
@@ -411,18 +576,18 @@ function ContactsPanel() {
           </div>
           <button
             onClick={onRefresh}
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border bg-white hover:bg-gray-50 text-sm"
+            className="inline-flex items-center gap-2 rounded-lg border bg-white px-3 py-2 text-sm hover:bg-gray-50"
             title="Refresh"
           >
-            <ArrowPathIcon className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            <ArrowPathIcon className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh
           </button>
           <button
             onClick={exportCSV}
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border bg-white hover:bg-gray-50 text-sm"
+            className="inline-flex items-center gap-2 rounded-lg border bg-white px-3 py-2 text-sm hover:bg-gray-50"
             title="Export CSV"
           >
-            <DocumentArrowDownIcon className="w-4 h-4" />
+            <DocumentArrowDownIcon className="h-4 w-4" />
             Export
           </button>
         </div>
@@ -432,7 +597,7 @@ function ContactsPanel() {
       {loading ? (
         <div className="grid gap-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-24 animate-pulse bg-gray-100 rounded-xl" />
+            <div key={i} className="h-24 animate-pulse rounded-xl bg-gray-100" />
           ))}
         </div>
       ) : filtered.length === 0 ? (
@@ -445,28 +610,28 @@ function ContactsPanel() {
           {filtered.map((m) => (
             <div
               key={m.id}
-              className="bg-white border rounded-xl p-4 shadow-sm flex items-start justify-between"
+              className="flex items-start justify-between rounded-xl border bg-white p-4 shadow-sm"
             >
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-gray-900 truncate">{m.name}</h3>
+                  <h3 className="truncate font-semibold text-gray-900">{m.name}</h3>
                   <span className="text-xs text-gray-400">·</span>
                   <a
                     href={`mailto:${m.email}`}
                     className="inline-flex items-center gap-1 text-sm text-blue-700 hover:underline"
                     title={m.email}
                   >
-                    <EnvelopeIcon className="w-4 h-4" />
+                    <EnvelopeIcon className="h-4 w-4" />
                     {m.email}
                   </a>
                   {m.company && (
                     <>
                       <span className="text-xs text-gray-400">·</span>
-                      <span className="text-sm text-gray-600 truncate">{m.company}</span>
+                      <span className="truncate text-sm text-gray-600">{m.company}</span>
                     </>
                   )}
                 </div>
-                <p className="text-gray-700 mt-1 line-clamp-2">{m.message}</p>
+                <p className="mt-1 line-clamp-2 text-gray-700">{m.message}</p>
                 <div className="mt-2 text-xs text-gray-500">
                   {new Date(m.created_at).toLocaleString()} {m.page ? `• ${m.page}` : ''}
                 </div>
@@ -476,7 +641,7 @@ function ContactsPanel() {
                   onClick={() => setSelected(m)}
                   className="inline-flex items-center gap-1 text-sm text-gray-700 hover:text-gray-900"
                 >
-                  <EyeIcon className="w-4 h-4" />
+                  <EyeIcon className="h-4 w-4" />
                   View
                 </button>
               </div>
@@ -506,10 +671,10 @@ function ContactsPanel() {
               }`}
             />
             <div>
-              <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+              <div className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-500">
                 Message
               </div>
-              <div className="rounded-lg border bg-gray-50 p-3 text-sm text-gray-800 whitespace-pre-wrap">
+              <div className="whitespace-pre-wrap rounded-lg border bg-gray-50 p-3 text-sm text-gray-800">
                 {selected.message}
               </div>
             </div>
@@ -524,9 +689,9 @@ function ContactsPanel() {
 /* -------------------- UI Helpers -------------------- */
 function EmptyState({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
-    <div className="border border-dashed rounded-xl p-8 text-center bg-white">
-      <h3 className="text-gray-900 font-semibold">{title}</h3>
-      {subtitle && <p className="text-gray-500 text-sm mt-1">{subtitle}</p>}
+    <div className="rounded-xl border border-dashed bg-white p-8 text-center">
+      <h3 className="font-semibold text-gray-900">{title}</h3>
+      {subtitle && <p className="mt-1 text-sm text-gray-500">{subtitle}</p>}
     </div>
   );
 }
@@ -549,10 +714,10 @@ function Modal({
         aria-label="Close"
       />
       <div className="absolute inset-0 flex items-center justify-center p-4">
-        <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl border">
-          <div className="flex items-center justify-between px-5 py-3 border-b">
+        <div className="w-full max-w-lg rounded-2xl border bg-white shadow-2xl">
+          <div className="flex items-center justify-between border-b px-5 py-3">
             <h4 className="font-semibold text-gray-900">{title}</h4>
-            <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-sm">
+            <button onClick={onClose} className="text-sm text-gray-500 hover:text-gray-700">
               Close
             </button>
           </div>
@@ -566,7 +731,7 @@ function Modal({
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
-      <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+      <div className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-500">
         {label}
       </div>
       <div className="text-sm text-gray-800">{value}</div>

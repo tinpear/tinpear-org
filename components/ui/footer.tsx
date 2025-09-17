@@ -27,16 +27,7 @@ export default function Footer({ border = false }: { border?: boolean }) {
                   Learn
                 </Link>
               </li>
-              <li>
-                <Link href="/labs" className="text-sm text-gray-500 hover:text-gray-900 transition">
-                  Labs
-                </Link>
-              </li>
-              <li>
-                <Link href="/apps" className="text-sm text-gray-500 hover:text-gray-900 transition">
-                  Apps
-                </Link>
-              </li>
+              
             </ul>
           </div>
 
