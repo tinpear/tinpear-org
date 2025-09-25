@@ -5,6 +5,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRef, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination, Autoplay, Keyboard, A11y, EffectFade } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import "swiper/css/effect-fade";
 import { motion } from 'framer-motion';
 import {
   Briefcase,
@@ -92,7 +98,7 @@ export default function ForBusinessPage() {
                 <Stat label="Since" value="2019" />
                 <Stat label="Industries" value="12+" />
                 <Stat label="Projects delivered" value="150+" />
-                <Stat label="Avg. time-to-value" value="< 6 wks" />
+                <Stat label="Avg. time-to-value" value="&lt; 6 wks" />
               </div>
             </div>
           </div>
@@ -216,96 +222,127 @@ export default function ForBusinessPage() {
               <OutcomeCard value="40–70%" label="Task time reduced" />
               <OutcomeCard value="2–5×" label="Throughput increase" />
               <OutcomeCard value="30–60%" label="Support deflection" />
-              <OutcomeCard value=">95%" label="SLA adherence" />
+              <OutcomeCard value="&gt;95%" label="SLA adherence" />
             </div>
           </div>
         </section>
 
         {/* HOW WE WORK */}
-        <section className="py-20 px-6 bg-gray-50">
-          <div className="max-w-7xl mx-auto">
+        <section className="py-24 px-6 bg-gradient-to-b from-white to-gray-50">
+          <div className="max-w-6xl mx-auto text-center">
             <SectionHeader
-              eyebrow="Engagement"
-              title="A proven path from idea to impact"
-              subtitle="Move quickly with confidence—each stage delivers value on its own."
+              eyebrow="How We Work"
+              title="From ideas to measurable impact"
+              subtitle="A simple 3–step journey designed to deliver speed, quality, and real business results."
             />
-            <ol className="grid md:grid-cols-3 gap-6">
+
+            {/* Steps */}
+            <div className="grid md:grid-cols-3 gap-8 mt-12">
               {[
                 {
                   step: '01',
-                  title: 'Discovery Sprint',
-                  desc: '2–3 weeks to map opportunities, assess data, and define a prioritized AI roadmap with clear ROI hypotheses.',
-                  icon: <Briefcase className="w-5 h-5 text-green-700" />,
+                  title: 'Discover & Align',
+                  desc: 'We start with a short sprint to understand your challenges, analyze data, and align on high-value opportunities with clear ROI goals.',
+                  icon: <Briefcase className="w-6 h-6 text-green-700" />,
                 },
                 {
                   step: '02',
-                  title: 'Proof of Value',
-                  desc: 'Rapid prototype to validate assumptions and success metrics with real users and data.',
-                  icon: <BarChart className="w-5 h-5 text-green-700" />,
+                  title: 'Validate Fast',
+                  desc: 'Next, we build a rapid prototype to test ideas with real users and data—so you see proof of value before making big investments.',
+                  icon: <BarChart className="w-6 h-6 text-green-700" />,
                 },
                 {
                   step: '03',
-                  title: 'Production Build',
-                  desc: 'Ship a secure, scalable solution with monitoring, evaluations and governance baked in.',
-                  icon: <Cog className="w-5 h-5 text-green-700" />,
-                },
-                {
-                  step: '04',
-                  title: 'Integrations',
-                  desc: 'Wire up your stack—CRMs, ticketing, data warehouses, knowledge bases, SSO and more.',
-                  icon: <Plug className="w-5 h-5 text-green-700" />,
-                },
-                {
-                  step: '05',
-                  title: 'Enablement',
-                  desc: 'Train executives and teams, ship playbooks and SOPs, and set up champion programs.',
-                  icon: <GraduationCap className="w-5 h-5 text-green-700" />,
-                },
-                {
-                  step: '06',
-                  title: 'Operate & Improve',
-                  desc: 'We monitor, evaluate and iterate—continuously improving quality, safety and ROI.',
-                  icon: <Server className="w-5 h-5 text-green-700" />,
+                  title: 'Scale & Improve',
+                  desc: 'Finally, we launch a secure, scalable solution, integrate with your systems, and keep monitoring to improve ROI over time.',
+                  icon: <Cog className="w-6 h-6 text-green-700" />,
                 },
               ].map((s) => (
-                <li key={s.step} className="bg-white rounded-2xl border shadow-sm p-6">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="text-xs font-semibold text-green-700 bg-green-50 rounded-md px-2 py-1">{s.step}</div>
+                <div
+                  key={s.step}
+                  className="bg-white rounded-2xl border shadow-sm p-8 hover:shadow-md transition"
+                >
+                  <div className="flex flex-col items-center mb-4">
+                    <div className="text-sm font-bold text-green-700 bg-green-50 rounded-full w-10 h-10 flex items-center justify-center mb-3">
+                      {s.step}
+                    </div>
                     {s.icon}
-                    <h3 className="font-semibold">{s.title}</h3>
                   </div>
+                  <h3 className="font-semibold text-lg mb-2">{s.title}</h3>
                   <p className="text-gray-600 text-sm">{s.desc}</p>
-                </li>
+                </div>
               ))}
-            </ol>
+            </div>
+
+            {/* Summary Impact */}
+            <div className="mt-16 max-w-3xl mx-auto text-center">
+              <p className="text-gray-700 text-lg">
+                Our approach ensures <span className="font-semibold text-green-700">quick wins early</span> while building
+                towards long-term transformation. By combining speed with rigor, we help
+                you cut costs, boost efficiency, and create better customer experiences.
+              </p>
+            </div>
           </div>
         </section>
 
         {/* CAPABILITIES */}
-        <section className="py-20 px-6 bg-white">
-          <div className="max-w-7xl mx-auto">
+        <section className="py-24 px-6 bg-white">
+          <div className="max-w-7xl mx-auto text-center">
             <SectionHeader
               eyebrow="Capabilities"
-              title="Your AI stack, covered"
-              subtitle="From LLM apps and retrieval to data platforms, integrations and governance."
+              title="Your complete AI stack"
+              subtitle="Everything you need—from strategy and prototypes to full-scale, secure AI systems."
             />
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
               {[
-                ['LLM apps & copilots', 'Chat, drafting, summarization, copilots embedded in your tools.'],
-                ['Retrieval (RAG) & knowledge', 'Use your documents, wikis and data safely in AI workflows.'],
-                ['Automation & orchestration', 'Multi-step flows, human-in-the-loop reviews, SLAs.'],
-                ['Data engineering', 'ETL/ELT, warehouses, vector DBs, quality checks.'],
-                ['MLOps & evaluation', 'Offline/online evals, monitoring, feedback loops.'],
-                ['Security & compliance', 'Access controls, audit trails, encryption and policies.'],
-              ].map(([title, desc]) => (
-                <div key={title} className="bg-gray-50 border rounded-2xl p-6 hover:shadow-md transition">
-                  <div className="flex items-center gap-3 mb-2">
-                    <CheckCircle className="w-5 h-5 text-green-700" />
-                    <h3 className="font-semibold">{title}</h3>
+                {
+                  title: 'LLM apps & copilots',
+                  desc: 'Conversational AI, drafting, summarization, and intelligent copilots embedded directly into your tools.',
+                },
+                {
+                  title: 'Retrieval & knowledge (RAG)',
+                  desc: 'Connect AI to your documents, wikis, and databases—safely powering smarter workflows.',
+                },
+                {
+                  title: 'Automation & orchestration',
+                  desc: 'Multi-step flows with human-in-the-loop, service-level guarantees, and seamless handoffs.',
+                },
+                {
+                  title: 'Data engineering',
+                  desc: 'ETL/ELT pipelines, data warehouses, vector databases, and automated quality checks.',
+                },
+                {
+                  title: 'MLOps & evaluation',
+                  desc: 'Monitoring, evaluation, and feedback loops that keep your AI safe, accurate, and reliable.',
+                },
+                {
+                  title: 'Security & compliance',
+                  desc: 'Enterprise-grade access controls, encryption, audit trails, and governance policies.',
+                },
+              ].map(({ title, desc }) => (
+                <div
+                  key={title}
+                  className="bg-gray-50 border rounded-2xl p-8 text-left hover:shadow-lg hover:border-green-200 transition"
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="bg-green-100 text-green-700 rounded-full p-2">
+                      <CheckCircle className="w-5 h-5" />
+                    </div>
+                    <h3 className="font-semibold text-lg">{title}</h3>
                   </div>
-                  <p className="text-sm text-gray-600">{desc}</p>
+                  <p className="text-gray-600 text-sm leading-relaxed">{desc}</p>
                 </div>
               ))}
+            </div>
+
+            {/* Impact Summary */}
+            <div className="mt-16 max-w-3xl mx-auto">
+              <p className="text-gray-700 text-lg">
+                Our capabilities cover the entire lifecycle: from building <span className="font-semibold">AI copilots that save time</span>,
+                to <span className="font-semibold">secure data platforms</span> and <span className="font-semibold">enterprise-grade governance</span>.
+                No matter where you are in your AI journey, we provide the tools, integrations, and expertise to maximize business impact and ROI.
+              </p>
             </div>
           </div>
         </section>
@@ -344,43 +381,23 @@ export default function ForBusinessPage() {
           </div>
         </section>
 
-        {/* INDUSTRY USE-CASES */}
-        <section className="py-20 px-6 bg-white">
-          <div className="max-w-7xl mx-auto">
+        {/* INDUSTRY USE-CASES (modern slider) */}
+        <section className="py-24 px-6 bg-white">
+          <div className="max-w-6xl mx-auto">
             <SectionHeader
               eyebrow="Use-cases"
               title="Proven patterns across industries"
-              subtitle="We tailor solutions to your context while reusing what works."
+              subtitle="From global enterprises to SMEs, here’s where AI lands real value."
             />
 
-            <div className="grid md:grid-cols-3 gap-8">
-              <UseCaseCard
-                image="/fin.jpg"
-                title="Financial Services"
-                points={[
-                  'KYC/AML document automation',
-                  'Portfolio insights & reporting copilots',
-                  'Claims triage & customer support automations',
-                ]}
-              />
-              <UseCaseCard
-                image="/med.jpg"
-                title="Healthcare"
-                points={[
-                  'Intake, referral & discharge summaries',
-                  'Clinical documentation assistance',
-                  'Knowledge search across guidelines',
-                ]}
-              />
-              <UseCaseCard
-                image="/op.jpg"
-                title="Operations & CX"
-                points={[
-                  'Ticket deflection & smart routing',
-                  'Order exceptions & refunds automation',
-                  'QA, insights & agent assist copilots',
-                ]}
-              />
+            <UseCasesSlider />
+
+            {/* Summary impact */}
+            <div className="mt-14 max-w-3xl mx-auto text-center">
+              <p className="text-gray-700 text-lg">
+                Different industries, same result: <span className="font-semibold">less busywork, faster service, lower cost</span>.
+                We tailor the playbook to your tools and team size.
+              </p>
             </div>
           </div>
         </section>
@@ -510,6 +527,172 @@ export default function ForBusinessPage() {
   );
 }
 
+/* ---------- UseCasesSlider (modernized) ---------- */
+function UseCasesSlider() {
+  const slides = [
+     {
+      image: '/edu.jpg',
+      badge: 'Education & Training',
+      title: 'Scaled learning. Still personal.',
+      text:
+        'Adaptive tutors, quick feedback, and tidy lesson summaries for busy learners and teams.',
+      chips: ['AI tutor', 'Auto‑feedback', 'Lesson summaries'],
+    },
+    {
+      image: '/med.jpg',
+      badge: 'Healthcare',
+      title: 'Less admin. More patient time.',
+      text:
+        'Create intake and discharge summaries in minutes. Pull up guidelines on demand during care.',
+      chips: ['Clinical notes', 'Guideline search', 'Referrals'],
+    },
+    {
+      image: '/fin.jpg',
+      badge: 'Finance',
+      title: 'Faster checks. Cleaner reporting.',
+      text:
+        'Automate KYC/AML reviews, get instant portfolio snapshots, and triage claims so teams focus on real risk, not paperwork.',
+      chips: ['KYC/AML', 'Claims triage', 'Portfolio copilot'],
+    },
+    
+    {
+      image: '/op.jpg',
+      badge: 'Operations & CX',
+      title: 'Fewer tickets. Faster answers.',
+      text:
+        'Deflect common questions, route the rest smartly, and guide agents with live copilots.',
+      chips: ['Ticket deflection', 'Smart routing', 'Agent copilot'],
+    },
+    {
+      image: '/retail.jpg',
+      badge: 'Retail & E‑commerce',
+      title: 'Personalized journeys that convert.',
+      text:
+        'Recommend products, forecast demand, and automate post‑purchase help to lift conversion and loyalty.',
+      chips: ['Recommendations', 'Demand forecast', 'Post‑purchase'],
+    },
+    {
+      image: '/sme.jpg',
+      badge: 'SMEs & Startups',
+      title: 'Enterprise‑level wins, minus the bloat.',
+      text:
+        'Draft content, handle ops, and automate routine work without a heavy IT stack.',
+      chips: ['Marketing drafts', 'Ops automation', 'Lightweight stack'],
+    },
+  ];
+
+  return (
+    <div className="mt-12">
+      <div className="relative rounded-3xl border bg-gray-50 overflow-hidden">
+        {/* Progress bar (top) */}
+        <div className="absolute inset-x-0 top-0 h-1 bg-black/5 z-20">
+          <div className="swiper-progress h-1 bg-green-600 w-0" />
+        </div>
+
+        <Swiper
+          modules={[Navigation, Pagination, Autoplay, Keyboard, A11y, EffectFade]}
+          slidesPerView={1}
+          spaceBetween={0}
+          effect="fade"
+          fadeEffect={{ crossFade: true }}
+          autoplay={{ delay: 5000, disableOnInteraction: false }}
+          loop
+          keyboard={{ enabled: true }}
+          navigation={{
+            nextEl: '.uc-next',
+            prevEl: '.uc-prev',
+          }}
+          pagination={{
+            clickable: true,
+            el: '.uc-pagination',
+          }}
+          onAutoplayTimeLeft={(_, __, progress) => {
+            const bar = document.querySelector<HTMLDivElement>('.swiper-progress');
+            if (bar) bar.style.width = `${Math.round((1 - progress) * 100)}%`;
+          }}
+          className="group"
+        >
+          {slides.map(({ image, badge, title, text, chips }) => (
+            <SwiperSlide key={title}>
+              <div className="flex flex-col md:flex-row items-stretch">
+                {/* Image side */}
+                <div className="relative md:w-1/2">
+                  <div className="aspect-[16/10] md:aspect-auto md:h-full w-full">
+                    <Image
+                      src={image}
+                      alt={title}
+                      fill
+                      className="object-cover"
+                      sizes="(min-width: 1024px) 50vw, 100vw"
+                    />
+                  </div>
+                  {/* Gradient + glass badge */}
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-transparent md:from-black/20" />
+                  <span className="absolute top-3 left-3 inline-flex items-center gap-2 rounded-full bg-white/90 backdrop-blur px-3 py-1 text-xs border z-10">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-600" />
+                    {badge}
+                  </span>
+                </div>
+
+                {/* Content side */}
+                <div className="md:w-1/2 p-8 lg:p-10 bg-white">
+                  <h3 className="text-2xl font-semibold">{title}</h3>
+                  <p className="text-gray-600 leading-relaxed mt-3">{text}</p>
+
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    {chips.map((c) => (
+                      <span
+                        key={c}
+                        className="text-xs rounded-full border bg-gray-50 px-2.5 py-1"
+                      >
+                        {c}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="mt-8 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+                  <div className="mt-3 text-[11px] uppercase tracking-wide text-gray-500">
+                    Built fast. Safe by design.
+                  </div>
+                </div>
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+
+        {/* Navigation + Pagination */}
+        <div className="flex items-center justify-between gap-4 px-4 py-4 bg-white/70 backdrop-blur border-t">
+          <div className="flex items-center gap-2">
+            <button
+              className="uc-prev inline-flex items-center justify-center w-9 h-9 rounded-full border hover:bg-gray-50 transition"
+              aria-label="Previous"
+            >
+              <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor">
+                <path d="M15 18l-6-6 6-6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            <button
+              className="uc-next inline-flex items-center justify-center w-9 h-9 rounded-full border hover:bg-gray-50 transition"
+              aria-label="Next"
+            >
+              <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor">
+                <path d="M9 6l6 6-6 6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+
+          <div className="uc-pagination flex items-center gap-2
+            [&_.swiper-pagination-bullet]:w-2.5
+            [&_.swiper-pagination-bullet]:h-2.5
+            [&_.swiper-pagination-bullet]:rounded-full
+            [&_.swiper-pagination-bullet]:bg-gray-300
+            [&_.swiper-pagination-bullet-active]:bg-green-600" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ========== Reusable Components ========== */
 function SectionHeader({
   eyebrow,
@@ -534,7 +717,7 @@ function SectionHeader({
 function Stat({ value, label }: { value: string; label: string }) {
   return (
     <div className="rounded-xl border px-4 py-3 text-left bg-white">
-      <p className="text-2xl md:text-3xl font-extrabold text-gray-900">{value}</p>
+      <p className="text-2xl md:text-3xl font-extrabold text-gray-900" dangerouslySetInnerHTML={{ __html: value }} />
       <p className="text-gray-500 text-xs md:text-sm">{label}</p>
     </div>
   );
@@ -681,18 +864,11 @@ function AutoScrollIntegrations({
           line-height: 1.25rem;
         }
         @keyframes scroll {
-          from {
-            transform: translateX(0);
-          }
-          to {
-            transform: translateX(-50%);
-          }
+          from { transform: translateX(0); }
+          to { transform: translateX(-50%); }
         }
-        /* Respect Reduced Motion */
         @media (prefers-reduced-motion: reduce) {
-          .track {
-            animation: none;
-          }
+          .track { animation: none; }
         }
       `}</style>
     </div>

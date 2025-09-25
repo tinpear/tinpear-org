@@ -45,6 +45,11 @@ export default function Footer({ border = false }: { border?: boolean }) {
                   News
                 </Link>
               </li>
+              <li>
+                <Link href="/blog" className="text-sm text-gray-500 hover:text-gray-900 transition">
+                  Blogs
+                </Link>
+              </li>
             </ul>
           </div>
 
