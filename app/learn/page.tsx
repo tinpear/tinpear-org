@@ -5,6 +5,9 @@ import Header from '@/components/ui/header';
 import Footer from '@/components/ui/footer';
 import Image, { StaticImageData } from 'next/image';
 import { ChevronRight, Check, Star, BookOpen, GraduationCap, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import { getCourse } from '@/lib/courses';
+import CheckoutButton from '@/components/CheckoutButton';
 
 // Import images from /public
 import mlImg from '@/public/ml.jpg';
@@ -13,8 +16,9 @@ import secureImg from '@/public/secure.jpg';
 
 const aiEveryoneImg = '/ai-for-everyone.jpg';
 
-// --- Added: a single source of truth for the displayed (crossed‑out) price ---
-const DISPLAY_PRICE = '$9.99';
+// Per-course price (NGN). Single source of truth for the card price display
+// and for the Paystack Buy Now button (which reads it from lib/courses.ts).
+const COURSE_PRICE = '₦4,999';
 
 type Stage = {
   level: string;
@@ -68,12 +72,9 @@ function Track({
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 mb-3 md:mb-4">
                   <h3 className="text-lg md:text-xl font-bold text-green-600">{stage.level}</h3>
 
-                  {/* --- Added: price display (crossed out) + Free tag + duration --- */}
+                  {/* Price + duration */}
                   <div className="flex items-center gap-3">
-                    <span className="text-sm text-gray-500 line-through select-none">{DISPLAY_PRICE}</span>
-                    <span className="text-xs font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded">
-                      Free
-                    </span>
+                    <span className="text-sm font-semibold text-gray-900">{COURSE_PRICE}</span>
                     <span className="text-sm text-gray-500">{stage.duration}</span>
                   </div>
                 </div>
@@ -125,6 +126,7 @@ function CourseCard({
   image,
   alt,
   badge,
+  slug,
 }: {
   title: string;
   subtitle: string;
@@ -132,54 +134,65 @@ function CourseCard({
   image: StaticImageData | string;
   alt: string;
   badge?: string;
+  slug: string;
 }) {
+  const course = getCourse(slug);
+
   return (
-    <Link
-      href={href}
-      className="snap-center flex-1 min-w-[82%] sm:min-w-[60%] md:min-w-0 md:w-auto group"
-    >
-      <div className="h-full rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-        {/* Image */}
-        <div className="p-2">
-          <div className="relative aspect-[16/9] rounded-lg overflow-hidden bg-gray-100">
-            {!!badge && (
-              <span className="absolute z-10 top-3 left-3 inline-flex items-center gap-1 text-xs font-semibold bg-white/90 backdrop-blur px-2 py-1 rounded text-green-700 border border-green-200 shadow-sm">
-                <Sparkles className="h-3.5 w-3.5" /> {badge}
-              </span>
-            )}
-            <Image
-              src={image}
-              alt={alt}
-              className="h-full w-full object-cover"
-              sizes="(max-width: 768px) 80vw, (max-width: 1024px) 45vw, 25vw"
-              priority={false}
-              fill
-            />
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="p-4">
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-          <p className="text-sm text-gray-600">{subtitle}</p>
-
-          {/* --- Added: price display (crossed out) + Free tag on the card --- */}
-          <div className="mt-2 flex items-center gap-2">
-            <span className="text-sm text-gray-500 line-through select-none">{DISPLAY_PRICE}</span>
-           
+    <div className="snap-center flex-1 min-w-[82%] sm:min-w-[60%] md:min-w-0 md:w-auto group">
+      <div className="h-full flex flex-col rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+        {/* Image + copy are the link. The Buy Now button stays outside it —
+            a button can't be nested inside an <a>. */}
+        <Link href={href} className="block">
+          {/* Image */}
+          <div className="p-2">
+            <div className="relative aspect-[16/9] rounded-lg overflow-hidden bg-gray-100">
+              {!!badge && (
+                <span className="absolute z-10 top-3 left-3 inline-flex items-center gap-1 text-xs font-semibold bg-white/90 backdrop-blur px-2 py-1 rounded text-green-700 border border-green-200 shadow-sm">
+                  <Sparkles className="h-3.5 w-3.5" /> {badge}
+                </span>
+              )}
+              <Image
+                src={image}
+                alt={alt}
+                className="h-full w-full object-cover"
+                sizes="(max-width: 768px) 80vw, (max-width: 1024px) 45vw, 25vw"
+                priority={false}
+                fill
+              />
+            </div>
           </div>
 
-          <div className="mt-3 inline-flex items-center text-green-700 font-medium">
+          {/* Content */}
+          <div className="p-4">
+            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+            <p className="text-sm text-gray-600">{subtitle}</p>
+
+            <div className="mt-2 text-lg font-bold text-gray-900">{COURSE_PRICE}</div>
+          </div>
+        </Link>
+
+        {/* Action row sits outside the Link so the checkout button is never
+            nested inside an anchor. */}
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-3 px-4 pb-4">
+          <Link
+            href={href}
+            className="inline-flex items-center text-green-700 font-medium"
+          >
             View learning path
             <ChevronRight className="ml-1 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-          </div>
+          </Link>
+          {course && <CheckoutButton course={course} />}
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
 
 export default function LearnPage() {
+  const [email, setEmail] = useState('');
+  const [subscribed, setSubscribed] = useState(false);
+
   // AI for Everyone (Beginner, no code)
   const aiEveryoneStages: Stage[] = [
     {
@@ -271,18 +284,42 @@ export default function LearnPage() {
           {/* Hero (cleaner, no top pill) */}
           <section className="text-center space-y-5 md:space-y-6">
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900"> Master Machine Learning with <span className="text-green-500">Tinpear</span> </h1> <p className="text-lg text-gray-700 max-w-2xl mx-auto"> Structured, hands-on learning path designed for real-world deployment. Go from fundamentals to production-ready models. </p>
-            <div className="flex justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
                 href="#courses"
-                className="bg-gradient-to-r from-green-600 to-green-500 hover:brightness-110 text-white py-3 px-6 rounded-lg font-medium flex items-center justify-center transition-all shadow hover:shadow-md"
+                className="bg-gradient-to-r from-green-600 to-green-500 hover:brightness-110 text-white py-3 px-6 rounded-lg font-medium flex items-center justify-center gap-2 transition-all shadow hover:shadow-md"
               >
-                Explore Courses <ChevronRight className="ml-2 h-4 w-4" />
+                Start Learning <ChevronRight className="ml-2 h-4 w-4" />
+              </Link>
+              <Link
+                href="#why-learn"
+                className="bg-white text-green-700 border border-green-600 hover:bg-green-50 py-3 px-6 rounded-lg font-medium flex items-center justify-center gap-2 transition-all"
+              >
+                How It Works <ChevronRight className="ml-2 h-4 w-4" />
               </Link>
             </div>
           </section>
 
+          {/* Social proof / stats */}
+          <section className="max-w-4xl mx-auto">
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
+                <div className="text-3xl font-bold text-green-600">4</div>
+                <div className="mt-1 text-sm text-gray-600">Expert courses</div>
+              </div>
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
+                <div className="text-3xl font-bold text-green-600">2–5</div>
+                <div className="mt-1 text-sm text-gray-600">Hours / week</div>
+              </div>
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
+                <div className="text-3xl font-bold text-green-600">100%</div>
+                <div className="mt-1 text-sm text-gray-600">Hands-on projects</div>
+              </div>
+            </div>
+          </section>
+
           {/* Benefits */}
-          <section className="bg-gray-50 rounded-xl p-6 md:p-8">
+          <section id="why-learn" className="bg-gray-50 rounded-xl p-6 md:p-8">
             <h2 className="text-2xl font-bold mb-8 text-center text-gray-900">Why Learn with Tinpear?</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
@@ -324,6 +361,7 @@ export default function LearnPage() {
                 <CourseCard
                   title="AI for Everyone"
                   subtitle="Beginner · No coding"
+                  slug="ai-for-everyone"
                   href="#ai-for-everyone"
                   image={aiEveryoneImg}
                   alt="AI for Everyone course"
@@ -332,6 +370,7 @@ export default function LearnPage() {
                 <CourseCard
                   title="Prompt Engineering"
                   subtitle="Beginner"
+                  slug="prompt-engineering"
                   href="#prompt-engineering"
                   image={promptImg}
                   alt="Prompt Engineering"
@@ -339,6 +378,7 @@ export default function LearnPage() {
                 <CourseCard
                   title="Machine Learning"
                   subtitle="Beginner"
+                  slug="machine-learning"
                   href="#ml-track"
                   image={mlImg}
                   alt="Machine Learning"
@@ -346,6 +386,7 @@ export default function LearnPage() {
                 <CourseCard
                   title="Ethical AI & Safety"
                   subtitle="Beginner"
+                  slug="ethical-ai"
                   href="#ethical-ai"
                   image={secureImg}
                   alt="Ethical AI & Safety"
@@ -358,6 +399,7 @@ export default function LearnPage() {
               <CourseCard
                 title="AI for Everyone"
                 subtitle="Beginner · No coding"
+                slug="ai-for-everyone"
                 href="#ai-for-everyone"
                 image={aiEveryoneImg}
                 alt="AI for Everyone course"
@@ -366,6 +408,7 @@ export default function LearnPage() {
               <CourseCard
                 title="Prompt Engineering"
                 subtitle="Beginner"
+                slug="prompt-engineering"
                 href="#prompt-engineering"
                 image={promptImg}
                 alt="Prompt Engineering"
@@ -373,6 +416,7 @@ export default function LearnPage() {
               <CourseCard
                 title="Machine Learning"
                 subtitle="Beginner"
+                slug="machine-learning"
                 href="#ml-track"
                 image={mlImg}
                 alt="Machine Learning"
@@ -380,6 +424,7 @@ export default function LearnPage() {
               <CourseCard
                 title="Ethical AI & Safety"
                 subtitle="Beginner"
+                slug="ethical-ai"
                 href="#ethical-ai"
                 image={secureImg}
                 alt="Ethical AI & Safety"
@@ -416,6 +461,158 @@ export default function LearnPage() {
               stages={ethicalStages}
               anchorId="ethical-ai"
             />
+          </section>
+
+          {/* FAQ */}
+          <section className="max-w-3xl mx-auto">
+            <h2 className="text-2xl font-bold text-center text-gray-900 mb-8">Frequently Asked Questions</h2>
+            <div className="space-y-3">
+              {[
+                {
+                  q: 'Do I need coding experience?',
+                  a: 'No. AI for Everyone is built for absolute beginners with no coding required — just clear explanations and hands-on demos. The later tracks assume basic Python comfort.',
+                },
+                {
+                  q: 'How much time should I set aside each week?',
+                  a: 'Most courses run about two weeks at roughly 2–5 hours per week, and they are self-paced.',
+                },
+                {
+                  q: 'What does a course include?',
+                  a: 'Each course pairs plain-language lessons with hands-on exercises and ends in a portfolio-ready project.',
+                },
+              ].map((item) => (
+                <details key={item.q} className="rounded-xl border border-gray-200 bg-white p-5">
+                  <summary className="cursor-pointer font-semibold text-gray-900">{item.q}</summary>
+                  <p className="mt-3 text-gray-700">{item.a}</p>
+                </details>
+              ))}
+            </div>
+          </section>
+
+          {/* Email capture / lead magnet */}
+          <section className="max-w-3xl mx-auto text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">Get practical AI prompts weekly</h2>
+            <p className="text-gray-600 mb-6">
+              Join the Tinpear list for hands-on prompt playbooks and lesson updates — no spam, just practical AI.
+            </p>
+            {subscribed ? (
+              <p className="text-green-700 font-medium">Thanks — check your inbox to confirm.</p>
+            ) : (
+              <form
+                className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (email) setSubscribed(true);
+                }}
+              >
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="flex-1 rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+                <button
+                  type="submit"
+                  className="bg-gradient-to-r from-green-600 to-green-500 hover:brightness-110 text-white py-3 px-6 rounded-lg font-medium transition-all"
+                >
+                  Subscribe
+                </button>
+              </form>
+            )}
+          </section>
+
+          {/* How It Works */}
+          <section className="max-w-6xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-10 md:mb-12">
+              How It Works
+            </h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              {[
+                {
+                  step: '01',
+                  title: 'Choose a Course',
+                  text: 'Pick from the AI tracks — starting with AI for Everyone if you are new to AI.',
+                },
+                {
+                  step: '02',
+                  title: 'Begin the Course',
+                  text: 'Work through plain-language lessons and hands-on exercises at your own pace.',
+                },
+                {
+                  step: '03',
+                  title: 'Earn a Certificate',
+                  text: 'Complete the project and earn a certificate that proves your new skill.',
+                },
+              ].map((s) => (
+                <div
+                  key={s.step}
+                  className="rounded-xl border border-gray-200 bg-white p-6 text-center"
+                >
+                  <div className="text-4xl font-bold text-green-600 mb-2">{s.step}</div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">{s.title}</h3>
+                  <p className="text-gray-700">{s.text}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Course Bundles */}
+          <section className="max-w-6xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-10 md:mb-12">
+              Course Bundles
+            </h2>
+            <p className="text-center text-gray-600 mb-8 max-w-2xl mx-auto">
+              Combine the AI tracks into a single learning path and move faster from curiosity
+              to capability.
+            </p>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="rounded-2xl border border-gray-200 bg-white p-6 md:p-8 shadow-sm">
+                <span className="inline-block bg-green-100 text-green-700 text-xs font-semibold px-2 py-1 rounded mb-3">
+                  Best value
+                </span>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">The AI Mastery Bundle</h3>
+                <p className="text-gray-600 mb-4">
+                  All four AI tracks — from no-code beginnings to ethical AI safety — in one bundle.
+                </p>
+                <ul className="mb-6 space-y-1 text-gray-700">
+                  <li>AI for Everyone — Beginner · No coding</li>
+                  <li>Prompt Engineering — Beginner</li>
+                  <li>Machine Learning — Beginner</li>
+                  <li>Ethical AI &amp; Safety — Beginner</li>
+                </ul>
+                <div className="mb-6 text-3xl font-bold text-gray-900">₦15,500</div>
+                <Link
+                  href="#courses"
+                  className="inline-block bg-gradient-to-r from-green-600 to-green-500 hover:brightness-110 text-white py-2.5 px-6 rounded-lg font-medium transition-all"
+                >
+                  Try it out
+                </Link>
+              </div>
+              <div className="rounded-2xl border border-gray-200 bg-white p-6 md:p-8 shadow-sm">
+                <span className="inline-block bg-green-100 text-green-700 text-xs font-semibold px-2 py-1 rounded mb-3">
+                  New
+                </span>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">AI Productivity Bundle</h3>
+                <p className="text-gray-600 mb-4">
+                  AI for Everyone plus the practical AI assistant workflows that turn knowledge
+                  into day-to-day leverage.
+                </p>
+                <ul className="mb-6 space-y-1 text-gray-700">
+                  <li>AI for Everyone — Beginner · No coding</li>
+                  <li>Prompting basics for better results</li>
+                  <li>Everyday workflows with AI assistants</li>
+                </ul>
+                <div className="mb-6 text-3xl font-bold text-gray-900">₦9,999</div>
+                <Link
+                  href="#courses"
+                  className="inline-block bg-gradient-to-r from-green-600 to-green-500 hover:brightness-110 text-white py-2.5 px-6 rounded-lg font-medium transition-all"
+                >
+                  Try it out
+                </Link>
+              </div>
+            </div>
           </section>
 
           {/* Testimonials */}
